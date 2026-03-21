@@ -1008,37 +1008,68 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
         await log_line(f"[ERROR] Unerwarteter Fehler beim Klickvorgang: {e}")
         return False
 
+
+async def ensure_teleclinic_requests_page(page, tab_num: int, page_num: int = 1, retries: int = 2) -> bool:
+    """Navigiert robust zur Requests-Seite und toleriert langsame Netz-/SPA-Zustände."""
+    target_url = f"https://med.teleclinic.com/requests?tab={tab_num}&page={page_num}"
+
+    for attempt in range(1, retries + 1):
+        try:
+            current_url = page.url or ""
+            if "med.teleclinic.com/requests" in current_url and f"tab={tab_num}" in current_url and f"page={page_num}" in current_url:
+                await log_line(f"[INFO] Bereits auf Zielseite: {target_url}")
+                return True
+
+            await log_line(f"[INFO] Navigiere zu {target_url}... (Versuch {attempt}/{retries})")
+            await page.goto(target_url, wait_until="domcontentloaded", timeout=45000)
+
+            try:
+                await page.wait_for_load_state("networkidle", timeout=10000)
+            except Exception:
+                await log_line("[INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort")
+
+            await asyncio.sleep(2)
+
+            final_url = page.url or ""
+            if "med.teleclinic.com/requests" in final_url and f"tab={tab_num}" in final_url:
+                return True
+
+            if "login" in final_url or "auth" in final_url or "signin" in final_url:
+                await log_line(f"[WARN] Teleclinic verlangt Login/Bestätigung: {final_url}")
+                return False
+
+            await log_line(f"[WARN] Unerwartete Zielseite nach Navigation: {final_url}")
+        except PlaywrightTimeoutError as e:
+            await log_line(f"[WARN] Navigation-Timeout zu {target_url}: {e}")
+        except Exception as e:
+            await log_line(f"[WARN] Navigation fehlgeschlagen zu {target_url}: {e}")
+
+        try:
+            await page.reload(wait_until="domcontentloaded", timeout=30000)
+            await asyncio.sleep(2)
+        except Exception:
+            pass
+
+    await log_line(f"[ERROR] Requests-Seite konnte nicht stabil geöffnet werden: {target_url}")
+    return False
+
+
 async def check_and_update_day_window(filters, last_midnight_check=None):
     """
     Prüft ob Mitternacht überschritten wurde und aktualisiert day_window Filter.
-
-    Beispiel:
-    - Start um 22:00 mit Filter "morgen"
-    - Übernacht um 00:15 → wechsle zu "heute"
-
     Returns: (updated_filters, last_midnight_check_time)
     """
-    from datetime import datetime, time
-
     now = datetime.now()
     current_time = now.time()
 
-    # Prüfe nur alle 30 Sekunden (nicht bei jedem Loop)
     if last_midnight_check:
         time_since_check = (now - last_midnight_check).total_seconds()
         if time_since_check < 30:
             return (filters, last_midnight_check)
 
-    # Prüfe ob wir gerade Mitternacht überschritten haben
-    # Vereinfachte Prüfung: Wenn Stunde < 4 Uhr ist, sind wir wahrscheinlich nach Mitternacht
     if current_time.hour < 4 and last_midnight_check is None:
-        # Erste Prüfung und frühe Morgen-Stunde → Mitternacht wurde überschritten!
         old_day_window = filters.get("time_filter", {}).get("day_window", "heute")
 
-        # Wechsle Filter:
-        # morgen → heute
-        # später → morgen
-        # heute → heute (no change)
         if old_day_window == "morgen":
             new_day_window = "heute"
             await log_line(f"[MIDNIGHT] 🌙 Mitternacht überschritten! Wechsle Filter: {old_day_window} → {new_day_window}")
@@ -1108,10 +1139,10 @@ async def click_loop(filters):
             )
 
             if needs_navigation:
-                target_url = f"https://med.teleclinic.com/requests?tab={tab_num}&page=1"
-                await log_line(f"[INFO] Navigiere zu {target_url}...")
-                await page.goto(target_url, wait_until="networkidle")
-                await asyncio.sleep(3)
+                navigation_ok = await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
+                if not navigation_ok:
+                    await log_line("[ERROR] Requests-Seite nicht erreichbar oder Login nicht mehr aktiv.")
+                    return
 
             # VALIDIERUNG + FALLBACK: Prüfe ob Tag-Filter wirklich gesetzt ist
             validation_ok = await validate_and_fix_day_filter(page, day_window)
@@ -1138,9 +1169,10 @@ async def click_loop(filters):
                 # Durchsuche alle Seiten
                 total_found = 0
                 for page_num in range(1, max_pages + 1):
-                    target_url = f"https://med.teleclinic.com/requests?tab={tab_num}&page={page_num}"
-                    await page.goto(target_url)
-                    await asyncio.sleep(2)
+                    navigation_ok = await ensure_teleclinic_requests_page(page, tab_num, page_num=page_num)
+                    if not navigation_ok:
+                        await log_line("[WARN] Seite konnte in diesem Durchlauf nicht geladen werden - neuer Versuch im nächsten Loop")
+                        break
 
                     # NUR bei erster Seite: Validierung durchführen
                     if page_num == 1:
