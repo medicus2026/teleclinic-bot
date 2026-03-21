@@ -1,0 +1,64 @@
+═══════════════════════════════════════════════════════════════════
+  TeleClinic Bot - Setup auf neuem PC
+═══════════════════════════════════════════════════════════════════
+
+WICHTIG: Diese Schritte müssen NUR EINMAL auf jedem neuen PC durchgeführt werden!
+
+═══════════════════════════════════════════════════════════════════
+SCHRITT 1: TeleClinic Bot installieren
+═══════════════════════════════════════════════════════════════════
+
+1. Doppelklick auf: TeleClinic-Bot-Installer.exe
+2. Installation durchführen nach C:\teleclinic-bot
+3. Desktop-Icon erstellen lassen
+
+═══════════════════════════════════════════════════════════════════
+SCHRITT 2: Python installieren (falls nicht vorhanden)
+═══════════════════════════════════════════════════════════════════
+
+1. Gehe zu: https://www.python.org/downloads/
+2. Lade Python 3.11 oder höher herunter
+3. Bei Installation WICHTIG: "Add Python to PATH" anhaken!
+4. Installation durchführen
+
+═══════════════════════════════════════════════════════════════════
+SCHRITT 3: Abhängigkeiten installieren
+═══════════════════════════════════════════════════════════════════
+
+1. Öffne PowerShell als Administrator
+2. Führe nacheinander aus:
+
+   cd C:\teleclinic-bot
+   pip install -r requirements.txt
+   playwright install chromium
+
+3. Warte bis alle Installationen abgeschlossen sind (ca. 2-5 Min)
+
+═══════════════════════════════════════════════════════════════════
+SCHRITT 4: Chrome Debug-Modus einrichten
+═══════════════════════════════════════════════════════════════════
+
+1. Rechtsklick auf Desktop → Neu → Verknüpfung
+2. Als Ziel eingeben:
+   "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\teleclinic-bot\chrome_profile"
+3. Name: Chrome Debug TeleClinic
+4. Icon kann angepasst werden
+
+═══════════════════════════════════════════════════════════════════
+SCHRITT 5: Erster Start
+═══════════════════════════════════════════════════════════════════
+
+1. Starte Chrome über die Debug-Verknüpfung
+2. Logge dich bei med.teleclinic.com ein
+3. Doppelklick auf TeleClinic Bot Desktop-Icon
+4. Lizenzcode eingeben: Hanbo2001!
+5. Filter konfigurieren und Start klicken
+
+═══════════════════════════════════════════════════════════════════
+FERTIG! Der Bot ist jetzt einsatzbereit.
+═══════════════════════════════════════════════════════════════════
+
+Hinweis: Der Lizenzcode muss nur beim ersten Start eingegeben werden.
+Die Chrome Debug-Verknüpfung muss vor jedem Bot-Start genutzt werden.
+
+Bei Problemen siehe: INSTALLATION_ANLEITUNG.md

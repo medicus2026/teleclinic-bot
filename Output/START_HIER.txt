@@ -1,0 +1,266 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                  🎉 TELECLINIC BOT - BEREIT FÜR INSTALLATION! 🎉      ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+✅ ALLES FERTIG! Beide Installer-Versionen erstellt.
+
+═══════════════════════════════════════════════════════════════════════
+📦 VERFÜGBARE INSTALLER
+═══════════════════════════════════════════════════════════════════════
+
+1️⃣  TeleClinic-Bot-Installer.exe (EINFACH)
+    └─ 3,2 MB
+    └─ Kopiert nur Programm-Dateien
+    └─ Manuelle pip/playwright-Installation nötig
+    └─ Für erfahrene Nutzer
+
+2️⃣  TeleClinic-Bot-Installer-Full.exe (FULL) ⭐ EMPFOHLEN
+    └─ 3,2 MB
+    └─ Automatische Installation von ALLEM:
+       • pip update
+       • Python-Abhängigkeiten (playwright, asyncio, etc.)
+       • Playwright Chromium Browser
+       • Chrome Debug Desktop-Icon
+    └─ Für ALLE Nutzer, besonders Nicht-Programmierer
+
+═══════════════════════════════════════════════════════════════════════
+📁 ALLE DATEIEN IM OUTPUT-ORDNER
+═══════════════════════════════════════════════════════════════════════
+
+C:\teleclinic-bot\Output\
+
+✅ TeleClinic-Bot-Installer.exe                 (3,2 MB) - Einfach
+✅ TeleClinic-Bot-Installer-Full.exe            (3,2 MB) - Full ⭐
+✅ README_INSTALLER.txt                         (9 KB)   - Doku Einfach
+✅ README_INSTALLER_FULL.txt                    (11 KB)  - Doku Full
+✅ SETUP_NEUE_PC.txt                            (2 KB)   - Quick-Guide
+✅ WELCHER_INSTALLER.txt                        (4 KB)   - Vergleich
+
+═══════════════════════════════════════════════════════════════════════
+🚀 INSTALLATION AUF NEUEM PC - SO EINFACH!
+═══════════════════════════════════════════════════════════════════════
+
+VARIANTE 1: MIT FULL-INSTALLER (⭐ EMPFOHLEN)
+─────────────────────────────────────────────
+
+Schritt 1: Python installieren (falls nicht vorhanden)
+   → https://www.python.org/downloads/
+   → "Add Python to PATH" aktivieren!
+
+Schritt 2: Full-Installer ausführen
+   → Doppelklick: TeleClinic-Bot-Installer-Full.exe
+   → Warte 3-5 Min (installiert automatisch alles)
+
+Schritt 3: Chrome Debug starten
+   → Desktop-Icon: "Chrome Debug (TeleClinic)"
+   → Bei med.teleclinic.com einloggen
+
+Schritt 4: Bot starten
+   → Desktop-Icon: "TeleClinic Bot"
+   → Lizenzcode: Hanbo2001! (nur beim ersten Start)
+
+FERTIG! 🎉
+
+═══════════════════════════════════════════════════════════════════════
+📋 WAS WIRD INSTALLIERT?
+═══════════════════════════════════════════════════════════════════════
+
+Installation erfolgt nach: C:\teleclinic-bot\
+
+✅ Python-Skripte (STABIL, getestet):
+   • tc_main_gui.py                    → GUI mit GIZ-Logo & Terminkalender
+   • teleclinic_click_from_list_v9d.py → Scanner & Clicker
+   • core_scheduler.py                 → Zeitslot-Management
+   • license_system.py                 → Hardware-Lizenz
+   • scheduled_patients.py             → Patienten-Tracking
+
+✅ Konfiguration:
+   • filters.json                      → Filter-Einstellungen
+   • requirements.txt                  → Python-Abhängigkeiten
+   • scheduled_slots.json              → Zeitslot-Speicher
+   • scheduled_patients.json           → Patienten-Speicher
+
+✅ Tools:
+   • start_chrome_debug.bat            → Chrome Debug-Starter
+
+✅ Grafiken:
+   • Logo Teleclinic scanner.png       → Desktop-Icon
+   • Logo_GIZ_Praxis_neu_ohne_Hintergrund.png → GUI-Logo
+
+✅ Dokumentation:
+   • INSTALLATION_ANLEITUNG.md
+   • SETUP_NEUE_PC.txt
+
+═══════════════════════════════════════════════════════════════════════
+🎯 WAS DU MITNEHMEN MUSST (USB-Stick/Netzwerk)
+═══════════════════════════════════════════════════════════════════════
+
+Für neuen PC brauchst du NUR:
+
+✅ TeleClinic-Bot-Installer-Full.exe        (3,2 MB) ⭐
+✅ README_INSTALLER_FULL.txt                (als Anleitung)
+
+Optional:
+✅ SETUP_NEUE_PC.txt                        (Quick-Guide)
+✅ WELCHER_INSTALLER.txt                    (Vergleich)
+
+═══════════════════════════════════════════════════════════════════════
+🔥 NEU IM FULL-INSTALLER
+═══════════════════════════════════════════════════════════════════════
+
+✨ Python-Check beim Start
+   → Prüft automatisch ob Python installiert ist
+   → Öffnet Download-Seite falls nötig
+
+✨ Automatische pip-Installation
+   → pip update
+   → requirements.txt install
+   → playwright install chromium
+   → Alles ohne manuelle Eingaben!
+
+✨ Chrome Debug Desktop-Icon
+   → Startet Chrome im Debug-Modus
+   → Kein manuelles Erstellen von Verknüpfungen nötig
+
+✨ Zwei Desktop-Icons nach Installation:
+   → "TeleClinic Bot" (Hauptprogramm)
+   → "Chrome Debug (TeleClinic)" (Chrome Starter)
+
+═══════════════════════════════════════════════════════════════════════
+🔒 SICHERHEIT
+═══════════════════════════════════════════════════════════════════════
+
+✅ Hardware-gebundene Lizenz
+   → Lizenzcode: Hanbo2001!
+   → Nur beim ersten Start auf jedem PC
+   → Nicht einfach kopierbar
+
+✅ Lizenz-Datei: license.key
+   → Wird nach erster Eingabe erstellt
+   → Hardware-gebunden
+
+═══════════════════════════════════════════════════════════════════════
+📊 AKTUELLE FEATURES (Version 2.0.0-stable)
+═══════════════════════════════════════════════════════════════════════
+
+✅ Case-insensitive Filter (Groß-/Kleinschreibung egal)
+✅ 12h/24h Zeitformat-Unterstützung
+✅ Robuster Scheduler mit File-Locking
+✅ Intervall-basierte Terminvergabe (5, 10, 15 Min, etc.)
+✅ Patientenzähler mit Auto-Reset bei Start
+✅ Login-Erkennung (keine Wartezeit wenn eingeloggt)
+✅ GUI Terminkalender mit Live-Updates
+✅ Tab-basierte Datumsumschaltung (heute/morgen/später)
+✅ Diagnose-Synonyme:
+   • "Haut" / "Derma" → Hautkrankheiten
+   • "Psych" / "Psyche" → Psychische Leiden
+   • "Schlaf" → Schlafstörungen
+   • "Geschlecht" → Geschlechtskrankheiten, Erektile Dysfunktion
+✅ Alter-Filter (min/max)
+✅ Geschlechts-Filter (männlich/weiblich/divers)
+✅ Sprach-Filter mit Ausschlüssen
+✅ Wunsch-Filter (AU, Rezept, Beratung) mit Ausschlüssen
+✅ Maximal-Patienten-Limit mit Validierung
+✅ Scan-Intervall einstellbar
+✅ GUI mit Praxis-Logo (GIZ Praxis)
+
+═══════════════════════════════════════════════════════════════════════
+⚠️ WICHTIG: VOR DEM BOT-START
+═══════════════════════════════════════════════════════════════════════
+
+1. Chrome MUSS im Debug-Modus laufen!
+   → Desktop-Icon: "Chrome Debug (TeleClinic)" starten
+
+2. Bei TeleClinic einloggen
+   → med.teleclinic.com
+
+3. Dann erst Bot starten
+   → Desktop-Icon: "TeleClinic Bot"
+
+═══════════════════════════════════════════════════════════════════════
+💾 BACKUP & VERSIONIERUNG
+═══════════════════════════════════════════════════════════════════════
+
+Aktueller Stand: v2.0.0-stable-2026-01-28
+
+Kern-Programme (STABIL - nicht ändern ohne Backup!):
+   • tc_main_gui.py
+   • teleclinic_click_from_list_v9d.py
+   • core_scheduler.py
+   • license_system.py
+   • scheduled_patients.py
+
+Backup vorhanden in:
+   C:\teleclinic-bot\backup\
+
+═══════════════════════════════════════════════════════════════════════
+❓ HÄUFIGE FRAGEN
+═══════════════════════════════════════════════════════════════════════
+
+Q: Welchen Installer nehmen?
+A: TeleClinic-Bot-Installer-Full.exe ⭐ (macht alles automatisch)
+
+Q: Brauche ich Python auf dem Ziel-PC?
+A: Ja, Python 3.11+. Installer prüft das und hilft beim Download.
+
+Q: Wie groß ist der Download während der Installation?
+A: Ca. 120 MB (pip-Pakete + Playwright Chromium Browser)
+
+Q: Kann ich das Programm auf mehreren PCs nutzen?
+A: Ja, auf jedem PC Lizenzcode eingeben: Hanbo2001!
+
+Q: Muss ich bei jedem Start das Passwort eingeben?
+A: Nein, nur beim allerersten Start auf jedem PC.
+
+Q: Was ist wenn Python auf dem PC fehlt?
+A: Installer erkennt das und öffnet Download-Seite automatisch.
+
+Q: Kann ich den Bot auf USB-Stick mitnehmen?
+A: Nein, er benötigt Python-Installation auf dem PC.
+
+Q: Wo finde ich die Log-Dateien?
+A: C:\teleclinic-bot\tc_click_log.txt
+
+Q: Wie ändere ich die Filter?
+A: In der GUI oder direkt in filters.json
+
+═══════════════════════════════════════════════════════════════════════
+🎉 ZUSAMMENFASSUNG
+═══════════════════════════════════════════════════════════════════════
+
+✅ ZWEI Installer erstellt (Einfach + Full)
+✅ FULL-Installer empfohlen (automatisch alles)
+✅ Chrome Debug Desktop-Icon integriert
+✅ Python-Check integriert
+✅ Automatische Dependency-Installation
+✅ Hardware-Lizenz integriert
+✅ Nur 3,2 MB groß
+✅ Installation auf neuen PCs in 5-7 Minuten
+✅ Keine PowerShell-Befehle nötig (Full-Version)
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 DU BIST BEREIT FÜR DIE INSTALLATION AUF ANDEREN PCs!
+
+Nimm mit:
+  • TeleClinic-Bot-Installer-Full.exe
+  • README_INSTALLER_FULL.txt
+
+Auf Ziel-PC:
+  1. Python installieren (falls nötig)
+  2. Installer starten
+  3. Chrome Debug Icon nutzen
+  4. Bot starten, Lizenzcode eingeben
+  5. Fertig!
+
+═══════════════════════════════════════════════════════════════════════
+
+Version: 2.0.0-stable
+Stand: 2026-02-10
+Entwickelt für: GIZ Praxis
+
+Bei Fragen: Siehe README_INSTALLER_FULL.txt oder INSTALLATION_ANLEITUNG.md
+
+╔═══════════════════════════════════════════════════════════════════════╗
+║                        🎊 VIEL ERFOLG! 🎊                             ║
+╚═══════════════════════════════════════════════════════════════════════╝

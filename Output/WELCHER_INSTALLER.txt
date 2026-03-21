@@ -1,0 +1,117 @@
+═══════════════════════════════════════════════════════════════════════
+  INSTALLER-VERGLEICH: Welchen soll ich nehmen?
+═══════════════════════════════════════════════════════════════════════
+
+📊 ZWEI VERSIONEN VERFÜGBAR:
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 1️⃣  TeleClinic-Bot-Installer.exe (EINFACH)                           │
+├──────────────────────────────────────────────────────────────────────┤
+│ Größe:        3,2 MB                                                 │
+│ Was tut er?   Kopiert nur Programm-Dateien                           │
+│                                                                       │
+│ ✅ Vorteile:                                                          │
+│    - Schnell                                                         │
+│    - Minimalistisch                                                  │
+│    - Volle Kontrolle über Installation                              │
+│                                                                       │
+│ ❌ Nachteile:                                                         │
+│    - Manuelle pip-Befehle nötig                                      │
+│    - Manuelle playwright-Installation                                │
+│    - Chrome Debug-Verknüpfung manuell erstellen                     │
+│                                                                       │
+│ 👉 Für wen?   Erfahrene Nutzer mit Python-Kenntnissen                │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 2️⃣  TeleClinic-Bot-Installer-Full.exe (FULL) ⭐ EMPFOHLEN            │
+├──────────────────────────────────────────────────────────────────────┤
+│ Größe:        3,2 MB                                                 │
+│ Was tut er?   Installiert automatisch ALLES                          │
+│                                                                       │
+│ ✅ Vorteile:                                                          │
+│    - Python-Check integriert                                         │
+│    - pip wird automatisch aktualisiert                               │
+│    - Abhängigkeiten automatisch installiert                          │
+│    - Playwright Chromium automatisch geladen                         │
+│    - Chrome Debug Desktop-Icon erstellt!                             │
+│    - KEINE manuellen Befehle nötig!                                  │
+│    - Perfekt für Nicht-Programmierer                                 │
+│                                                                       │
+│ ❌ Nachteile:                                                         │
+│    - Installation dauert 3-5 Min (lädt ~120MB aus Internet)         │
+│    - Benötigt Internet-Verbindung                                    │
+│                                                                       │
+│ 👉 Für wen?   ALLE! Besonders Nicht-Programmierer                    │
+└──────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+💡 EMPFEHLUNG
+═══════════════════════════════════════════════════════════════════════
+
+Nutze: TeleClinic-Bot-Installer-Full.exe ⭐
+
+Warum?
+✅ Installation mit nur einem Klick
+✅ Kein technisches Wissen nötig
+✅ Chrome Debug Icon auf Desktop
+✅ Alles automatisch
+✅ Gleiche Dateigröße wie einfacher Installer
+
+═══════════════════════════════════════════════════════════════════════
+📋 INSTALLATIONS-SCHRITTE IM VERGLEICH
+═══════════════════════════════════════════════════════════════════════
+
+EINFACHER INSTALLER:
+1. Python installieren (manuell)
+2. Installer ausführen
+3. PowerShell öffnen
+4. cd C:\teleclinic-bot
+5. pip install -r requirements.txt (manuell)
+6. playwright install chromium (manuell)
+7. Chrome Debug-Verknüpfung erstellen (manuell)
+8. Lizenzcode eingeben
+9. Bot starten
+→ Ca. 10-15 Minuten, technisches Wissen nötig
+
+FULL INSTALLER:
+1. Python installieren (manuell, falls nicht vorhanden)
+2. Installer ausführen → macht automatisch: pip, requirements, playwright
+3. Chrome Debug Icon auf Desktop nutzen
+4. Lizenzcode eingeben
+5. Bot starten
+→ Ca. 5-7 Minuten, KEIN technisches Wissen nötig
+
+═══════════════════════════════════════════════════════════════════════
+🎯 WELCHEN NEHMEN?
+═══════════════════════════════════════════════════════════════════════
+
+Wenn du:                           Dann nimm:
+────────────────────────────────────────────────────────────────────────
+✅ Einfache Installation willst     → FULL ⭐
+✅ Kein Python-Experte bist         → FULL ⭐
+✅ Auf mehreren PCs installierst    → FULL ⭐
+✅ Keine PowerShell magst           → FULL ⭐
+✅ Chrome Debug Icon willst         → FULL ⭐
+────────────────────────────────────────────────────────────────────────
+✅ Volle Kontrolle willst           → Einfach
+✅ Python-Experte bist              → Einfach
+✅ Eigene pip-Umgebung hast         → Einfach
+
+═══════════════════════════════════════════════════════════════════════
+📍 STANDORT DER INSTALLER
+═══════════════════════════════════════════════════════════════════════
+
+C:\teleclinic-bot\Output\TeleClinic-Bot-Installer.exe       (Einfach)
+C:\teleclinic-bot\Output\TeleClinic-Bot-Installer-Full.exe  (Full) ⭐
+
+Dokumentation:
+C:\teleclinic-bot\Output\README_INSTALLER.txt               (Einfach)
+C:\teleclinic-bot\Output\README_INSTALLER_FULL.txt          (Full)
+C:\teleclinic-bot\Output\SETUP_NEUE_PC.txt                  (Quick-Guide)
+
+═══════════════════════════════════════════════════════════════════════
+
+🎉 TIPP: Nutze den FULL-Installer - macht das Leben leichter!
+
+═══════════════════════════════════════════════════════════════════════

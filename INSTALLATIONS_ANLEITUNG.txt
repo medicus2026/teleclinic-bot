@@ -1,0 +1,255 @@
+═══════════════════════════════════════════════════════════════════
+  📋 INSTALLATIONSANLEITUNG - SCHRITT FÜR SCHRITT
+═══════════════════════════════════════════════════════════════════
+
+Sie haben jetzt die HARDWARE-GESCHÜTZTE VERSION:
+  📦 TeleClinic-Bot-Protected-v2.0.0.zip (63.5 MB)
+
+
+═══════════════════════════════════════════════════════════════════
+  🚀 5 SCHRITTE ZUR INSTALLATION AUF ANDEREM PC
+═══════════════════════════════════════════════════════════════════
+
+SCHRITT 1: ZIP-Datei vorbereiten
+─────────────────────────────────────────────────────────────────
+Speicherort: C:\teleclinic-bot\TeleClinic-Bot-Protected-v2.0.0.zip
+
+Methoden zum Kopieren:
+  Option A: USB-Stick
+    1. USB-Stick in diesen PC stecken
+    2. TeleClinic-Bot-Protected-v2.0.0.zip auf USB kopieren
+    3. USB zum anderen PC mitnehmen
+
+  Option B: Netzwerk
+    1. Datei auf Netzwerk-Laufwerk kopieren
+    2. Auf anderem PC vom Netzwerk laden
+
+  Option C: Cloud (OneDrive/Google Drive)
+    1. ZIP in Cloud hochladen
+    2. Auf anderem PC herunterladen
+
+
+SCHRITT 2: ZIP auf dem ZIEL-PC entpacken
+─────────────────────────────────────────────────────────────────
+Auf dem ZIEL-PC:
+
+1. Öffne den Ort, wohin du die Software installieren möchtest
+   Beispiele:
+   - C:\Programme\TeleClinic-Bot\
+   - Desktop\
+   - Beliebiger anderer Ordner
+
+2. Kopiere die ZIP-Datei dorthin
+   (aus USB-Stick oder Cloud)
+
+3. Rechtsklick auf ZIP-Datei
+   └─> "Alle extrahieren..."
+   └─> Wähle Zielordner
+   └─> OK
+
+4. Ordner wird entpackt:
+   TeleClinic-Bot-Protected/
+   ├── TeleClinic-Bot.exe
+   ├── license_system.py
+   ├── filters.json
+   ├── Logo.png
+   └── README.txt
+
+
+SCHRITT 3: Erste Ausführung - AKTIVIERUNG
+─────────────────────────────────────────────────────────────────
+Im entpackten Ordner:
+
+1. Doppelklick auf: TeleClinic-Bot.exe
+
+2. Nach 1-2 Sekunden erscheint:
+   ┌─────────────────────────────────────────┐
+   │ 🔐 Aktivierung erforderlich             │
+   │                                         │
+   │ Diese Software ist lizenzgeschützt      │
+   │ und an einen PC gebunden.               │
+   │                                         │
+   │ Hardware-ID: abc123xyz...               │
+   │              (eindeutig für diesen PC)  │
+   │                                         │
+   │ Bitte geben Sie das                     │
+   │ Aktivierungs-Passwort ein:              │
+   │                                         │
+   │ [____________________________]          │
+   │                                         │
+   │  [Aktivieren]   [Abbrechen]             │
+   └─────────────────────────────────────────┘
+
+3. Gib PASSWORT ein: Hanbo2001!
+   (Achtung: Groß-/Kleinschreibung beachten!)
+
+4. Klick auf [Aktivieren]
+
+5. Dialog schließt
+
+6. ✅ Software wird gestartet
+   └─> Normale GUI erscheint
+   └─> Software läuft jetzt auf DIESEM PC!
+
+
+SCHRITT 4: Erste Benutzung
+─────────────────────────────────────────────────────────────────
+Jetzt können Sie die Software normal nutzen:
+
+1. Setze deine Filter:
+   ├─ Tag: heute/morgen/später
+   ├─ Zeit: z.B. 16:30-18:00
+   ├─ Diagnose: z.B. Psyche
+   ├─ Sprache: Englisch
+   └─ etc.
+
+2. Klick auf: ▶️ START - Scanner & Klicker
+
+3. Chrome startet im Debug-Modus
+
+4. Logge dich bei Teleclinic ein
+
+5. Bot läuft automatisch!
+
+
+SCHRITT 5: Desktop-Icon erstellen (OPTIONAL)
+─────────────────────────────────────────────────────────────────
+Falls Sie ein Desktop-Icon möchten:
+
+1. Ordner mit TeleClinic-Bot.exe öffnen
+
+2. Rechtsklick auf: TeleClinic-Bot.exe
+
+3. "Senden an"
+   └─> "Desktop (Verknüpfung erstellen)"
+
+4. Auf dem Desktop erscheint:
+   🤖 TeleClinic-Bot (Verknüpfung)
+
+5. Doppelklick zum Starten
+
+
+═══════════════════════════════════════════════════════════════════
+  ⚙️ SYSTEMVORAUSSETZUNGEN - Bitte prüfen!
+═══════════════════════════════════════════════════════════════════
+
+Ziel-PC muss haben:
+  ✅ Windows 10 oder 11 (64-bit)
+  ✅ Mindestens 4 GB RAM
+  ✅ Mindestens 500 MB freier Speicher
+  ✅ Google Chrome Browser (wird evtl. gefragt)
+
+
+═══════════════════════════════════════════════════════════════════
+  🔐 WICHTIG: Hardware-Bindung
+═══════════════════════════════════════════════════════════════════
+
+Was ist Hardware-Bindung?
+  Die Software wird an den SPEZIFISCHEN PC gebunden:
+  ├─ CPU-Seriennummer
+  ├─ Motherboard-Seriennummer
+  └─ MAC-Adresse (Netzwerkkarte)
+
+  = Einzigartig für jeden PC!
+
+Was passiert wenn...
+  • Sie die Software auf einen ANDEREN PC kopieren?
+    └─> Hardware-ID stimmt nicht
+    └─> "Lizenz ist für einen anderen PC!"
+    └─> ❌ Programm startet NICHT
+    └─> ✅ Schutz funktioniert!
+
+  • Sie Hardware wechseln (z.B. Motherboard)?
+    └─> Neue Hardware-ID
+    └─> Sie müssen neu aktivieren
+
+
+═══════════════════════════════════════════════════════════════════
+  ✅ CHECKLISTE VOR DER INSTALLATION
+═══════════════════════════════════════════════════════════════════
+
+Vor der Installation auf dem Ziel-PC:
+
+[ ] Ziel-PC mit Windows 10/11 vorhanden?
+[ ] Mindestens 4 GB RAM vorhanden?
+[ ] Mindestens 500 MB freier Speicher?
+[ ] Google Chrome installiert oder verfügbar?
+[ ] Teleclinic-Login vorhanden?
+[ ] ZIP-Datei auf USB/Cloud/Netzwerk bereit?
+[ ] PASSWORT notiert: Hanbo2001!
+
+
+═══════════════════════════════════════════════════════════════════
+  🎯 ZUSAMMENFASSUNG
+═══════════════════════════════════════════════════════════════════
+
+KURZ GESAGT:
+
+1. ZIP auf USB/Cloud kopieren
+2. Auf Ziel-PC entpacken
+3. TeleClinic-Bot.exe starten
+4. Passwort eingeben: Hanbo2001!
+5. Fertig - Software ist aktiviert für DIESEN PC!
+
+
+═══════════════════════════════════════════════════════════════════
+  ❓ HÄUFIGE FRAGEN
+═══════════════════════════════════════════════════════════════════
+
+F: Kann ich die Software mehrmals kopieren?
+A: Ja, aber nur auf VERSCHIEDENEN PCs.
+   Jeder PC braucht separate Aktivierung mit Passwort.
+
+F: Was ist, wenn ich das Passwort vergesse?
+A: Sie können immer neu aktivieren.
+   Kontaktieren Sie den Administrator für das Passwort.
+
+F: Kann ich die Software deaktivieren?
+A: Die license.key-Datei löschen, dann wieder aktivieren.
+   (Befindet sich im gleichen Ordner wie TeleClinic-Bot.exe)
+
+F: Was passiert beim Motherboard-Tausch?
+A: Hardware-ID ändert sich → neue Aktivierung nötig.
+   Andere Hardware-Änderungen: kein Problem.
+
+F: Wie lange ist die Lizenz gültig?
+A: 1 Jahr nach Aktivierung.
+   Danach muss sie verlängert werden (neue Aktivierung).
+
+
+═══════════════════════════════════════════════════════════════════
+  📞 SUPPORT & HILFE
+═══════════════════════════════════════════════════════════════════
+
+Bei Problemen während Installation:
+
+1. Prüfe Windows Defender
+   └─> Könnte die .exe blockieren
+
+2. Prüfe Systemvoraussetzungen
+   └─> Windows 10/11, 4 GB RAM, 500 MB frei
+
+3. Prüfe Chrome
+   └─> Muss installiert sein
+
+4. Versuche Neustart des PCs
+
+5. Kontaktiere Administrator, falls nichts hilft
+
+
+═══════════════════════════════════════════════════════════════════
+  ✅ FERTIG!
+═══════════════════════════════════════════════════════════════════
+
+Sie sind bereit für die Installation!
+
+Nächste Schritte:
+  1. Diese Anleitung ausdrucken oder merken
+  2. ZIP-Datei kopieren
+  3. Auf anderem PC installieren
+  4. Aktivieren mit: Hanbo2001!
+  5. Laufen lassen!
+
+Viel Erfolg! 🚀
+
+═══════════════════════════════════════════════════════════════════

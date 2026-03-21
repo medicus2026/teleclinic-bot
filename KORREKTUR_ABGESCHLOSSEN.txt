@@ -1,0 +1,135 @@
+═══════════════════════════════════════════════════════════════════
+  ✅ GUI TERMINKALENDER - KORREKTUR ABGESCHLOSSEN
+═══════════════════════════════════════════════════════════════════
+
+📋 WAS WURDE KORRIGIERT?
+─────────────────────────────────────────────────────────────────
+
+1. ✅ Neue Methode _update_calendar_from_json()
+   → Liest scheduled_patients.json komplett neu
+   → Löscht alte Einträge
+   → Fügt ALLE Patienten neu hinzu
+
+2. ✅ Mehrere Trigger für übernommene Fälle
+   → "[OK] Anfrage übernommen"
+   → "[OK] Anfrage bernommen" (Encoding-Problem)
+   → "[OK] Termin XX:XX eingetragen"
+
+3. ✅ Encoding-Fehler behandelt
+   → errors='replace' beim Datei-Lesen
+   → Programm stürzt nicht ab
+
+4. ✅ Fallback-Update alle 2 Sekunden
+   → Auch wenn Log-Zeile verpasst wird
+
+═══════════════════════════════════════════════════════════════════
+  🧪 SO TESTEN SIE DIE KORREKTUR
+═══════════════════════════════════════════════════════════════════
+
+METHODE 1: Automatischer Test
+─────────────────────────────────────────────────────────────────
+cd C:\teleclinic-bot
+.\.venv\Scripts\python test_calendar_trigger.py
+
+✅ Erwartet: Alle Tests bestanden
+
+
+METHODE 2: Live-Test mit GUI
+─────────────────────────────────────────────────────────────────
+1. GUI starten:
+   cd C:\teleclinic-bot
+   .\.venv\Scripts\python tc_main_gui.py
+
+2. Filter setzen (z.B. heute, 16:30-18:00, Psyche)
+
+3. START klicken
+
+4. Terminkalender beobachten:
+   ✅ Sollte sich SOFORT aktualisieren (< 0.5 Sekunden)
+   ✅ Sollte ALLE übernommenen Patienten zeigen
+   ✅ Sollte spätestens nach 2 Sekunden aktuell sein
+
+═══════════════════════════════════════════════════════════════════
+  ⏱️ WANN WIRD DER KALENDER AKTUALISIERT?
+═══════════════════════════════════════════════════════════════════
+
+1. SOFORT (< 0.5 Sekunden) wenn im Log erscheint:
+   • [OK] Anfrage übernommen
+   • [OK] Anfrage bernommen
+   • [OK] Termin 16:30 eingetragen
+
+2. AUTOMATISCH alle 2 Sekunden (Fallback)
+   • Falls Log-Zeile verpasst wurde
+   • Falls Datei extern geändert wurde
+
+═══════════════════════════════════════════════════════════════════
+  ✅ WAS DER KALENDER JETZT ZEIGT
+═══════════════════════════════════════════════════════════════════
+
+Beispiel (Ihre 4 übernommenen Patienten):
+
+┌─────────┬───────────────────┬──────────┬───────┬────────────┐
+│ Uhrzeit │ Diagnose          │ Wunsch   │ Alter │ Geschlecht │
+├─────────┼───────────────────┼──────────┼───────┼────────────┤
+│ 16:30   │ Psychische Leiden │ AU       │ 49    │ weiblich   │
+│ 16:35   │ Psychische Leiden │ Rezept   │ 23    │ weiblich   │
+│ 16:40   │ Psychische Leiden │ Beratung │ 25    │ weiblich   │
+│ 16:45   │ Psychische Leiden │ AU       │ 46    │ weiblich   │
+└─────────┴───────────────────┴──────────┴───────┴────────────┘
+
+✅ KEINE Duplikate
+✅ KEINE falschen Daten
+✅ ALLE terminierten Patienten sichtbar
+
+═══════════════════════════════════════════════════════════════════
+  🔧 BEI PROBLEMEN
+═══════════════════════════════════════════════════════════════════
+
+Falls der Kalender immer noch leer bleibt:
+
+1. Prüfen Sie die Log-Datei:
+   C:\teleclinic-bot\tc_click_log.txt
+   → Suchen Sie nach "[OK]" Zeilen
+   → Wurden Fälle übernommen?
+
+2. Prüfen Sie die Patienten-Datei:
+   C:\teleclinic-bot\scheduled_patients.json
+   → Sind Patienten gespeichert?
+   → Richtiges Datum?
+
+3. Senden Sie Screenshots:
+   • GUI-Terminkalender
+   • Letzte 50 Zeilen von tc_click_log.txt
+   • scheduled_patients.json
+
+═══════════════════════════════════════════════════════════════════
+  📁 GEÄNDERTE DATEIEN
+═══════════════════════════════════════════════════════════════════
+
+✅ tc_main_gui.py
+   → _monitor_log() aktualisiert
+   → _update_calendar_from_json() implementiert
+
+✅ test_calendar_trigger.py (NEU)
+   → Verifikations-Test
+
+✅ BUGFIX_CALENDAR_DISPLAY.md
+   → Vollständige Dokumentation
+
+═══════════════════════════════════════════════════════════════════
+  🎯 STATUS
+═══════════════════════════════════════════════════════════════════
+
+✅ Korrektur implementiert
+✅ Tests erfolgreich
+✅ Dokumentation erstellt
+✅ Bereit für Live-Test
+
+═══════════════════════════════════════════════════════════════════
+
+Sie können jetzt die GUI neu starten und testen!
+
+Der Terminkalender sollte sich ab sofort SOFORT aktualisieren,
+sobald ein Patient übernommen wird.
+
+Viel Erfolg! 🚀
