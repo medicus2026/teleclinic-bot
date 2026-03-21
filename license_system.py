@@ -132,7 +132,7 @@ class LicenseManager:
         except Exception:
             return None
 
-    def verify_license(self) -> tuple[bool, str]:
+    def verify_license(self, debug: bool = False) -> tuple[bool, str]:
         """
         Prüft ob Lizenz gültig ist
 
@@ -140,6 +140,11 @@ class LicenseManager:
             (is_valid, error_message)
         """
         license_data = self.load_license()
+
+        if debug:
+            print(f"[DEBUG] LICENSE_FILE: {LICENSE_FILE}")
+            print(f"[DEBUG] LICENSE_FILE exists: {LICENSE_FILE.exists()}")
+            print(f"[DEBUG] license_data loaded: {license_data is not None}")
 
         # 1. Lizenz vorhanden?
         if not license_data:
@@ -149,7 +154,14 @@ class LicenseManager:
 
         # 2. Hardware-ID prüfen
         current_hw_id = self.get_hardware_id()
-        if license_data.get("hardware_id") != current_hw_id:
+        stored_hw_id = license_data.get("hardware_id")
+
+        if debug:
+            print(f"[DEBUG] Current HW ID: {current_hw_id}")
+            print(f"[DEBUG] Stored HW ID:  {stored_hw_id}")
+            print(f"[DEBUG] Match: {current_hw_id == stored_hw_id}")
+
+        if stored_hw_id != current_hw_id:
             return False, ("FEHLER: Lizenz ist für einen anderen PC!\n\n"
                           "Diese Software ist an einen bestimmten PC gebunden.\n"
                           "Kontaktieren Sie den Administrator für eine neue Lizenz.")
@@ -164,18 +176,31 @@ class LicenseManager:
 
         signature_base = f"{hardware_id}{created}{expires_raw}{self.master_password}"
         expected_sig = hashlib.sha256(signature_base.encode()).hexdigest()
+        stored_sig = license_data.get("signature")
 
-        if license_data.get("signature") != expected_sig:
+        if debug:
+            print(f"[DEBUG] Expected signature: {expected_sig}")
+            print(f"[DEBUG] Stored signature:   {stored_sig}")
+            print(f"[DEBUG] Signature match: {expected_sig == stored_sig}")
+
+        if stored_sig != expected_sig:
             return False, "FEHLER: Lizenz wurde manipuliert!"
 
         # 4. Ablaufdatum prüfen
         try:
             expires = datetime.strptime(expires_raw, "%Y-%m-%d %H:%M:%S")
+            if debug:
+                print(f"[DEBUG] License expires: {expires_raw}")
+                print(f"[DEBUG] Now: {datetime.now()}")
             if datetime.now() > expires:
                 return False, f"Lizenz abgelaufen am {expires_raw}"
-        except Exception:
+        except Exception as e:
+            if debug:
+                print(f"[DEBUG] Date parse error: {e}")
             return False, "Fehler beim Pruefen des Ablaufdatums"
 
+        if debug:
+            print("[DEBUG] ✅ Lizenz valid!")
         return True, "Lizenz gültig"
 
     def activate(self, activation_password: str) -> tuple[bool, str]:
@@ -331,7 +356,7 @@ class ActivationDialog:
         return self.result if self.result is not None else False
 
 
-def check_license_before_start() -> bool:
+def check_license_before_start(debug: bool = False) -> bool:
     """
     Prüft Lizenz vor Programmstart
 
@@ -341,7 +366,7 @@ def check_license_before_start() -> bool:
     license_mgr = LicenseManager()
 
     # Prüfe bestehende Lizenz
-    is_valid, message = license_mgr.verify_license()
+    is_valid, message = license_mgr.verify_license(debug=debug)
 
     if is_valid:
         # Selbstheilung: Falls Lizenz gueltig ist, aber Statusdatei fehlt, neu setzen.
