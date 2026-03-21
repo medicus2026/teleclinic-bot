@@ -642,7 +642,7 @@ def main():
     # Prüfe Lizenz BEVOR GUI startet
     if LICENSE_SYSTEM_AVAILABLE:
         print("Prüfe Lizenz...")
-        if not check_license_before_start(debug=True):
+        if not check_license_before_start():
             print("[ERROR] Keine gültige Lizenz - Programm wird beendet")
             sys.exit(1)
         print("[INFO] Lizenz OK - Starte GUI")
