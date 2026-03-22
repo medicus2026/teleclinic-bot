@@ -1,3 +1,15 @@
 ﻿__pycache__/
 *.pyc
 .idea/
+
+# Chrome-Profil (gesperrt während Chrome läuft, nicht ins Repo)
+chrome_profile/
+
+# Build-Ausgaben
+build/
+dist/
+Output/
+
+# Laufzeit-Logs
+tc_click_log.txt
+startup_error.log
