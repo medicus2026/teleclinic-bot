@@ -1,13 +1,13 @@
 {
   "time_filter": {
-    "day_window": "morgen"
+    "day_window": "heute"
   },
   "slot1": {
-    "time_start": "08:30",
-    "time_end": "11:00",
+    "time_start": "20:00",
+    "time_end": "21:00",
     "max_patients": 10,
     "interval_minutes": 5,
-    "diagnosis_include": "psyche",
+    "diagnosis_include": "Derma",
     "diagnosis_exclude": "",
     "wishes_include": "",
     "wishes_exclude": "",
@@ -32,6 +32,26 @@
     "age_min": "",
     "age_max": "",
     "gender": ""
+  },
+  "runtime": {
+    "interval_minutes": 5,
+    "headless": false,
+    "slowmo_ms": 0
+  },
+  "patients": {
+    "gender": "",
+    "age_min": "",
+    "age_max": "",
+    "language_include": [],
+    "language_exclude": []
+  },
+  "diagnosis": {
+    "include": "",
+    "exclude": ""
+  },
+  "wishes": {
+    "include": "",
+    "exclude": ""
   },
   "loop": {
     "scan_interval_sec": 5,

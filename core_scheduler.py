@@ -104,15 +104,6 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
 
     tf = filters.get("time_filter", {})
     rt = filters.get("runtime", {})
-    start = hhmm_to_minutes(tf.get("treatment_start", "08:00"))
-    end = hhmm_to_minutes(tf.get("treatment_end", "18:00"))
-
-    # Falls min_start_time gesetzt, nutze das als Start (aber nicht vor treatment_start!)
-    if min_start_time:
-        min_start_minutes = hhmm_to_minutes(min_start_time)
-        if min_start_minutes > start:
-            start = min_start_minutes
-            print(f"[SCHEDULER] Frühester Start angepasst auf: {min_start_time} (wegen Patientenwunsch)")
 
     # Intervall mit Default 5 Minuten, falls nicht gesetzt
     interval = rt.get("interval_minutes", 5)
@@ -124,44 +115,71 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
     if interval <= 0:
         interval = 5
         print(f"[SCHEDULER] ⚠️ Ungültiges Intervall ({rt.get('interval_minutes')}), setze Default: 5 Minuten")
+
     direction = rt.get("fill_direction", "forward")
 
-    if not start or not end or start >= end:
-        print("[ERROR] Ungültige Start/Endzeit.")
+    # WICHTIG: Versuche BEIDE Zeitfenster (Slot 1 + Slot 2)
+    time_ranges = []
+
+    # Slot 1 (verpflichtend)
+    t1_start = hhmm_to_minutes(tf.get("treatment_start", "08:00"))
+    t1_end = hhmm_to_minutes(tf.get("treatment_end", "18:00"))
+    if t1_start is not None and t1_end is not None and t1_start < t1_end:
+        time_ranges.append((t1_start, t1_end, "Slot 1"))
+
+    # Slot 2 (optional)
+    t2_start_str = tf.get("treatment_start_2")
+    t2_end_str = tf.get("treatment_end_2")
+    t2_start = hhmm_to_minutes(t2_start_str) if t2_start_str else None
+    t2_end = hhmm_to_minutes(t2_end_str) if t2_end_str else None
+    if t2_start is not None and t2_end is not None and t2_start < t2_end:
+        time_ranges.append((t2_start, t2_end, "Slot 2"))
+
+    if not time_ranges:
+        print("[ERROR] Keine gültigen Zeitfenster konfiguriert.")
         return None
 
-    print(f"[SCHEDULER] Zeitraum: {minutes_to_hhmm(start)} - {minutes_to_hhmm(end)}, Intervall: {interval} Min.")
+    # Versuche in jedem Zeitfenster einen Slot zu finden
+    for start, end, slot_name in time_ranges:
+        # Passe Start an, falls min_start_time gesetzt
+        actual_start = start
+        if min_start_time:
+            min_start_minutes = hhmm_to_minutes(min_start_time)
+            if min_start_minutes > start:
+                actual_start = min_start_minutes
+                print(f"[SCHEDULER] Frühester Start angepasst auf: {min_start_time} (wegen Patientenwunsch) in {slot_name}")
 
-    if direction == "backward":
-        current = end - interval
-        while current >= start:
-            t = minutes_to_hhmm(current)
-            if t not in today_slots:
-                today_slots.append(t)
-                today_slots.sort()
-                slots[date] = today_slots
-                save_slots(slots)
-                print(f"[SCHEDULER] ✅ Slot {t} vergeben (rückwärts). Gesamt belegt: {len(today_slots)}")
-                return t
-            current -= interval
-    else:
-        # FORWARD: Beginne am Start und gehe vorwärts (9:00, 9:10, 9:20...)
-        current = start
-        while current < end:
-            t = minutes_to_hhmm(current)
-            if t not in today_slots:
-                today_slots.append(t)
-                today_slots.sort()
-                slots[date] = today_slots
-                save_slots(slots)
-                print(f"[SCHEDULER] ✅ Slot {t} vergeben (vorwärts). Gesamt belegt: {len(today_slots)}")
-                print(f"[SCHEDULER] Nächster verfügbarer Slot wäre: {minutes_to_hhmm(current + interval)}")
-                return t
-            else:
-                print(f"[SCHEDULER] Slot {t} bereits belegt, prüfe nächsten...")
-            current += interval
+        print(f"[SCHEDULER] Durchsuche {slot_name}: {minutes_to_hhmm(actual_start)} - {minutes_to_hhmm(end)}, Intervall: {interval} Min.")
 
-    print("[WARN] Keine freien Slots mehr verfügbar im Zeitraum.")
+        if direction == "backward":
+            current = end - interval
+            while current >= actual_start:
+                t = minutes_to_hhmm(current)
+                if t not in today_slots:
+                    today_slots.append(t)
+                    today_slots.sort()
+                    slots[date] = today_slots
+                    save_slots(slots)
+                    print(f"[SCHEDULER] ✅ Slot {t} vergeben (rückwärts in {slot_name}). Gesamt belegt: {len(today_slots)}")
+                    return t
+                current -= interval
+        else:
+            # FORWARD: Beginne am Start und gehe vorwärts (9:00, 9:10, 9:20...)
+            current = actual_start
+            while current < end:
+                t = minutes_to_hhmm(current)
+                if t not in today_slots:
+                    today_slots.append(t)
+                    today_slots.sort()
+                    slots[date] = today_slots
+                    save_slots(slots)
+                    print(f"[SCHEDULER] ✅ Slot {t} vergeben (vorwärts in {slot_name}). Gesamt belegt: {len(today_slots)}")
+                    return t
+                else:
+                    pass  # Slot bereits belegt, prüfe nächsten
+                current += interval
+
+    print("[WARN] Keine freien Slots mehr verfügbar in allen Zeitfenstern.")
     return None
 
 
@@ -169,18 +187,15 @@ def validate_max_patients(filters: dict) -> tuple[int, int, bool]:
     """
     Validiert die max_patients-Einstellung gegen die verfügbaren Slots.
 
-    Returns:
-        (max_patients_requested, max_patients_possible, is_valid)
+    Bei 2 Zeitfenstern gilt max_patients pro Zeitfenster.
 
-    Beispiel:
-        - Requested: 10, Possible: 36 → (10, 36, True) - OK, setze 10
-        - Requested: 50, Possible: 36 → (50, 36, False) - WARNUNG, setze auf 36
-        - Requested: 0 oder None → (5, 36, True) - Default 5, OK
+    Returns:
+        (max_patients_requested, max_patients_possible_total, is_valid)
     """
     tf = filters.get("time_filter", {})
     rt = filters.get("runtime", {})
 
-    # Lade Max-Patienten
+    # Lade Max-Patienten (pro Slot)
     max_patients_requested = rt.get("max_patients", 5)
     try:
         max_patients_requested = int(max_patients_requested)
@@ -190,35 +205,58 @@ def validate_max_patients(filters: dict) -> tuple[int, int, bool]:
     if max_patients_requested <= 0:
         max_patients_requested = 5
 
-    # Berechne max möglich
-    start = hhmm_to_minutes(tf.get("treatment_start", "08:00"))
-    end = hhmm_to_minutes(tf.get("treatment_end", "18:00"))
-
     interval = rt.get("interval_minutes", 5)
     try:
         interval = int(interval)
     except (ValueError, TypeError):
         interval = 5
-
     if interval <= 0:
         interval = 5
 
-    max_patients_possible = calculate_max_slots(start, end, interval)
+    # Ermittele verfügbare Slots je Zeitfenster
+    ranges = []
 
-    # Prüfe ob Wunsch erreichbar
-    is_valid = max_patients_requested <= max_patients_possible
+    t1_start = hhmm_to_minutes(tf.get("treatment_start", "08:00"))
+    t1_end = hhmm_to_minutes(tf.get("treatment_end", "18:00"))
+    if t1_start is not None and t1_end is not None and t1_start < t1_end:
+        ranges.append(("Slot 1", t1_start, t1_end))
+
+    t2_start_str = tf.get("treatment_start_2")
+    t2_end_str = tf.get("treatment_end_2")
+    t2_start = hhmm_to_minutes(t2_start_str) if t2_start_str else None
+    t2_end = hhmm_to_minutes(t2_end_str) if t2_end_str else None
+    if t2_start is not None and t2_end is not None and t2_start < t2_end:
+        ranges.append(("Slot 2", t2_start, t2_end))
+
+    if not ranges:
+        return (max_patients_requested, 0, False)
+
+    per_slot_possible = []
+    for slot_name, start, end in ranges:
+        possible = calculate_max_slots(start, end, interval)
+        per_slot_possible.append((slot_name, start, end, possible))
+
+    # Gültig nur, wenn pro aktivem Slot der gewünschte Wert erreichbar ist
+    is_valid = all(max_patients_requested <= possible for _, _, _, possible in per_slot_possible)
+
+    max_patients_possible_total = sum(possible for _, _, _, possible in per_slot_possible)
 
     if not is_valid:
         print(f"\n{'=' * 70}")
-        print(f"⚠️  WARNUNG: Max-Patientenzahl nicht erreichbar!")
+        print("⚠️  WARNUNG: Max-Patientenzahl pro Zeitfenster nicht erreichbar!")
         print(f"{'=' * 70}")
-        print(f"  Wunsch:    {max_patients_requested} Patienten")
-        print(f"  Möglich:   {max_patients_possible} Slots in {minutes_to_hhmm(start)} - {minutes_to_hhmm(end)}")
-        print(f"  Intervall: {interval} Minuten")
-        print(f"\n  → Setze max_patients auf {max_patients_possible} (erreichbarer Wert)")
+        print(f"  Wunsch pro Slot: {max_patients_requested} Patienten")
+        print(f"  Intervall:       {interval} Minuten")
+        for slot_name, start, end, possible in per_slot_possible:
+            print(
+                f"  {slot_name}:        {possible} Slots in "
+                f"{minutes_to_hhmm(start)} - {minutes_to_hhmm(end)}"
+            )
+        safe_per_slot = min(possible for _, _, _, possible in per_slot_possible)
+        print(f"\n  → Sicherer Wert pro Slot: {safe_per_slot}")
         print(f"{'=' * 70}\n")
 
-    return (max_patients_requested, max_patients_possible, is_valid)
+    return (max_patients_requested, max_patients_possible_total, is_valid)
 
 
 def reset_slots_for_date(date: str | None = None) -> None:

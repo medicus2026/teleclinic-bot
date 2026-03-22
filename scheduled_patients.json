@@ -1,39 +1,25 @@
 {
   "2026-03-22": {
-    "09:00": {
-      "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
-      "gender": "männlich",
-      "age": "22",
-      "timestamp": "2026-03-21T23:30:29.742304"
-    },
-    "10:00": {
-      "diagnosis": "Psychische Leiden",
+    "20:00": {
+      "diagnosis": "Akne",
       "wishes": "REZEPT, VIDEO",
       "gender": "weiblich",
-      "age": "43",
-      "timestamp": "2026-03-21T23:30:34.155088"
+      "age": "26",
+      "timestamp": "2026-03-22T19:05:14.997133"
     },
-    "17:00": {
-      "diagnosis": "Psychische Leiden",
+    "20:05": {
+      "diagnosis": "Psoriasis",
       "wishes": "REZEPT, VIDEO",
       "gender": "männlich",
-      "age": "33",
-      "timestamp": "2026-03-21T23:30:39.851346"
+      "age": "36",
+      "timestamp": "2026-03-22T19:05:19.115689"
     },
-    "17:05": {
-      "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
-      "gender": "männlich",
-      "age": "33",
-      "timestamp": "2026-03-21T23:30:51.360570"
-    },
-    "18:00": {
-      "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
+    "20:10": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, VIDEO",
       "gender": "weiblich",
-      "age": "28",
-      "timestamp": "2026-03-21T23:30:55.890251"
+      "age": "33",
+      "timestamp": "2026-03-22T19:05:23.001977"
     }
   }
 }
