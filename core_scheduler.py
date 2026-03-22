@@ -17,7 +17,8 @@ def hhmm_to_minutes(hhmm: str) -> int:
 
 
 def minutes_to_hhmm(m: int) -> str:
-    """Wandelt Minuten in HH:MM-Format um."""
+    """Wandelt Minuten in HH:MM-Format um. Zeiten >= 1440 (nächster Tag) werden modulo 24h gerechnet."""
+    m = m % (24 * 60)  # Über-Mitternacht: 1440 → 00:00, 1500 → 01:00
     return f"{m // 60:02d}:{m % 60:02d}"
 
 

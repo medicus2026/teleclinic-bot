@@ -195,6 +195,10 @@ def parse_time_range(text: str) -> tuple:
         start_h, start_m, end_h, end_m = map(int, match_24h.groups())
         start_minutes = start_h * 60 + start_m
         end_minutes = end_h * 60 + end_m
+        # Fix: Über-Mitternacht-Fall (z.B. 22:00 - 00:00 oder 23:00 - 01:00)
+        # 00:00 als Ende = 1440 Minuten (= nächster Tag 00:00)
+        if end_minutes <= start_minutes:
+            end_minutes += 24 * 60
         return (start_minutes, end_minutes)
 
     # Pattern für 12h-Format: "H:MM AM/PM - H:MM AM/PM"
