@@ -833,21 +833,71 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await log_line("[ERROR] Zeitfeld im Popup nicht gefunden.")
             return False
 
-        # Zeit schnell via JS setzen — Scheduler hat bereits die richtige Zeit geliefert
-        # Kein Hochzählen, kein langes Warten
+        # Zeit via React-kompatibler JS-Methode setzen
+        # Direkte el.value-Zuweisung reicht bei React nicht — wir nutzen den nativen Setter
+        react_set_js = f"""
+(el => {{
+    const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    nativeSetter.call(el, '{slot}');
+    el.dispatchEvent(new Event('input', {{bubbles: true}}));
+    el.dispatchEvent(new Event('change', {{bubbles: true}}));
+}})
+"""
+        accepted = False
         try:
-            await time_input.evaluate(f"el => el.value = '{slot}'")
-            await time_input.evaluate("el => el.dispatchEvent(new Event('input', {bubbles: true}))")
-            await time_input.evaluate("el => el.dispatchEvent(new Event('change', {bubbles: true}))")
-            await log_line(f"[TIME] ✅ Zeit gesetzt (JS): {slot}")
+            await time_input.click()
+            await asyncio.sleep(0.2)
+            await time_input.evaluate(react_set_js)
+            await asyncio.sleep(0.4)
+            val = await time_input.input_value()
+            if val and val[:5] == slot[:5]:
+                accepted = True
+                await log_line(f"[TIME] ✅ Zeit gesetzt (React-JS): {slot}")
+            else:
+                await log_line(f"[TIME] ⚠️ React-JS: UI zeigt '{val}' statt '{slot}' – versuche fill()")
         except Exception as e:
-            # Einmaliger Fallback: fill()
+            await log_line(f"[TIME] ⚠️ React-JS fehlgeschlagen: {e}")
+
+        if not accepted:
+            # Fallback 1: Playwright fill()
             try:
                 await time_input.fill(slot)
-                await log_line(f"[TIME] ✅ Zeit gesetzt (fill-Fallback): {slot}")
+                await asyncio.sleep(0.3)
+                val = await time_input.input_value()
+                if val and val[:5] == slot[:5]:
+                    accepted = True
+                    await log_line(f"[TIME] ✅ Zeit gesetzt (fill): {slot}")
+                else:
+                    await log_line(f"[TIME] ⚠️ fill(): UI zeigt '{val}'")
             except Exception as e2:
-                await log_line(f"[ERROR] Konnte Zeit nicht setzen: {e2}")
-                return False
+                await log_line(f"[TIME] ⚠️ fill() fehlgeschlagen: {e2}")
+
+        if not accepted:
+            # Fallback 2: Tastatureingabe (Ctrl+A dann tippen)
+            try:
+                await time_input.click()
+                await asyncio.sleep(0.1)
+                await time_input.press("Control+a")
+                await time_input.type(slot.replace(":", ""))
+                await asyncio.sleep(0.3)
+                val = await time_input.input_value()
+                if val and val[:5] == slot[:5]:
+                    accepted = True
+                    await log_line(f"[TIME] ✅ Zeit gesetzt (keyboard): {slot}")
+                else:
+                    await log_line(f"[TIME] ⚠️ keyboard: UI zeigt '{val}'")
+            except Exception as e3:
+                await log_line(f"[TIME] ⚠️ keyboard-Eingabe fehlgeschlagen: {e3}")
+
+        if not accepted:
+            await log_line(f"[ERROR] Keine Methode konnte Zeit '{slot}' setzen – überspringe Fall.")
+            try:
+                close_btn = page.get_by_role("button", name="Abbrechen").first
+                if await close_btn.count():
+                    await close_btn.click()
+            except Exception:
+                pass
+            return False
 
         # 'Übernehmen'-Button im Dialog finden und klicken
         pickup = None
