@@ -13,7 +13,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
 # Scheduler-Modul
-from core_scheduler import next_available_slot, validate_max_patients, reset_slots_for_date
+from core_scheduler import next_available_slot, validate_max_patients, reset_slots_for_date, load_slots, save_slots
 
 ROOT = Path(__file__).resolve().parent
 FILTER_PATH = ROOT / "filters.json"
@@ -1145,6 +1145,96 @@ def build_slot_filters(slot_data: dict, day_window: str, slot_num: int) -> dict:
     }
 
 
+async def import_existing_appointments(page, filters) -> int:
+    """
+    Liest bereits terminierte Patienten von "Meine offene Fälle" aus
+    und markiert deren Uhrzeiten in scheduled_slots.json als belegt.
+
+    So plant next_available_slot() automatisch um bestehende Termine herum.
+
+    Returns: Anzahl der importierten Zeitslots
+    """
+    day_window = normalize_text(filters.get("time_filter", {}).get("day_window", "heute"))
+
+    # Tab-Mapping für myappointments (0=heute, 1=morgen)
+    if day_window == "morgen":
+        tab = 1
+    else:
+        tab = 0  # heute und später → Tab 0 (heute)
+
+    target_date = get_target_date(filters)
+    imported_times = set()
+
+    await log_line("=" * 70)
+    await log_line(f"[IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab={tab})...")
+
+    max_pages = 5  # Sicherheitslimit
+    for page_num in range(1, max_pages + 1):
+        url = f"https://med.teleclinic.com/myappointments?tab={tab}&page={page_num}"
+        try:
+            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            try:
+                await page.wait_for_load_state("networkidle", timeout=8000)
+            except Exception:
+                pass
+            await asyncio.sleep(2)
+
+            # Prüfe ob wir auf der richtigen Seite sind
+            current_url = page.url or ""
+            if "myappointments" not in current_url:
+                await log_line(f"[IMPORT] ⚠️ Umgeleitet auf {current_url} - Login erforderlich?")
+                break
+
+            # Alle sichtbaren Texte auf der Seite durchsuchen
+            page_text = await page.evaluate("document.body.innerText")
+
+            # Regex: "HH:MM Uhr" — findet Uhrzeiten wie "07:55 Uhr", "08:00 Uhr"
+            time_matches = re.findall(r'(\d{2}:\d{2})\s*Uhr', page_text)
+
+            if not time_matches:
+                await log_line(f"[IMPORT] Seite {page_num}: Keine Termine gefunden - Ende der Seiten.")
+                break
+
+            for t in time_matches:
+                imported_times.add(t)
+
+            await log_line(f"[IMPORT] Seite {page_num}: {len(time_matches)} Termine gefunden")
+
+            # Prüfe ob nächste Seite existiert
+            next_btn = await page.query_selector('button[aria-label="Next page"], a[aria-label="Next"]')
+            has_more = await page.evaluate("""() => {
+                const links = document.querySelectorAll('a[href*="page="]');
+                return links.length > 0;
+            }""")
+            if not next_btn and not has_more:
+                break
+
+        except PlaywrightTimeoutError:
+            await log_line(f"[IMPORT] ⚠️ Timeout bei Seite {page_num} - überspringe")
+            break
+        except Exception as e:
+            await log_line(f"[IMPORT] ⚠️ Fehler bei Seite {page_num}: {e}")
+            break
+
+    # Schreibe importierte Zeiten in scheduled_slots.json
+    if imported_times:
+        slots = load_slots()
+        existing = set(slots.get(target_date, []))
+        merged = sorted(existing | imported_times)
+        slots[target_date] = merged
+        save_slots(slots)
+
+        sorted_imports = sorted(imported_times)
+        await log_line(f"[IMPORT] ✅ {len(imported_times)} bestehende Termine importiert für {target_date}:")
+        await log_line(f"[IMPORT]    Zeiten: {', '.join(sorted_imports)}")
+        await log_line(f"[IMPORT]    Gesamt belegte Slots: {len(merged)}")
+    else:
+        await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine für {target_date} gefunden.")
+
+    await log_line("=" * 70)
+    return len(imported_times)
+
+
 async def click_loop(filters):
     """Durchsuche regelmäßig die Seite nach übernehmbaren Fällen."""
     global patients_accepted
@@ -1228,9 +1318,18 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🗓️ Tag-Filter: {day_name} (Methode: URL tab={tab_num} + Validierung)")
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
+            # ── IMPORT: Bestehende Termine aus "Meine offene Fälle" einlesen ──
+            # Muss VOR dem Scan passieren, damit next_available_slot() drumherum plant
+            try:
+                imported_count = await import_existing_appointments(page, filters)
+                if imported_count > 0:
+                    await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
+            except Exception as e:
+                await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
 
             # Wenn nicht auf der richtigen Seite ODER falscher Tab, navigiere dorthin
-            # Prüfe ob aktueller Tab stimmt (wichtig für Morgen/Später!)
+            # Nach Import von myappointments muss immer navigiert werden
+            current_url = page.url or ""  # Aktualisiere nach Import
             needs_navigation = (
                 "med.teleclinic.com/requests" not in current_url or
                 f"tab={tab_num}" not in current_url
