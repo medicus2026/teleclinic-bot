@@ -1,31 +1,37 @@
 {
   "time_filter": {
-    "day_window": "morgen",
-    "treatment_start": "08:30",
-    "treatment_end": "11:00",
-    "treatment_start_2": "16:30",
-    "treatment_end_2": "19:00"
+    "day_window": "morgen"
   },
-  "runtime": {
-    "interval_minutes": 5,
+  "slot1": {
+    "time_start": "08:30",
+    "time_end": "11:00",
     "max_patients": 10,
-    "headless": false,
-    "slowmo_ms": 0
-  },
-  "patients": {
-    "gender": "",
+    "interval_minutes": 5,
+    "diagnosis_include": "psyche",
+    "diagnosis_exclude": "",
+    "wishes_include": "",
+    "wishes_exclude": "",
+    "language_include": "",
+    "language_exclude": "",
     "age_min": "",
     "age_max": "",
-    "language_include": [],
-    "language_exclude": []
+    "gender": ""
   },
-  "diagnosis": {
-    "include": "psyche",
-    "exclude": ""
-  },
-  "wishes": {
-    "include": "",
-    "exclude": ""
+  "slot2_enabled": false,
+  "slot2": {
+    "time_start": "16:30",
+    "time_end": "19:00",
+    "max_patients": 5,
+    "interval_minutes": 5,
+    "diagnosis_include": "",
+    "diagnosis_exclude": "",
+    "wishes_include": "",
+    "wishes_exclude": "",
+    "language_include": "",
+    "language_exclude": "",
+    "age_min": "",
+    "age_max": "",
+    "gender": ""
   },
   "loop": {
     "scan_interval_sec": 5,
