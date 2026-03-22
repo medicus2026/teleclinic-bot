@@ -8,7 +8,7 @@ import subprocess
 import time
 import threading
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
@@ -455,29 +455,58 @@ async def check_case_matches_filters(case_element, filters):
 
         await log_line(f"[FILTER] Prüfe Fall: {case_text[:100]}...")
 
-        # ZEIT-FILTER: Prüfe Überschneidung mit Sprechstundenzeit
+        # ZEIT-FILTER: Prüfe Überschneidung mit einem oder zwei Sprechstunden-Zeitfenstern
         overlap_start_time = None
         patient_start, patient_end = parse_time_range(case_text)
         # WICHTIG: Explizite None-Prüfung, nicht "if patient_start and patient_end"!
         # Grund: patient_end = 0 (Mitternacht) ist falsy, würde übersprungen
         if patient_start is not None and patient_end is not None:
-            treatment_start_str = filters['time_filter']['treatment_start']
-            treatment_end_str = filters['time_filter']['treatment_end']
-            treatment_start = time_to_minutes(treatment_start_str)
-            treatment_end = time_to_minutes(treatment_end_str)
+            time_filter = filters.get('time_filter', {})
 
-            # Berechne Überschneidung
-            overlap_start_time = calculate_overlap_start(patient_start, patient_end,
-                                                         treatment_start, treatment_end)
+            # Slot 1 ist verpflichtend, Slot 2 optional
+            slot_ranges = []
+            t1_start = time_filter.get('treatment_start', '')
+            t1_end = time_filter.get('treatment_end', '')
+            if t1_start and t1_end:
+                slot_ranges.append((t1_start, t1_end, "Slot 1"))
 
-            if not overlap_start_time:
+            t2_start = time_filter.get('treatment_start_2', '')
+            t2_end = time_filter.get('treatment_end_2', '')
+            if t2_start and t2_end:
+                slot_ranges.append((t2_start, t2_end, "Slot 2"))
+
+            # Fallback für alte/inkonsistente Filterdaten
+            if not slot_ranges:
+                slot_ranges.append(("21:30", "23:30", "Fallback"))
+
+            candidate_starts = []
+            for start_str, end_str, slot_name in slot_ranges:
+                treatment_start = time_to_minutes(start_str)
+                treatment_end = time_to_minutes(end_str)
+                if treatment_start is None or treatment_end is None:
+                    continue
+
+                overlap_candidate = calculate_overlap_start(
+                    patient_start,
+                    patient_end,
+                    treatment_start,
+                    treatment_end
+                )
+                if overlap_candidate:
+                    candidate_starts.append((overlap_candidate, slot_name, start_str, end_str))
+
+            if not candidate_starts:
                 await log_line(f"[FILTER] ❌ Keine Zeitüberschneidung!")
                 await log_line(f"         Patient: {patient_start//60:02d}:{patient_start%60:02d} - {patient_end//60:02d}:{patient_end%60:02d}")
-                await log_line(f"         Sprechstunde: {treatment_start_str} - {treatment_end_str}")
+                for start_str, end_str, slot_name in slot_ranges:
+                    await log_line(f"         {slot_name}: {start_str} - {end_str}")
                 return (False, None)
-            else:
-                await log_line(f"[FILTER] ✅ Zeitüberschneidung vorhanden: Start bei {overlap_start_time}")
 
+            # Nimm die früheste passende Startzeit über beide Slots
+            candidate_starts.sort(key=lambda x: x[0])
+            overlap_start_time = candidate_starts[0][0]
+            best_slot_name, best_start, best_end = candidate_starts[0][1], candidate_starts[0][2], candidate_starts[0][3]
+            await log_line(f"[FILTER] ✅ Zeitüberschneidung vorhanden: Start bei {overlap_start_time} ({best_slot_name}: {best_start}-{best_end})")
         # Diagnose-Filter prüfen
         diag_include = filters.get("diagnosis", {}).get("include", "")
         diag_exclude = filters.get("diagnosis", {}).get("exclude", "")
@@ -728,11 +757,27 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await case_button.scroll_into_view_if_needed(timeout=3000)
         except Exception:
             pass
+
+        # Vor dem Klick evtl. offenes Overlay schließen (falls vorhanden)
+        try:
+            await page.keyboard.press("Escape")
+            await asyncio.sleep(0.15)
+        except Exception:
+            pass
+
         try:
             await case_button.click(timeout=5000)
-        except Exception as e:
-            await log_line(f"[ERROR] Klick auf Karten-Button fehlgeschlagen: {e}")
-            return False
+        except Exception as e1:
+            await log_line(f"[WARN] Normaler Klick fehlgeschlagen, versuche force=True: {e1}")
+            try:
+                await case_button.click(timeout=5000, force=True)
+            except Exception as e2:
+                await log_line(f"[WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: {e2}")
+                try:
+                    await case_button.evaluate("el => el.click()")
+                except Exception as e3:
+                    await log_line(f"[ERROR] Klick auf Karten-Button endgültig fehlgeschlagen: {e3}")
+                    return False
 
         # Warte auf Dialog statt nur auf das Zeitfeld
         try:
@@ -745,7 +790,8 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
 
         # WICHTIG: Nutze IMMER den Scheduler für korrekte Intervalle!
         # overlap_time wird als min_start_time übergeben (frühester erlaubter Start)
-        slot = next_available_slot(filters, min_start_time=overlap_time)
+        target_date = get_target_date(filters)
+        slot = next_available_slot(filters, date=target_date, min_start_time=overlap_time)
 
         if slot:
             if overlap_time:
@@ -787,99 +833,21 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await log_line("[ERROR] Zeitfeld im Popup nicht gefunden.")
             return False
 
-        # Zeit in Feld schreiben
+        # Zeit schnell via JS setzen — Scheduler hat bereits die richtige Zeit geliefert
+        # Kein Hochzählen, kein langes Warten
         try:
-            await time_input.click()
-            await time_input.fill(slot)
-            await log_line(f"[OK] Termin {slot} eingetragen.")
-        except Exception as e:
-            await log_line(f"[ERROR] Konnte Zeit nicht eintragen: {e}")
-            return False
-
-        # Warte kurz damit die Eingabe verarbeitet wird
-        await asyncio.sleep(0.6)
-
-        # Robuste Eingabe: per Tastatur setzen und verifizieren; falls UI rundet, nächsten Intervall probieren
-        try:
-            # Hole Intervall-Minuten aus Filters
-            interval_min = filters.get("runtime", {}).get("interval_minutes", 5)
-            try:
-                interval_min = int(interval_min)
-            except Exception:
-                interval_min = 5
-
-            # Hilfsfunktion: addiere Minuten zu HH:MM
-            def add_minutes(hhmm: str, delta: int) -> str:
-                h, m = map(int, hhmm.split(":"))
-                total = h*60 + m + delta
-                return f"{total//60:02d}:{total%60:02d}"
-
-            attempts = 0
-            max_attempts = 6
-            current_try = slot
-
-            # Fokussiere Zeitfeld
-            await time_input.click()
-            await asyncio.sleep(0.3)
-
-            # WICHTIG: Setze die Zeit direkt via JavaScript-Wert, nicht per type()
-            # Das umgeht die 12h/AM-PM-Konvertierung des Browsers
-            await time_input.evaluate(f"el => el.value = '{current_try}'")
+            await time_input.evaluate(f"el => el.value = '{slot}'")
             await time_input.evaluate("el => el.dispatchEvent(new Event('input', {bubbles: true}))")
             await time_input.evaluate("el => el.dispatchEvent(new Event('change', {bubbles: true}))")
-            await asyncio.sleep(0.5)
-
-            # Verifiziere Wert
-            accepted = False
-            try:
-                val = await time_input.input_value()
-            except Exception:
-                val = None
-
-            if val and val[:5] == current_try:
-                accepted = True
-                await log_line(f"[TIME] ✅ Zeit angenommen (JS): {current_try}")
-            else:
-                await log_line(f"[TIME] UI hat Zeit '{val}' statt '{current_try}' übernommen – versuche nächsten Intervall")
-
-            # Bei Abweichung: iterativ nächstes Intervall probieren
-            while not accepted and attempts < max_attempts:
-                attempts += 1
-                current_try = add_minutes(current_try, interval_min)
-
-                # Setze Zeit wieder via JavaScript
-                await time_input.click()
-                await asyncio.sleep(0.2)
-                await time_input.evaluate(f"el => el.value = '{current_try}'")
-                await time_input.evaluate("el => el.dispatchEvent(new Event('input', {bubbles: true}))")
-                await time_input.evaluate("el => el.dispatchEvent(new Event('change', {bubbles: true}))")
-                await asyncio.sleep(0.5)
-
-                try:
-                    val = await time_input.input_value()
-                except Exception:
-                    val = None
-
-                if val and val[:5] == current_try:
-                    accepted = True
-                    await log_line(f"[TIME] ✅ Akzeptierte Zeit (JS): {current_try}")
-                    break
-                else:
-                    await log_line(f"[TIME] ❌ Zeit '{current_try}' nicht akzeptiert (UI zeigte '{val}')")
-
-            if not accepted:
-                await log_line("[ERROR] Keine akzeptierte Terminzeit gefunden – überspringe Fall.")
-                # Schließe Popup
-                try:
-                    close_btn = page.get_by_role("button", name="Abbrechen").first
-                    if await close_btn.count():
-                        await close_btn.click()
-                except Exception:
-                    pass
-                return False
+            await log_line(f"[TIME] ✅ Zeit gesetzt (JS): {slot}")
         except Exception as e:
-            await log_line(f"[ERROR] Konnte Zeit nicht setzen: {e}")
-            return False
+            # Einmaliger Fallback: fill()
+            try:
+                await time_input.fill(slot)
+                await log_line(f"[TIME] ✅ Zeit gesetzt (fill-Fallback): {slot}")
+            except Exception as e2:
+                await log_line(f"[ERROR] Konnte Zeit nicht setzen: {e2}")
+                return False
 
         # 'Übernehmen'-Button im Dialog finden und klicken
         pickup = None
@@ -1082,6 +1050,47 @@ async def check_and_update_day_window(filters, last_midnight_check=None):
     return (filters, now)
 
 
+def build_slot_filters(slot_data: dict, day_window: str, slot_num: int) -> dict:
+    """
+    Konvertiert Slot-Daten (neues Format) in das alte Filter-Format,
+    damit check_case_matches_filters() unverändert weiterverwendet werden kann.
+
+    slot_data: Inhalt von filters["slot1"] oder filters["slot2"]
+    day_window: z.B. "heute", "morgen", "später"
+    slot_num: 1 oder 2 (nur für Log-Ausgaben)
+    """
+    return {
+        "time_filter": {
+            "day_window": day_window,
+            "treatment_start": slot_data.get("time_start", ""),
+            "treatment_end": slot_data.get("time_end", ""),
+            # Slot 2 hat kein weiteres Sub-Slot → leer
+            "treatment_start_2": "",
+            "treatment_end_2": ""
+        },
+        "runtime": {
+            "max_patients": slot_data.get("max_patients", 5),
+            "interval_minutes": slot_data.get("interval_minutes", 5)
+        },
+        "patients": {
+            "gender": slot_data.get("gender", ""),
+            "age_min": slot_data.get("age_min", ""),
+            "age_max": slot_data.get("age_max", ""),
+            "language_include": [x.strip() for x in slot_data.get("language_include", "").split(",") if x.strip()],
+            "language_exclude": [x.strip() for x in slot_data.get("language_exclude", "").split(",") if x.strip()]
+        },
+        "diagnosis": {
+            "include": slot_data.get("diagnosis_include", ""),
+            "exclude": slot_data.get("diagnosis_exclude", "")
+        },
+        "wishes": {
+            "include": slot_data.get("wishes_include", ""),
+            "exclude": slot_data.get("wishes_exclude", "")
+        },
+        "loop": {}
+    }
+
+
 async def click_loop(filters):
     """Durchsuche regelmäßig die Seite nach übernehmbaren Fällen."""
     global patients_accepted
@@ -1090,21 +1099,56 @@ async def click_loop(filters):
     await log_line("[RESET] Patientenanzahl auf 0 zurückgesetzt.")
 
     scan_interval = int(filters.get("loop", {}).get("scan_interval_sec", 10))
-    max_pages = int(filters.get("loop", {}).get("max_pages", 5))  # Maximal zu scannende Seiten
+    max_pages = int(filters.get("loop", {}).get("max_pages", 5))
 
-    # Validiere max_patients gegen verfügbare Slots
-    max_patients_requested, max_patients_possible, is_valid = validate_max_patients(filters)
+    day_window_global = filters.get("time_filter", {}).get("day_window", "heute")
 
-    # Wenn nicht erreichbar, nutze max mögliche Anzahl
-    if not is_valid:
-        max_patients = max_patients_possible
-        await log_line(f"[WARN] ⚠️ Max-Patientenzahl angepasst: {max_patients_requested} → {max_patients} (erreichbar)")
+    # ── Slot-Konfiguration ermitteln ──────────────────────────────────────────
+    # Neues Format (slot1 / slot2_enabled / slot2)?
+    if "slot1" in filters:
+        slot1_data = filters["slot1"]
+        slot2_enabled = filters.get("slot2_enabled", False)
+        slot2_data = filters.get("slot2", {}) if slot2_enabled else None
     else:
-        max_patients = max_patients_requested
+        # Altes Format: Kompatibilitäts-Fallback → alles in Slot 1
+        slot1_data = {
+            "time_start": filters.get("time_filter", {}).get("treatment_start", ""),
+            "time_end": filters.get("time_filter", {}).get("treatment_end", ""),
+            "max_patients": filters.get("runtime", {}).get("max_patients", 5),
+            "interval_minutes": filters.get("runtime", {}).get("interval_minutes", 5),
+            "diagnosis_include": filters.get("diagnosis", {}).get("include", ""),
+            "diagnosis_exclude": filters.get("diagnosis", {}).get("exclude", ""),
+            "wishes_include": filters.get("wishes", {}).get("include", ""),
+            "wishes_exclude": filters.get("wishes", {}).get("exclude", ""),
+            "language_include": ",".join(filters.get("patients", {}).get("language_include", [])),
+            "language_exclude": ",".join(filters.get("patients", {}).get("language_exclude", [])),
+            "age_min": str(filters.get("patients", {}).get("age_min", "")),
+            "age_max": str(filters.get("patients", {}).get("age_max", "")),
+            "gender": filters.get("patients", {}).get("gender", "")
+        }
+        slot2_enabled = False
+        slot2_data = None
 
-    await log_line(f"[INFO] Maximale Patientenanzahl: {max_patients}")
-    await log_line(f"[INFO] Scan-Intervall: {scan_interval} Sekunden")
-    await log_line(f"[INFO] Max. Seiten pro Scan: {max_pages}")
+    # Filter-Dicts für check_case_matches_filters() aufbauen
+    slot1_filters = build_slot_filters(slot1_data, day_window_global, 1)
+    slot2_filters = build_slot_filters(slot2_data, day_window_global, 2) if slot2_data else None
+
+    # Pro-Slot-Limits
+    slot1_max = int(slot1_data.get("max_patients", 5))
+    slot2_max = int(slot2_data.get("max_patients", 5)) if slot2_data else 0
+
+    # Pro-Slot-Zähler
+    slot1_accepted = 0
+    slot2_accepted = 0
+
+    await log_line("=" * 70)
+    await log_line(f"[INFO] 🕐 SLOT 1: {slot1_data.get('time_start','?')} - {slot1_data.get('time_end','?')} | Max: {slot1_max}")
+    if slot2_enabled and slot2_data:
+        await log_line(f"[INFO] 🕑 SLOT 2: {slot2_data.get('time_start','?')} - {slot2_data.get('time_end','?')} | Max: {slot2_max}")
+    else:
+        await log_line("[INFO] SLOT 2: deaktiviert")
+    await log_line(f"[INFO] Scan-Intervall: {scan_interval} Sekunden | Max. Seiten: {max_pages}")
+    await log_line("=" * 70)
 
     # Für Overnight-Scans: Merke uns die letzte Mitternacht-Prüfung
     last_midnight_check = None
@@ -1188,27 +1232,52 @@ async def click_loop(filters):
                     total_found += len(cards)
 
                     for idx, card in enumerate(cards):
-                        # Prüfe ob maximale Patientenanzahl erreicht
-                        if patients_accepted >= max_patients:
+                        # ── Stop-Bedingung: beide Slots voll ──────────────────────
+                        slot1_full = slot1_accepted >= slot1_max
+                        slot2_full = (not slot2_enabled) or (slot2_accepted >= slot2_max)
+
+                        if slot1_full and slot2_full:
                             await log_line("=" * 70)
-                            await log_line(f"[STOP] 🎯 Maximale Patientenanzahl erreicht: {patients_accepted}/{max_patients}")
+                            await log_line(f"[STOP] 🎯 Alle Slots voll: Slot 1 {slot1_accepted}/{slot1_max} | Slot 2 {slot2_accepted}/{slot2_max}")
                             await log_line("[STOP] Bot wird beendet. Ziel erreicht!")
                             await log_line("=" * 70)
-                            return  # Beende die Funktion komplett
+                            return
 
-                        await log_line(f"[TRY] Seite {page_num}, Fall {idx + 1}/{len(cards)} wird geprüft... (Patienten: {patients_accepted}/{max_patients})")
+                        await log_line(
+                            f"[TRY] Seite {page_num}, Fall {idx + 1}/{len(cards)} "
+                            f"| Slot 1: {slot1_accepted}/{slot1_max} | Slot 2: {slot2_accepted}/{slot2_max}"
+                        )
 
-                        # Prüfe Filter BEVOR wir klicken
-                        try:
-                            # Prüfe ob Fall den Filtern entspricht (gibt Tuple zurück: (matches, overlap_time))
-                            matches, overlap_time = await check_case_matches_filters(card, filters)
-                            if not matches:
-                                await log_line(f"[SKIP] Fall {idx + 1} entspricht nicht den Filtern - übersprungen")
-                                continue
+                        # ── Slot-Routing: prüfe Fall gegen Slot 1 und Slot 2 ─────
+                        matched_slot = None
+                        matched_filters = None
+                        overlap_time = None
 
-                        except Exception as e:
-                            await log_line(f"[WARN] Konnte Filter nicht prüfen: {e} - versuche trotzdem")
-                            overlap_time = None  # Fallback
+                        # Slot 1 prüfen (wenn noch nicht voll)
+                        if not slot1_full:
+                            try:
+                                matches1, ot1 = await check_case_matches_filters(card, slot1_filters)
+                                if matches1:
+                                    matched_slot = 1
+                                    matched_filters = slot1_filters
+                                    overlap_time = ot1
+                            except Exception as e:
+                                await log_line(f"[WARN] Slot-1-Filter-Prüfung fehlgeschlagen: {e}")
+
+                        # Slot 2 prüfen (wenn aktiv und noch nicht voll und Slot 1 kein Match)
+                        if matched_slot is None and slot2_enabled and slot2_filters and not slot2_full:
+                            try:
+                                matches2, ot2 = await check_case_matches_filters(card, slot2_filters)
+                                if matches2:
+                                    matched_slot = 2
+                                    matched_filters = slot2_filters
+                                    overlap_time = ot2
+                            except Exception as e:
+                                await log_line(f"[WARN] Slot-2-Filter-Prüfung fehlgeschlagen: {e}")
+
+                        if matched_slot is None:
+                            await log_line(f"[SKIP] Fall {idx + 1} passt zu keinem Slot – übersprungen")
+                            continue
 
                         # Button innerhalb der Karte robust ermitteln
                         btn = None
@@ -1254,10 +1323,18 @@ async def click_loop(filters):
                             await log_line(f"[SKIP] Fall {idx + 1} hat keinen erkennbaren 'Übernehmen'-Button (auch nicht im Parent)")
                             continue
 
-                        # Falls Filter übereinstimmen, versuche zu übernehmen (mit berechneter Zeit)
-                        ok = await handle_case(page, btn, filters, overlap_time, case_element=card)
+                        # Falls Filter übereinstimmen, versuche zu übernehmen
+                        ok = await handle_case(page, btn, matched_filters, overlap_time, case_element=card)
                         if ok:
-                            await log_line(f"[DONE] ✅ Fall {idx + 1} erfolgreich übernommen!")
+                            if matched_slot == 1:
+                                slot1_accepted += 1
+                            else:
+                                slot2_accepted += 1
+                            patients_accepted = slot1_accepted + slot2_accepted
+                            await log_line(
+                                f"[DONE] ✅ Fall {idx + 1} → Slot {matched_slot} | "
+                                f"Slot 1: {slot1_accepted}/{slot1_max} | Slot 2: {slot2_accepted}/{slot2_max}"
+                            )
                             await asyncio.sleep(2)
 
                     # Prüfe, ob nächste Seite existiert (z.B. durch Pagination-Button)
@@ -1265,15 +1342,20 @@ async def click_loop(filters):
                     if not next_button or page_num >= max_pages:
                         break
 
-                # Prüfe nach jedem kompletten Scan, ob Limit erreicht
-                if patients_accepted >= max_patients:
+                # Prüfe nach jedem kompletten Scan, ob alle Slots voll
+                slot1_full = slot1_accepted >= slot1_max
+                slot2_full = (not slot2_enabled) or (slot2_accepted >= slot2_max)
+                if slot1_full and slot2_full:
                     await log_line("=" * 70)
-                    await log_line(f"[STOP] 🎯 Maximale Patientenanzahl erreicht: {patients_accepted}/{max_patients}")
+                    await log_line(f"[STOP] 🎯 Alle Slots voll: Slot 1 {slot1_accepted}/{slot1_max} | Slot 2 {slot2_accepted}/{slot2_max}")
                     await log_line("[STOP] Bot wird beendet. Alle gewünschten Patienten übernommen!")
                     await log_line("=" * 70)
                     return
 
-                await log_line(f"[LOOP] Gesamt {total_found} Anfragen gefunden. Patienten übernommen: {patients_accepted}/{max_patients}")
+                await log_line(
+                    f"[LOOP] {total_found} Anfragen gefunden | "
+                    f"Slot 1: {slot1_accepted}/{slot1_max} | Slot 2: {slot2_accepted}/{slot2_max}"
+                )
                 await log_line(f"[LOOP] Warte {scan_interval}s bis zum nächsten Scan...")
                 await asyncio.sleep(scan_interval)
 
@@ -1284,25 +1366,41 @@ async def click_loop(filters):
                 await log_line(f"[ERROR] Unerwarteter Fehler im Loop: {e}")
                 await asyncio.sleep(5)
 
+def get_target_date(filters: dict) -> str:
+    """Bestimmt das Zieldatum passend zum day_window-Filter."""
+    day_window = normalize_text(filters.get("time_filter", {}).get("day_window", "heute"))
+    now = datetime.now()
+    if day_window == "morgen":
+        return (now + timedelta(days=1)).strftime("%Y-%m-%d")
+    if day_window == "später":
+        return (now + timedelta(days=2)).strftime("%Y-%m-%d")
+    return now.strftime("%Y-%m-%d")
+
 async def main():
     """Hauptfunktion: lädt Filter und startet den Click-Loop."""
     global patients_accepted
 
-    # RESET: Lösche alte Log-Datei (damit Monitoring nicht alte Einträge liest)
-    if LOG_PATH.exists():
-        LOG_PATH.unlink()
-        print("[START] 🗑️  Alte Log-Datei gelöscht - neuer Durchlauf startet sauber!")
-
-    # RESET: Setze Counter auf 0 und lösche alte Slots beim Bot-Start
-    patients_accepted = 0
-    reset_slots_for_date()
-    await log_line("[SCHEDULER] 🔄 Alte Termine für heute zurückgesetzt - neue Session startet!")
-    await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt")
+    # Robuster Start: Kein Löschen der Log-Datei (vermeidet WinError 32 bei Datei-Lock).
+    # Stattdessen schreiben wir einen Session-Header im Append-Modus.
+    try:
+        with LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write("\n" + "=" * 70 + "\n")
+            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Neue Bot-Session gestartet\n")
+    except Exception as e:
+        print(f"[WARN] Konnte Session-Header nicht in Log schreiben: {e}")
 
     filters = await load_filters()
     if not filters:
         await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
         return
+
+    # RESET: Setze Counter auf 0 und lösche alte Slots für das gewählte Ziel-Datum beim Bot-Start
+    patients_accepted = 0
+    target_date = get_target_date(filters)
+    reset_slots_for_date(target_date)
+    await log_line(f"[SCHEDULER] 🔄 Alte Termine für {target_date} zurückgesetzt - neue Session startet!")
+    await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt")
+
 
     # Starte Chrome im Debug-Modus (falls noch nicht gestartet)
     await log_line("[INFO] Prüfe Chrome Debug-Modus...")

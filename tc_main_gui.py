@@ -57,6 +57,7 @@ def migrate_filters_to_slot_format(data: dict) -> dict:
             "time_start": time_filter.get("treatment_start", "21:30"),
             "time_end": time_filter.get("treatment_end", "23:30"),
             "max_patients": runtime.get("max_patients", 5),
+            "interval_minutes": runtime.get("interval_minutes", 5),
             "diagnosis_include": diagnosis.get("include", ""),
             "diagnosis_exclude": diagnosis.get("exclude", ""),
             "wishes_include": wishes.get("include", ""),
@@ -72,6 +73,7 @@ def migrate_filters_to_slot_format(data: dict) -> dict:
             "time_start": time_filter.get("treatment_start_2", ""),
             "time_end": time_filter.get("treatment_end_2", ""),
             "max_patients": 5,
+            "interval_minutes": runtime.get("interval_minutes", 5),
             "diagnosis_include": "",
             "diagnosis_exclude": "",
             "wishes_include": "",
@@ -125,7 +127,8 @@ class TeleClinicBotGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(3, weight=1)
+        # Zeile 0 = Titel (fix), Zeile 1 = scrollbarer Bereich (flex), Zeile 2 = Buttons (fix), Zeile 3/4 = Log/Kalender
+        main_frame.rowconfigure(1, weight=1)
 
         # Titel mit Logo/Grafik
         title_frame = ttk.Frame(main_frame)
@@ -168,15 +171,40 @@ class TeleClinicBotGUI:
             emoji_label = ttk.Label(title_frame, text="🏥", font=("Arial", 40))
             emoji_label.pack(side="right", padx=10)
 
-        # --- FILTER-BEREICH ---
-        filter_frame = ttk.LabelFrame(main_frame, text="Filter", padding="10")
-        filter_frame.grid(row=1, column=0, columnspan=3, sticky="ew", pady=10)
+        # --- SCROLLBARER FILTER-BEREICH ---
+        # Canvas + Scrollbar als Container für den Filter-Bereich
+        canvas_frame = ttk.Frame(main_frame)
+        canvas_frame.grid(row=1, column=0, columnspan=3, sticky="nsew", pady=5)
+        canvas_frame.columnconfigure(0, weight=1)
+        canvas_frame.rowconfigure(0, weight=1)
+
+        self.filter_canvas = tk.Canvas(canvas_frame, borderwidth=0, highlightthickness=0)
+        scrollbar_v = ttk.Scrollbar(canvas_frame, orient="vertical", command=self.filter_canvas.yview)
+        self.filter_canvas.configure(yscrollcommand=scrollbar_v.set)
+
+        scrollbar_v.grid(row=0, column=1, sticky="ns")
+        self.filter_canvas.grid(row=0, column=0, sticky="nsew")
+
+        # Scrollbar mit Mausrad verbinden
+        self.filter_canvas.bind("<Enter>", lambda e: self.filter_canvas.bind_all("<MouseWheel>", self._on_mousewheel))
+        self.filter_canvas.bind("<Leave>", lambda e: self.filter_canvas.unbind_all("<MouseWheel>"))
+
+        # Innerer Frame im Canvas
+        self.scroll_inner = ttk.Frame(self.filter_canvas)
+        self.canvas_window = self.filter_canvas.create_window((0, 0), window=self.scroll_inner, anchor="nw")
+
+        self.scroll_inner.bind("<Configure>", self._on_frame_configure)
+        self.filter_canvas.bind("<Configure>", self._on_canvas_configure)
+
+        # Ab jetzt alle Filter in self.scroll_inner platzieren
+        filter_frame = ttk.LabelFrame(self.scroll_inner, text="Filter", padding="10")
+        filter_frame.grid(row=0, column=0, sticky="ew", pady=5, padx=5)
         filter_frame.columnconfigure(1, weight=1)
 
-        pad = {"padx": 5, "pady": 5}
+        pad = {"padx": 5, "pady": 3}
 
-        # ===== SLOT 1 (Vormittag) =====
-        slot1_label = ttk.Label(filter_frame, text="🕐 SLOT 1 (Vormittag)", font=("Arial", 10, "bold"))
+        # ===== SLOT 1 =====
+        slot1_label = ttk.Label(filter_frame, text="🕐 SLOT 1", font=("Arial", 10, "bold"))
         slot1_label.grid(row=0, column=0, columnspan=4, sticky="w", **pad)
 
         # Tag (global)
@@ -190,7 +218,6 @@ class TeleClinicBotGUI:
         self.time_from = ttk.Entry(filter_frame, width=10)
         self.time_from.insert(0, "21:30")
         self.time_from.grid(row=2, column=1, sticky="w", **pad)
-
         ttk.Label(filter_frame, text="bis").grid(row=2, column=2, sticky="w", **pad)
         self.time_to = ttk.Entry(filter_frame, width=10)
         self.time_to.insert(0, "23:30")
@@ -199,48 +226,39 @@ class TeleClinicBotGUI:
         # Diagnose (Slot 1)
         ttk.Label(filter_frame, text="Diagnose").grid(row=3, column=0, sticky="w", **pad)
         self.diagnosis = ttk.Entry(filter_frame, width=30)
-        self.diagnosis.insert(0, "")
         self.diagnosis.grid(row=3, column=1, columnspan=2, sticky="ew", **pad)
 
         # Wünsche (Slot 1)
         ttk.Label(filter_frame, text="Wünsche (AU,Rezept)").grid(row=4, column=0, sticky="w", **pad)
         self.wishes = ttk.Entry(filter_frame, width=30)
-        self.wishes.insert(0, "")
         self.wishes.grid(row=4, column=1, columnspan=2, sticky="ew", **pad)
 
         # Sprache (Slot 1)
         ttk.Label(filter_frame, text="Sprache").grid(row=5, column=0, sticky="w", **pad)
         self.language = ttk.Entry(filter_frame, width=30)
-        self.language.insert(0, "")
         self.language.grid(row=5, column=1, columnspan=2, sticky="ew", **pad)
 
         # Diagnose ausschließen (Slot 1)
         ttk.Label(filter_frame, text="Diagnose ausschließen").grid(row=6, column=0, sticky="w", **pad)
         self.diagnosis_exclude = ttk.Entry(filter_frame, width=30)
-        self.diagnosis_exclude.insert(0, "")
         self.diagnosis_exclude.grid(row=6, column=1, columnspan=2, sticky="ew", **pad)
 
         # Wünsche ausschließen (Slot 1)
         ttk.Label(filter_frame, text="Wünsche ausschließen").grid(row=7, column=0, sticky="w", **pad)
         self.wishes_exclude = ttk.Entry(filter_frame, width=30)
-        self.wishes_exclude.insert(0, "")
         self.wishes_exclude.grid(row=7, column=1, columnspan=2, sticky="ew", **pad)
 
         # Sprache ausschließen (Slot 1)
         ttk.Label(filter_frame, text="Sprache ausschließen").grid(row=8, column=0, sticky="w", **pad)
         self.language_exclude = ttk.Entry(filter_frame, width=30)
-        self.language_exclude.insert(0, "")
         self.language_exclude.grid(row=8, column=1, columnspan=2, sticky="ew", **pad)
 
         # Alter + Geschlecht (Slot 1)
         ttk.Label(filter_frame, text="Alter min").grid(row=9, column=0, sticky="w", **pad)
         self.age_min = ttk.Entry(filter_frame, width=10)
-        self.age_min.insert(0, "")
         self.age_min.grid(row=9, column=1, sticky="w", **pad)
-
         ttk.Label(filter_frame, text="max").grid(row=9, column=2, sticky="w", **pad)
         self.age_max = ttk.Entry(filter_frame, width=10)
-        self.age_max.insert(0, "")
         self.age_max.grid(row=9, column=3, sticky="w", **pad)
 
         ttk.Label(filter_frame, text="Geschlecht").grid(row=10, column=0, sticky="w", **pad)
@@ -248,21 +266,25 @@ class TeleClinicBotGUI:
         self.gender.set("egal")
         self.gender.grid(row=10, column=1, sticky="w", **pad)
 
-        # Max Patienten (Slot 1)
+        # Max Patienten + Behandlungsintervall (Slot 1)
         ttk.Label(filter_frame, text="Max Patienten").grid(row=11, column=0, sticky="w", **pad)
         self.max_patients = ttk.Spinbox(filter_frame, from_=1, to=100, width=10)
         self.max_patients.set(5)
         self.max_patients.grid(row=11, column=1, sticky="w", **pad)
+        ttk.Label(filter_frame, text="Behandlungsintervall (Min)").grid(row=11, column=2, sticky="w", **pad)
+        self.interval_minutes = ttk.Spinbox(filter_frame, from_=1, to=60, width=10)
+        self.interval_minutes.set(5)
+        self.interval_minutes.grid(row=11, column=3, sticky="w", **pad)
 
         # ===== CHECKBOX: 2. ZEITSLOT AKTIVIEREN =====
         self.slot2_enabled = tk.BooleanVar(value=False)
-        slot2_checkbox = ttk.Checkbutton(filter_frame, text="✓ 2. Zeitslot aktivieren (Nachmittag)",
+        slot2_checkbox = ttk.Checkbutton(filter_frame, text="✓ 2. Zeitslot aktivieren",
                                          variable=self.slot2_enabled,
                                          command=self.toggle_slot2)
         slot2_checkbox.grid(row=12, column=0, columnspan=4, sticky="w", **pad)
 
-        # ===== SLOT 2 (Nachmittag) — wird mit grid_remove() versteckt =====
-        self.slot2_frame = ttk.LabelFrame(filter_frame, text="🕑 SLOT 2 (Nachmittag)", padding="5")
+        # ===== SLOT 2 — wird mit grid_remove() versteckt =====
+        self.slot2_frame = ttk.LabelFrame(filter_frame, text="🕑 SLOT 2", padding="5")
         self.slot2_frame.grid(row=13, column=0, columnspan=4, sticky="ew", padx=10, pady=5)
         self.slot2_frame.columnconfigure(1, weight=1)
 
@@ -271,7 +293,6 @@ class TeleClinicBotGUI:
         self.time_from_2 = ttk.Entry(self.slot2_frame, width=10)
         self.time_from_2.insert(0, "14:00")
         self.time_from_2.grid(row=0, column=1, sticky="w", **pad)
-
         ttk.Label(self.slot2_frame, text="bis").grid(row=0, column=2, sticky="w", **pad)
         self.time_to_2 = ttk.Entry(self.slot2_frame, width=10)
         self.time_to_2.insert(0, "18:00")
@@ -280,48 +301,39 @@ class TeleClinicBotGUI:
         # Diagnose (Slot 2)
         ttk.Label(self.slot2_frame, text="Diagnose").grid(row=1, column=0, sticky="w", **pad)
         self.diagnosis_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.diagnosis_2.insert(0, "")
         self.diagnosis_2.grid(row=1, column=1, columnspan=2, sticky="ew", **pad)
 
         # Wünsche (Slot 2)
         ttk.Label(self.slot2_frame, text="Wünsche").grid(row=2, column=0, sticky="w", **pad)
         self.wishes_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.wishes_2.insert(0, "")
         self.wishes_2.grid(row=2, column=1, columnspan=2, sticky="ew", **pad)
 
         # Sprache (Slot 2)
         ttk.Label(self.slot2_frame, text="Sprache").grid(row=3, column=0, sticky="w", **pad)
         self.language_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.language_2.insert(0, "")
         self.language_2.grid(row=3, column=1, columnspan=2, sticky="ew", **pad)
 
         # Diagnose ausschließen (Slot 2)
         ttk.Label(self.slot2_frame, text="Diagnose ausschließen").grid(row=4, column=0, sticky="w", **pad)
         self.diagnosis_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.diagnosis_exclude_2.insert(0, "")
         self.diagnosis_exclude_2.grid(row=4, column=1, columnspan=2, sticky="ew", **pad)
 
         # Wünsche ausschließen (Slot 2)
         ttk.Label(self.slot2_frame, text="Wünsche ausschließen").grid(row=5, column=0, sticky="w", **pad)
         self.wishes_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.wishes_exclude_2.insert(0, "")
         self.wishes_exclude_2.grid(row=5, column=1, columnspan=2, sticky="ew", **pad)
 
         # Sprache ausschließen (Slot 2)
         ttk.Label(self.slot2_frame, text="Sprache ausschließen").grid(row=6, column=0, sticky="w", **pad)
         self.language_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
-        self.language_exclude_2.insert(0, "")
         self.language_exclude_2.grid(row=6, column=1, columnspan=2, sticky="ew", **pad)
 
         # Alter + Geschlecht (Slot 2)
         ttk.Label(self.slot2_frame, text="Alter min").grid(row=7, column=0, sticky="w", **pad)
         self.age_min_2 = ttk.Entry(self.slot2_frame, width=10)
-        self.age_min_2.insert(0, "")
         self.age_min_2.grid(row=7, column=1, sticky="w", **pad)
-
         ttk.Label(self.slot2_frame, text="max").grid(row=7, column=2, sticky="w", **pad)
         self.age_max_2 = ttk.Entry(self.slot2_frame, width=10)
-        self.age_max_2.insert(0, "")
         self.age_max_2.grid(row=7, column=3, sticky="w", **pad)
 
         ttk.Label(self.slot2_frame, text="Geschlecht").grid(row=8, column=0, sticky="w", **pad)
@@ -329,11 +341,15 @@ class TeleClinicBotGUI:
         self.gender_2.set("egal")
         self.gender_2.grid(row=8, column=1, sticky="w", **pad)
 
-        # Max Patienten (Slot 2)
+        # Max Patienten + Behandlungsintervall (Slot 2)
         ttk.Label(self.slot2_frame, text="Max Patienten").grid(row=9, column=0, sticky="w", **pad)
         self.max_patients_2 = ttk.Spinbox(self.slot2_frame, from_=1, to=100, width=10)
         self.max_patients_2.set(5)
         self.max_patients_2.grid(row=9, column=1, sticky="w", **pad)
+        ttk.Label(self.slot2_frame, text="Behandlungsintervall (Min)").grid(row=9, column=2, sticky="w", **pad)
+        self.interval_minutes_2 = ttk.Spinbox(self.slot2_frame, from_=1, to=60, width=10)
+        self.interval_minutes_2.set(5)
+        self.interval_minutes_2.grid(row=9, column=3, sticky="w", **pad)
 
         # Verstecke Slot 2 anfangs
         self.slot2_frame.grid_remove()
@@ -342,27 +358,19 @@ class TeleClinicBotGUI:
         general_label = ttk.Label(filter_frame, text="⚙️ ALLGEMEINE EINSTELLUNGEN", font=("Arial", 10, "bold"))
         general_label.grid(row=14, column=0, columnspan=4, sticky="w", **pad)
 
-        # Loop-Geschwindigkeit (Scan-Intervall)
         ttk.Label(filter_frame, text="Scan-Intervall (Sek)").grid(row=15, column=0, sticky="w", **pad)
         self.scan_interval = ttk.Spinbox(filter_frame, from_=1, to=30, width=10)
         self.scan_interval.set(8)
         self.scan_interval.grid(row=15, column=1, sticky="w", **pad)
 
-        # Behandlungsintervall (Minuten)
-        ttk.Label(filter_frame, text="Behandlungsintervall (Min)").grid(row=15, column=2, sticky="w", **pad)
-        self.interval_minutes = ttk.Spinbox(filter_frame, from_=1, to=60, width=10)
-        self.interval_minutes.set(5)
-        self.interval_minutes.grid(row=15, column=3, sticky="w", **pad)
-
-        # Max Seiten
-        ttk.Label(filter_frame, text="Max Seiten").grid(row=16, column=0, sticky="w", **pad)
+        ttk.Label(filter_frame, text="Max Seiten").grid(row=15, column=2, sticky="w", **pad)
         self.max_pages = ttk.Spinbox(filter_frame, from_=1, to=20, width=10)
         self.max_pages.set(5)
-        self.max_pages.grid(row=16, column=1, sticky="w", **pad)
+        self.max_pages.grid(row=15, column=3, sticky="w", **pad)
 
-        # --- BUTTON-BEREICH ---
+        # --- BUTTONS — IMMER SICHTBAR (außerhalb des Scroll-Bereichs) ---
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=2, column=0, columnspan=3, sticky="ew", pady=10)
+        button_frame.grid(row=2, column=0, columnspan=3, sticky="ew", pady=5)
 
         self.start_btn = ttk.Button(button_frame, text="▶️ START - Scanner & Clicker",
                                    command=self.start_bot)
@@ -378,13 +386,14 @@ class TeleClinicBotGUI:
         ttk.Button(button_frame, text="❌ Programm beenden",
                   command=self.exit_app).pack(side="right", padx=5)
 
+
         # --- STATUS/LOG-BEREICH ---
         log_frame = ttk.LabelFrame(main_frame, text="Live-Log", padding="10")
         log_frame.grid(row=3, column=0, columnspan=3, sticky="nsew", pady=10)
         log_frame.rowconfigure(0, weight=1)
         log_frame.columnconfigure(0, weight=1)
 
-        self.log_text = scrolledtext.ScrolledText(log_frame, height=10, width=80,
+        self.log_text = scrolledtext.ScrolledText(log_frame, height=5, width=80,
                                                   state="disabled", wrap="word")
         self.log_text.grid(row=0, column=0, sticky="nsew")
 
@@ -432,6 +441,18 @@ class TeleClinicBotGUI:
                                      font=("Arial", 10))
         self.status_label.grid(row=5, column=0, columnspan=3, sticky="w", pady=5)
 
+    def _on_frame_configure(self, event=None):
+        """Aktualisiert die Scroll-Region wenn sich der innere Frame ändert."""
+        self.filter_canvas.configure(scrollregion=self.filter_canvas.bbox("all"))
+
+    def _on_canvas_configure(self, event=None):
+        """Passt die Breite des inneren Frames an den Canvas an."""
+        self.filter_canvas.itemconfig(self.canvas_window, width=event.width)
+
+    def _on_mousewheel(self, event):
+        """Scrollt den Filter-Canvas mit dem Mausrad."""
+        self.filter_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
     def load_filters(self):
         """Lade gespeicherte Filter und migriere bei Bedarf zu neuem Format"""
         if FILTER_PATH.exists():
@@ -473,6 +494,7 @@ class TeleClinicBotGUI:
                     self.gender.set(slot1.get("gender", "egal"))
 
                     self.max_patients.set(slot1.get("max_patients", 5))
+                    self.interval_minutes.set(slot1.get("interval_minutes", data.get("runtime", {}).get("interval_minutes", 5)))
 
                     # ===== SLOT 2 =====
                     slot2_enabled = data.get("slot2_enabled", False)
@@ -506,10 +528,10 @@ class TeleClinicBotGUI:
                     self.gender_2.set(slot2.get("gender", "egal"))
 
                     self.max_patients_2.set(slot2.get("max_patients", 5))
+                    self.interval_minutes_2.set(slot2.get("interval_minutes", 5))
 
                     # ===== LOOP SETTINGS =====
                     self.scan_interval.set(data.get("loop", {}).get("scan_interval_sec", 8))
-                    self.interval_minutes.set(data.get("runtime", {}).get("interval_minutes", 5))
                     self.max_pages.set(data.get("loop", {}).get("max_pages", 5))
 
                     # Zeige/verstecke Slot 2 basierend auf Flag
@@ -539,6 +561,7 @@ class TeleClinicBotGUI:
                 "time_start": self.time_from.get(),
                 "time_end": self.time_to.get(),
                 "max_patients": int(self.max_patients.get()),
+                "interval_minutes": int(self.interval_minutes.get()),
                 "diagnosis_include": self.diagnosis.get().strip(),
                 "diagnosis_exclude": self.diagnosis_exclude.get().strip(),
                 "wishes_include": self.wishes.get().strip(),
@@ -554,6 +577,7 @@ class TeleClinicBotGUI:
                 "time_start": self.time_from_2.get().strip(),
                 "time_end": self.time_to_2.get().strip(),
                 "max_patients": int(self.max_patients_2.get()),
+                "interval_minutes": int(self.interval_minutes_2.get()),
                 "diagnosis_include": self.diagnosis_2.get().strip(),
                 "diagnosis_exclude": self.diagnosis_exclude_2.get().strip(),
                 "wishes_include": self.wishes_2.get().strip(),
