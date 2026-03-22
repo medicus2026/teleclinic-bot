@@ -149,27 +149,36 @@ class TeleClinicBotGUI:
         spacer.pack(side="left", fill="both", expand=True)
 
         # Lade und zeige Praxislogo rechts
-        try:
-            logo_path = ROOT_PATH / "Logo_GIZ_Praxis_neu_ohne_Hintergrund.png"
-            if logo_path.exists():
-                # Lade Bild
+        # Reihenfolge: GIZ-Logo → TeleClinic-Scanner-Logo → Text-Fallback
+        _logo_candidates = [
+            ROOT_PATH / "Logo_GIZ_Praxis_neu_ohne_Hintergrund.png",
+            ROOT_PATH / "Logo Teleclinic scanner.png",
+            ROOT_PATH / "Logo Teleclinic.png",
+        ]
+        _logo_loaded = False
+        for logo_path in _logo_candidates:
+            try:
+                # Datei muss existieren UND Inhalt haben (> 0 Bytes)
+                if not logo_path.exists() or logo_path.stat().st_size == 0:
+                    continue
                 img = Image.open(logo_path)
-                # Resize auf angemessene Größe (Höhe 60 Pixel, proportional)
+                img.verify()          # prüft ob PNG-Struktur intakt ist
+                img = Image.open(logo_path)   # nach verify() neu öffnen
                 img.thumbnail((150, 60), Image.Resampling.LANCZOS)
                 self.logo_image = ImageTk.PhotoImage(img)
-
-                # Zeige Logo
                 logo_label = ttk.Label(title_frame, image=self.logo_image)
                 logo_label.pack(side="right", padx=10)
-            else:
-                # Fallback: Emoji, falls Datei nicht existiert
-                emoji_label = ttk.Label(title_frame, text="🏥", font=("Arial", 40))
-                emoji_label.pack(side="right", padx=10)
-        except Exception as e:
-            # Fallback bei Fehler
-            print(f"Fehler beim Laden des Logos: {e}")
-            emoji_label = ttk.Label(title_frame, text="🏥", font=("Arial", 40))
-            emoji_label.pack(side="right", padx=10)
+                _logo_loaded = True
+                break
+            except Exception as e:
+                print(f"[Logo] '{logo_path.name}' übersprungen: {e}")
+                continue
+
+        if not _logo_loaded:
+            # Text-Fallback: sauberes Label statt defektem Bild
+            fallback_label = ttk.Label(title_frame, text="GIZ Praxis",
+                                       font=("Arial", 11, "bold"), foreground="#1a5276")
+            fallback_label.pack(side="right", padx=10)
 
         # --- SCROLLBARER FILTER-BEREICH ---
         # Canvas + Scrollbar als Container für den Filter-Bereich
