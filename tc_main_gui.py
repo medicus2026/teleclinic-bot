@@ -25,6 +25,76 @@ ROOT_PATH = Path(__file__).resolve().parent
 FILTER_PATH = ROOT_PATH / "filters.json"
 LOG_PATH = ROOT_PATH / "tc_click_log.txt"
 
+
+def migrate_filters_to_slot_format(data: dict) -> dict:
+    """
+    Migriert alte filters.json (ein Filterset) zu neuem Format (slot1 + slot2).
+
+    Alt: time_filter + diagnosis + patients + wishes (alle zusammen)
+    Neu: slot1 { time_start, time_end, max_patients, diagnosis_include, ... }
+         slot2_enabled: false (oder true wenn slot2 Daten existieren)
+         slot2 { ... }
+
+    Abwärtskompatibel: Alte Daten werden in slot1 kopiert, slot2_enabled = false.
+    """
+    # Prüfe ob bereits neues Format
+    if "slot1" in data and "slot2_enabled" in data:
+        return data  # Bereits neu
+
+    # Alte Struktur in neue konvertieren
+    time_filter = data.get("time_filter", {})
+    runtime = data.get("runtime", {})
+    patients = data.get("patients", {})
+    diagnosis = data.get("diagnosis", {})
+    wishes = data.get("wishes", {})
+    loop = data.get("loop", {})
+
+    new_data = {
+        "time_filter": {
+            "day_window": time_filter.get("day_window", "heute")
+        },
+        "slot1": {
+            "time_start": time_filter.get("treatment_start", "21:30"),
+            "time_end": time_filter.get("treatment_end", "23:30"),
+            "max_patients": runtime.get("max_patients", 5),
+            "diagnosis_include": diagnosis.get("include", ""),
+            "diagnosis_exclude": diagnosis.get("exclude", ""),
+            "wishes_include": wishes.get("include", ""),
+            "wishes_exclude": wishes.get("exclude", ""),
+            "language_include": ",".join(patients.get("language_include", [])) if isinstance(patients.get("language_include"), list) else patients.get("language_include", ""),
+            "language_exclude": ",".join(patients.get("language_exclude", [])) if isinstance(patients.get("language_exclude"), list) else patients.get("language_exclude", ""),
+            "age_min": str(patients.get("age_min", "")),
+            "age_max": str(patients.get("age_max", "")),
+            "gender": patients.get("gender", "")
+        },
+        "slot2_enabled": False,
+        "slot2": {
+            "time_start": time_filter.get("treatment_start_2", ""),
+            "time_end": time_filter.get("treatment_end_2", ""),
+            "max_patients": 5,
+            "diagnosis_include": "",
+            "diagnosis_exclude": "",
+            "wishes_include": "",
+            "wishes_exclude": "",
+            "language_include": "",
+            "language_exclude": "",
+            "age_min": "",
+            "age_max": "",
+            "gender": ""
+        },
+        "runtime": {
+            "interval_minutes": runtime.get("interval_minutes", 5),
+            "headless": runtime.get("headless", False),
+            "slowmo_ms": runtime.get("slowmo_ms", 0)
+        },
+        "loop": {
+            "scan_interval_sec": loop.get("scan_interval_sec", 5),
+            "max_pages": loop.get("max_pages", 5)
+        }
+    }
+
+    return new_data
+
 # Importiere Lizenz-System (falls vorhanden)
 check_license_before_start = None
 try:
@@ -105,99 +175,190 @@ class TeleClinicBotGUI:
 
         pad = {"padx": 5, "pady": 5}
 
-        # Tag
-        ttk.Label(filter_frame, text="Tag").grid(row=0, column=0, sticky="w", **pad)
+        # ===== SLOT 1 (Vormittag) =====
+        slot1_label = ttk.Label(filter_frame, text="🕐 SLOT 1 (Vormittag)", font=("Arial", 10, "bold"))
+        slot1_label.grid(row=0, column=0, columnspan=4, sticky="w", **pad)
+
+        # Tag (global)
+        ttk.Label(filter_frame, text="Tag").grid(row=1, column=0, sticky="w", **pad)
         self.day_window = ttk.Combobox(filter_frame, values=["heute", "morgen", "später"], state="readonly")
         self.day_window.set("heute")
-        self.day_window.grid(row=0, column=1, sticky="ew", **pad)
+        self.day_window.grid(row=1, column=1, sticky="ew", **pad)
 
-        # Zeit
-        ttk.Label(filter_frame, text="Zeit von").grid(row=1, column=0, sticky="w", **pad)
+        # Zeit Slot 1
+        ttk.Label(filter_frame, text="Zeit von").grid(row=2, column=0, sticky="w", **pad)
         self.time_from = ttk.Entry(filter_frame, width=10)
         self.time_from.insert(0, "21:30")
-        self.time_from.grid(row=1, column=1, sticky="w", **pad)
+        self.time_from.grid(row=2, column=1, sticky="w", **pad)
 
-        ttk.Label(filter_frame, text="bis").grid(row=1, column=2, sticky="w", **pad)
+        ttk.Label(filter_frame, text="bis").grid(row=2, column=2, sticky="w", **pad)
         self.time_to = ttk.Entry(filter_frame, width=10)
         self.time_to.insert(0, "23:30")
-        self.time_to.grid(row=1, column=3, sticky="w", **pad)
+        self.time_to.grid(row=2, column=3, sticky="w", **pad)
 
-        # Alter
-        ttk.Label(filter_frame, text="Alter min").grid(row=2, column=0, sticky="w", **pad)
-        self.age_min = ttk.Entry(filter_frame, width=10)
-        self.age_min.insert(0, "")
-        self.age_min.grid(row=2, column=1, sticky="w", **pad)
-
-        ttk.Label(filter_frame, text="max").grid(row=2, column=2, sticky="w", **pad)
-        self.age_max = ttk.Entry(filter_frame, width=10)
-        self.age_max.insert(0, "")
-        self.age_max.grid(row=2, column=3, sticky="w", **pad)
-
-        # Geschlecht
-        ttk.Label(filter_frame, text="Geschlecht").grid(row=3, column=0, sticky="w", **pad)
-        self.gender = ttk.Combobox(filter_frame, values=["egal", "männlich", "weiblich", "divers"], state="readonly", width=15)
-        self.gender.set("egal")
-        self.gender.grid(row=3, column=1, sticky="w", **pad)
-
-        # Diagnose (Include)
-        ttk.Label(filter_frame, text="Diagnose").grid(row=4, column=0, sticky="w", **pad)
+        # Diagnose (Slot 1)
+        ttk.Label(filter_frame, text="Diagnose").grid(row=3, column=0, sticky="w", **pad)
         self.diagnosis = ttk.Entry(filter_frame, width=30)
         self.diagnosis.insert(0, "")
-        self.diagnosis.grid(row=4, column=1, columnspan=2, sticky="ew", **pad)
+        self.diagnosis.grid(row=3, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Wünsche (Include)
-        ttk.Label(filter_frame, text="Wünsche (AU,Rezept)").grid(row=5, column=0, sticky="w", **pad)
+        # Wünsche (Slot 1)
+        ttk.Label(filter_frame, text="Wünsche (AU,Rezept)").grid(row=4, column=0, sticky="w", **pad)
         self.wishes = ttk.Entry(filter_frame, width=30)
         self.wishes.insert(0, "")
-        self.wishes.grid(row=5, column=1, columnspan=2, sticky="ew", **pad)
+        self.wishes.grid(row=4, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Sprache (Include)
-        ttk.Label(filter_frame, text="Sprache").grid(row=6, column=0, sticky="w", **pad)
+        # Sprache (Slot 1)
+        ttk.Label(filter_frame, text="Sprache").grid(row=5, column=0, sticky="w", **pad)
         self.language = ttk.Entry(filter_frame, width=30)
         self.language.insert(0, "")
-        self.language.grid(row=6, column=1, columnspan=2, sticky="ew", **pad)
+        self.language.grid(row=5, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Diagnose ausschließen (Exclude)
-        ttk.Label(filter_frame, text="Diagnose ausschließen").grid(row=7, column=0, sticky="w", **pad)
+        # Diagnose ausschließen (Slot 1)
+        ttk.Label(filter_frame, text="Diagnose ausschließen").grid(row=6, column=0, sticky="w", **pad)
         self.diagnosis_exclude = ttk.Entry(filter_frame, width=30)
         self.diagnosis_exclude.insert(0, "")
-        self.diagnosis_exclude.grid(row=7, column=1, columnspan=2, sticky="ew", **pad)
+        self.diagnosis_exclude.grid(row=6, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Wünsche ausschließen (Exclude)
-        ttk.Label(filter_frame, text="Wünsche ausschließen").grid(row=8, column=0, sticky="w", **pad)
+        # Wünsche ausschließen (Slot 1)
+        ttk.Label(filter_frame, text="Wünsche ausschließen").grid(row=7, column=0, sticky="w", **pad)
         self.wishes_exclude = ttk.Entry(filter_frame, width=30)
         self.wishes_exclude.insert(0, "")
-        self.wishes_exclude.grid(row=8, column=1, columnspan=2, sticky="ew", **pad)
+        self.wishes_exclude.grid(row=7, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Sprache ausschließen (Exclude)
-        ttk.Label(filter_frame, text="Sprache ausschließen").grid(row=9, column=0, sticky="w", **pad)
+        # Sprache ausschließen (Slot 1)
+        ttk.Label(filter_frame, text="Sprache ausschließen").grid(row=8, column=0, sticky="w", **pad)
         self.language_exclude = ttk.Entry(filter_frame, width=30)
         self.language_exclude.insert(0, "")
-        self.language_exclude.grid(row=9, column=1, columnspan=2, sticky="ew", **pad)
+        self.language_exclude.grid(row=8, column=1, columnspan=2, sticky="ew", **pad)
 
-        # Max Patienten
-        ttk.Label(filter_frame, text="Max Patienten").grid(row=10, column=0, sticky="w", **pad)
-        self.max_patients = ttk.Spinbox(filter_frame, from_=1, to=20, width=10)
+        # Alter + Geschlecht (Slot 1)
+        ttk.Label(filter_frame, text="Alter min").grid(row=9, column=0, sticky="w", **pad)
+        self.age_min = ttk.Entry(filter_frame, width=10)
+        self.age_min.insert(0, "")
+        self.age_min.grid(row=9, column=1, sticky="w", **pad)
+
+        ttk.Label(filter_frame, text="max").grid(row=9, column=2, sticky="w", **pad)
+        self.age_max = ttk.Entry(filter_frame, width=10)
+        self.age_max.insert(0, "")
+        self.age_max.grid(row=9, column=3, sticky="w", **pad)
+
+        ttk.Label(filter_frame, text="Geschlecht").grid(row=10, column=0, sticky="w", **pad)
+        self.gender = ttk.Combobox(filter_frame, values=["egal", "männlich", "weiblich", "divers"], state="readonly", width=15)
+        self.gender.set("egal")
+        self.gender.grid(row=10, column=1, sticky="w", **pad)
+
+        # Max Patienten (Slot 1)
+        ttk.Label(filter_frame, text="Max Patienten").grid(row=11, column=0, sticky="w", **pad)
+        self.max_patients = ttk.Spinbox(filter_frame, from_=1, to=100, width=10)
         self.max_patients.set(5)
-        self.max_patients.grid(row=10, column=1, sticky="w", **pad)
+        self.max_patients.grid(row=11, column=1, sticky="w", **pad)
+
+        # ===== CHECKBOX: 2. ZEITSLOT AKTIVIEREN =====
+        self.slot2_enabled = tk.BooleanVar(value=False)
+        slot2_checkbox = ttk.Checkbutton(filter_frame, text="✓ 2. Zeitslot aktivieren (Nachmittag)",
+                                         variable=self.slot2_enabled,
+                                         command=self.toggle_slot2)
+        slot2_checkbox.grid(row=12, column=0, columnspan=4, sticky="w", **pad)
+
+        # ===== SLOT 2 (Nachmittag) — wird mit grid_remove() versteckt =====
+        self.slot2_frame = ttk.LabelFrame(filter_frame, text="🕑 SLOT 2 (Nachmittag)", padding="5")
+        self.slot2_frame.grid(row=13, column=0, columnspan=4, sticky="ew", padx=10, pady=5)
+        self.slot2_frame.columnconfigure(1, weight=1)
+
+        # Zeit Slot 2
+        ttk.Label(self.slot2_frame, text="Zeit von").grid(row=0, column=0, sticky="w", **pad)
+        self.time_from_2 = ttk.Entry(self.slot2_frame, width=10)
+        self.time_from_2.insert(0, "14:00")
+        self.time_from_2.grid(row=0, column=1, sticky="w", **pad)
+
+        ttk.Label(self.slot2_frame, text="bis").grid(row=0, column=2, sticky="w", **pad)
+        self.time_to_2 = ttk.Entry(self.slot2_frame, width=10)
+        self.time_to_2.insert(0, "18:00")
+        self.time_to_2.grid(row=0, column=3, sticky="w", **pad)
+
+        # Diagnose (Slot 2)
+        ttk.Label(self.slot2_frame, text="Diagnose").grid(row=1, column=0, sticky="w", **pad)
+        self.diagnosis_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.diagnosis_2.insert(0, "")
+        self.diagnosis_2.grid(row=1, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Wünsche (Slot 2)
+        ttk.Label(self.slot2_frame, text="Wünsche").grid(row=2, column=0, sticky="w", **pad)
+        self.wishes_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.wishes_2.insert(0, "")
+        self.wishes_2.grid(row=2, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Sprache (Slot 2)
+        ttk.Label(self.slot2_frame, text="Sprache").grid(row=3, column=0, sticky="w", **pad)
+        self.language_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.language_2.insert(0, "")
+        self.language_2.grid(row=3, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Diagnose ausschließen (Slot 2)
+        ttk.Label(self.slot2_frame, text="Diagnose ausschließen").grid(row=4, column=0, sticky="w", **pad)
+        self.diagnosis_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.diagnosis_exclude_2.insert(0, "")
+        self.diagnosis_exclude_2.grid(row=4, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Wünsche ausschließen (Slot 2)
+        ttk.Label(self.slot2_frame, text="Wünsche ausschließen").grid(row=5, column=0, sticky="w", **pad)
+        self.wishes_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.wishes_exclude_2.insert(0, "")
+        self.wishes_exclude_2.grid(row=5, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Sprache ausschließen (Slot 2)
+        ttk.Label(self.slot2_frame, text="Sprache ausschließen").grid(row=6, column=0, sticky="w", **pad)
+        self.language_exclude_2 = ttk.Entry(self.slot2_frame, width=30)
+        self.language_exclude_2.insert(0, "")
+        self.language_exclude_2.grid(row=6, column=1, columnspan=2, sticky="ew", **pad)
+
+        # Alter + Geschlecht (Slot 2)
+        ttk.Label(self.slot2_frame, text="Alter min").grid(row=7, column=0, sticky="w", **pad)
+        self.age_min_2 = ttk.Entry(self.slot2_frame, width=10)
+        self.age_min_2.insert(0, "")
+        self.age_min_2.grid(row=7, column=1, sticky="w", **pad)
+
+        ttk.Label(self.slot2_frame, text="max").grid(row=7, column=2, sticky="w", **pad)
+        self.age_max_2 = ttk.Entry(self.slot2_frame, width=10)
+        self.age_max_2.insert(0, "")
+        self.age_max_2.grid(row=7, column=3, sticky="w", **pad)
+
+        ttk.Label(self.slot2_frame, text="Geschlecht").grid(row=8, column=0, sticky="w", **pad)
+        self.gender_2 = ttk.Combobox(self.slot2_frame, values=["egal", "männlich", "weiblich", "divers"], state="readonly", width=15)
+        self.gender_2.set("egal")
+        self.gender_2.grid(row=8, column=1, sticky="w", **pad)
+
+        # Max Patienten (Slot 2)
+        ttk.Label(self.slot2_frame, text="Max Patienten").grid(row=9, column=0, sticky="w", **pad)
+        self.max_patients_2 = ttk.Spinbox(self.slot2_frame, from_=1, to=100, width=10)
+        self.max_patients_2.set(5)
+        self.max_patients_2.grid(row=9, column=1, sticky="w", **pad)
+
+        # Verstecke Slot 2 anfangs
+        self.slot2_frame.grid_remove()
+
+        # ===== ALLGEMEINE EINSTELLUNGEN =====
+        general_label = ttk.Label(filter_frame, text="⚙️ ALLGEMEINE EINSTELLUNGEN", font=("Arial", 10, "bold"))
+        general_label.grid(row=14, column=0, columnspan=4, sticky="w", **pad)
 
         # Loop-Geschwindigkeit (Scan-Intervall)
-        ttk.Label(filter_frame, text="Scan-Intervall (Sek)").grid(row=11, column=0, sticky="w", **pad)
+        ttk.Label(filter_frame, text="Scan-Intervall (Sek)").grid(row=15, column=0, sticky="w", **pad)
         self.scan_interval = ttk.Spinbox(filter_frame, from_=1, to=30, width=10)
         self.scan_interval.set(8)
-        self.scan_interval.grid(row=11, column=1, sticky="w", **pad)
+        self.scan_interval.grid(row=15, column=1, sticky="w", **pad)
 
         # Behandlungsintervall (Minuten)
-        ttk.Label(filter_frame, text="Behandlungsintervall (Min)").grid(row=11, column=2, sticky="w", **pad)
+        ttk.Label(filter_frame, text="Behandlungsintervall (Min)").grid(row=15, column=2, sticky="w", **pad)
         self.interval_minutes = ttk.Spinbox(filter_frame, from_=1, to=60, width=10)
         self.interval_minutes.set(5)
-        self.interval_minutes.grid(row=11, column=3, sticky="w", **pad)
+        self.interval_minutes.grid(row=15, column=3, sticky="w", **pad)
 
         # Max Seiten
-        ttk.Label(filter_frame, text="Max Seiten").grid(row=12, column=0, sticky="w", **pad)
+        ttk.Label(filter_frame, text="Max Seiten").grid(row=16, column=0, sticky="w", **pad)
         self.max_pages = ttk.Spinbox(filter_frame, from_=1, to=20, width=10)
         self.max_pages.set(5)
-        self.max_pages.grid(row=12, column=1, sticky="w", **pad)
+        self.max_pages.grid(row=16, column=1, sticky="w", **pad)
 
         # --- BUTTON-BEREICH ---
         button_frame = ttk.Frame(main_frame)
@@ -272,80 +433,156 @@ class TeleClinicBotGUI:
         self.status_label.grid(row=5, column=0, columnspan=3, sticky="w", pady=5)
 
     def load_filters(self):
-        """Lade gespeicherte Filter"""
+        """Lade gespeicherte Filter und migriere bei Bedarf zu neuem Format"""
         if FILTER_PATH.exists():
             try:
                 with open(FILTER_PATH, 'r', encoding='utf-8') as f:
                     data = json.load(f)
+
+                    # Migriere alte zu neuer Format
+                    data = migrate_filters_to_slot_format(data)
+
+                    # ===== SLOT 1 =====
                     self.day_window.set(data.get("time_filter", {}).get("day_window", "heute"))
+                    slot1 = data.get("slot1", {})
+
                     self.time_from.delete(0, tk.END)
-                    self.time_from.insert(0, data.get("time_filter", {}).get("treatment_start", "21:30"))
+                    self.time_from.insert(0, slot1.get("time_start", "21:30"))
                     self.time_to.delete(0, tk.END)
-                    self.time_to.insert(0, data.get("time_filter", {}).get("treatment_end", "23:30"))
-                    self.age_min.delete(0, tk.END)
-                    self.age_min.insert(0, str(data.get("patients", {}).get("age_min", "")))
-                    self.age_max.delete(0, tk.END)
-                    self.age_max.insert(0, str(data.get("patients", {}).get("age_max", "")))
-                    self.gender.set(data.get("patients", {}).get("gender", "egal"))
-                    self.language.delete(0, tk.END)
-                    lang = data.get("patients", {}).get("language_include", [])
-                    self.language.insert(0, ",".join(lang) if isinstance(lang, list) else "")
-                    self.language_exclude.delete(0, tk.END)
-                    lang_excl = data.get("patients", {}).get("language_exclude", [])
-                    self.language_exclude.insert(0, ",".join(lang_excl) if isinstance(lang_excl, list) else "")
+                    self.time_to.insert(0, slot1.get("time_end", "23:30"))
+
                     self.diagnosis.delete(0, tk.END)
-                    diag = data.get("diagnosis", {}).get("include", "")
-                    self.diagnosis.insert(0, diag if isinstance(diag, str) else ",".join(diag))
+                    self.diagnosis.insert(0, slot1.get("diagnosis_include", ""))
                     self.diagnosis_exclude.delete(0, tk.END)
-                    diag_excl = data.get("diagnosis", {}).get("exclude", "")
-                    self.diagnosis_exclude.insert(0, diag_excl if isinstance(diag_excl, str) else ",".join(diag_excl))
+                    self.diagnosis_exclude.insert(0, slot1.get("diagnosis_exclude", ""))
+
                     self.wishes.delete(0, tk.END)
-                    wish = data.get("wishes", {}).get("include", "")
-                    self.wishes.insert(0, wish if isinstance(wish, str) else ",".join(wish))
+                    self.wishes.insert(0, slot1.get("wishes_include", ""))
                     self.wishes_exclude.delete(0, tk.END)
-                    wish_excl = data.get("wishes", {}).get("exclude", "")
-                    self.wishes_exclude.insert(0, wish_excl if isinstance(wish_excl, str) else ",".join(wish_excl))
-                    self.max_patients.set(data.get("runtime", {}).get("max_patients", 5))
+                    self.wishes_exclude.insert(0, slot1.get("wishes_exclude", ""))
+
+                    self.language.delete(0, tk.END)
+                    self.language.insert(0, slot1.get("language_include", ""))
+                    self.language_exclude.delete(0, tk.END)
+                    self.language_exclude.insert(0, slot1.get("language_exclude", ""))
+
+                    self.age_min.delete(0, tk.END)
+                    self.age_min.insert(0, str(slot1.get("age_min", "")))
+                    self.age_max.delete(0, tk.END)
+                    self.age_max.insert(0, str(slot1.get("age_max", "")))
+                    self.gender.set(slot1.get("gender", "egal"))
+
+                    self.max_patients.set(slot1.get("max_patients", 5))
+
+                    # ===== SLOT 2 =====
+                    slot2_enabled = data.get("slot2_enabled", False)
+                    self.slot2_enabled.set(slot2_enabled)
+                    slot2 = data.get("slot2", {})
+
+                    self.time_from_2.delete(0, tk.END)
+                    self.time_from_2.insert(0, slot2.get("time_start", "14:00"))
+                    self.time_to_2.delete(0, tk.END)
+                    self.time_to_2.insert(0, slot2.get("time_end", "18:00"))
+
+                    self.diagnosis_2.delete(0, tk.END)
+                    self.diagnosis_2.insert(0, slot2.get("diagnosis_include", ""))
+                    self.diagnosis_exclude_2.delete(0, tk.END)
+                    self.diagnosis_exclude_2.insert(0, slot2.get("diagnosis_exclude", ""))
+
+                    self.wishes_2.delete(0, tk.END)
+                    self.wishes_2.insert(0, slot2.get("wishes_include", ""))
+                    self.wishes_exclude_2.delete(0, tk.END)
+                    self.wishes_exclude_2.insert(0, slot2.get("wishes_exclude", ""))
+
+                    self.language_2.delete(0, tk.END)
+                    self.language_2.insert(0, slot2.get("language_include", ""))
+                    self.language_exclude_2.delete(0, tk.END)
+                    self.language_exclude_2.insert(0, slot2.get("language_exclude", ""))
+
+                    self.age_min_2.delete(0, tk.END)
+                    self.age_min_2.insert(0, str(slot2.get("age_min", "")))
+                    self.age_max_2.delete(0, tk.END)
+                    self.age_max_2.insert(0, str(slot2.get("age_max", "")))
+                    self.gender_2.set(slot2.get("gender", "egal"))
+
+                    self.max_patients_2.set(slot2.get("max_patients", 5))
+
+                    # ===== LOOP SETTINGS =====
                     self.scan_interval.set(data.get("loop", {}).get("scan_interval_sec", 8))
-                    # NEU: interval_minutes laden
                     self.interval_minutes.set(data.get("runtime", {}).get("interval_minutes", 5))
                     self.max_pages.set(data.get("loop", {}).get("max_pages", 5))
+
+                    # Zeige/verstecke Slot 2 basierend auf Flag
+                    self.toggle_slot2()
             except Exception as e:
                 self.log("⚠️ Fehler beim Laden der Filter: " + str(e))
 
+    def toggle_slot2(self):
+        """Zeige/verstecke Slot-2-Block basierend auf Checkbox"""
+        if self.slot2_enabled.get():
+            self.slot2_frame.grid()
+        else:
+            self.slot2_frame.grid_remove()
+
     def save_filters(self):
-        """Speichere Filter in filters.json"""
-        # Interval-Minuten Default 5, falls leer/ungültig
+        """Speichere Filter in neuem Slot-Format"""
         try:
             interval_min = int(self.interval_minutes.get()) if str(self.interval_minutes.get()).strip().isdigit() else 5
         except Exception:
             interval_min = 5
+
         data = {
             "time_filter": {
-                "day_window": self.day_window.get(),
-                "treatment_start": self.time_from.get(),
-                "treatment_end": self.time_to.get()
+                "day_window": self.day_window.get()
+            },
+            "slot1": {
+                "time_start": self.time_from.get(),
+                "time_end": self.time_to.get(),
+                "max_patients": int(self.max_patients.get()),
+                "diagnosis_include": self.diagnosis.get().strip(),
+                "diagnosis_exclude": self.diagnosis_exclude.get().strip(),
+                "wishes_include": self.wishes.get().strip(),
+                "wishes_exclude": self.wishes_exclude.get().strip(),
+                "language_include": self.language.get().strip(),
+                "language_exclude": self.language_exclude.get().strip(),
+                "age_min": self.age_min.get().strip(),
+                "age_max": self.age_max.get().strip(),
+                "gender": self.gender.get() if self.gender.get() != "egal" else ""
+            },
+            "slot2_enabled": self.slot2_enabled.get(),
+            "slot2": {
+                "time_start": self.time_from_2.get().strip(),
+                "time_end": self.time_to_2.get().strip(),
+                "max_patients": int(self.max_patients_2.get()),
+                "diagnosis_include": self.diagnosis_2.get().strip(),
+                "diagnosis_exclude": self.diagnosis_exclude_2.get().strip(),
+                "wishes_include": self.wishes_2.get().strip(),
+                "wishes_exclude": self.wishes_exclude_2.get().strip(),
+                "language_include": self.language_2.get().strip(),
+                "language_exclude": self.language_exclude_2.get().strip(),
+                "age_min": self.age_min_2.get().strip(),
+                "age_max": self.age_max_2.get().strip(),
+                "gender": self.gender_2.get() if self.gender_2.get() != "egal" else ""
             },
             "runtime": {
                 "interval_minutes": interval_min,
-                "max_patients": int(self.max_patients.get()),
                 "headless": False,
                 "slowmo_ms": 0
             },
             "patients": {
-                "gender": self.gender.get() if self.gender.get() != "egal" else "",
-                "age_min": int(self.age_min.get()) if self.age_min.get().strip().isdigit() else "",
-                "age_max": int(self.age_max.get()) if self.age_max.get().strip().isdigit() else "",
-                "language_include": [x.strip() for x in self.language.get().split(",") if x.strip()],
-                "language_exclude": [x.strip() for x in self.language_exclude.get().split(",") if x.strip()]
+                "gender": "",
+                "age_min": "",
+                "age_max": "",
+                "language_include": [],
+                "language_exclude": []
             },
             "diagnosis": {
-                "include": self.diagnosis.get().strip(),
-                "exclude": self.diagnosis_exclude.get().strip()
+                "include": "",
+                "exclude": ""
             },
             "wishes": {
-                "include": self.wishes.get().strip(),
-                "exclude": self.wishes_exclude.get().strip()
+                "include": "",
+                "exclude": ""
             },
             "loop": {
                 "scan_interval_sec": int(self.scan_interval.get()),
@@ -355,7 +592,7 @@ class TeleClinicBotGUI:
         try:
             with open(FILTER_PATH, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-            self.log("✅ Filter gespeichert!")
+            self.log("✅ Filter gespeichert (Slot 1 + Slot 2)!")
             messagebox.showinfo("Erfolg", "Filter wurden gespeichert.")
         except Exception as e:
             self.log("❌ Fehler beim Speichern: " + str(e))
@@ -375,12 +612,36 @@ class TeleClinicBotGUI:
         """Starte Scanner & Clicker"""
         self.save_filters()
 
+        # Vor neuem Lauf: gespeicherte Patienten für das aktuell gewählte Datum zurücksetzen
+        try:
+            from scheduled_patients import reset_patients_for_date
+            from datetime import datetime, timedelta
+
+            day_window = self.day_window.get()
+            if day_window == "morgen":
+                target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+            elif day_window == "später":
+                target_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+            else:
+                target_date = datetime.now().strftime("%Y-%m-%d")
+
+            reset_patients_for_date(target_date)
+
+            for item in self.appointment_tree.get_children():
+                self.appointment_tree.delete(item)
+
+            self.log(f"🧹 Kalenderdaten für {target_date} zurückgesetzt")
+        except Exception as e:
+            self.log(f"⚠️ Konnte Kalenderdaten nicht zurücksetzen: {e}")
+
         # Zeige Filter-Übersicht
         self.log("=" * 80)
         self.log("🚀 STARTE BOT - SCANNER & CLICKER")
         self.log("=" * 80)
         self.log(f"📅 TAG: {self.day_window.get()}")
         self.log(f"🕐 ZEIT: {self.time_from.get()} - {self.time_to.get()}")
+        if self.time_from_2.get().strip() and self.time_to_2.get().strip():
+            self.log(f"🕑 ZEIT 2: {self.time_from_2.get().strip()} - {self.time_to_2.get().strip()}")
         self.log(f"📋 DIAGNOSE: {self.diagnosis.get() or '(egal)'}")
 
         wishes_str = self.wishes.get() or '(keine)'
@@ -480,8 +741,6 @@ class TeleClinicBotGUI:
                                     formatted_line = f"🔄 {line}"
 
                             # 2. Terminierte Fälle - MEHRERE TRIGGER FÜR ROBUSTHEIT
-                            # Erkenne: "[OK] Anfrage übernommen" ODER "[OK] Anfrage bernommen" (Encoding-Problem)
-                            # ODER "[OK] Termin XX:XX eingetragen" (früherer Trigger)
                             elif (("[OK]" in line and ("bernommen" in line or "übernommen" in line)) or
                                   ("[OK] Termin" in line and "eingetragen" in line) or
                                   "✅ Fall" in line):
@@ -489,7 +748,7 @@ class TeleClinicBotGUI:
                                 show_line = True
                                 formatted_line = f"[{terminated_count}] ✅ {line}"
 
-                                # WICHTIG: Sofortige Terminkalender-Aktualisierung mit neuer Methode!
+                                # Sofortige Terminkalender-Aktualisierung
                                 self._update_calendar_from_json()
                                 last_calendar_update = time.time()
 
@@ -498,8 +757,8 @@ class TeleClinicBotGUI:
                                 show_line = True
                                 formatted_line = f"⚠️ {line}"
 
-                            # 4. Bot beendet
-                            elif "Maximale Patientenanzahl erreicht" in line or "SHUTDOWN" in line:
+                            # 4. Bot-Status / Shutdown-Hinweise nur anzeigen, NICHT Prozess hart beenden
+                            elif "Maximale Patientenanzahl erreicht" in line or "SHUTDOWN" in line or "[STOP]" in line:
                                 show_line = True
                                 formatted_line = f"🛑 {line}"
 
@@ -509,28 +768,14 @@ class TeleClinicBotGUI:
                                 self.log_text.see("end")
                                 self.log_text.config(state="disabled")
 
-                                # Prüfe auf Beende-Bedingungen
-                                if "Maximale Patientenanzahl erreicht" in line:
-                                    self.log("🎯 Maximale Patientenzahl erreicht - beende Bot!")
-                                    self.is_running = False
-                                    # Beende Prozess aktiv
-                                    if self.bot_process and self.bot_process.poll() is None:
-                                        self.bot_process.terminate()
-                                        try:
-                                            self.bot_process.wait(timeout=3)
-                                        except subprocess.TimeoutExpired:
-                                            self.bot_process.kill()
-                                    break
-
-                # Regelmäßige Terminkalender-Aktualisierung (alle 2 Sekunden)
-                # Falls Log-Zeilen verpasst wurden oder Datei extern geändert wurde
+                # Regelmäßige Terminkalender-Aktualisierung
                 current_time = time.time()
                 if current_time - last_calendar_update >= 2.0:
                     self._update_calendar_from_json()
                     last_calendar_update = current_time
 
                 time.sleep(0.5)
-            except Exception as e:
+            except Exception:
                 time.sleep(1)
 
     def _update_calendar_from_json(self):
