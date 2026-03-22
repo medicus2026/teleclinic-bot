@@ -1318,8 +1318,8 @@ async def click_loop(filters):
                             except Exception as e:
                                 await log_line(f"[WARN] Slot-1-Filter-Prüfung fehlgeschlagen: {e}")
 
-                        # Slot 2 prüfen (wenn aktiv und noch nicht voll und Slot 1 kein Match)
-                        if matched_slot is None and slot2_enabled and slot2_filters and not slot2_full:
+                        # Slot 2 prüfen (unabhängig von Slot 1, wenn aktiv und noch nicht voll)
+                        if slot2_enabled and slot2_filters and not slot2_full:
                             try:
                                 matches2, ot2 = await check_case_matches_filters(card, slot2_filters)
                                 if matches2:
@@ -1329,8 +1329,9 @@ async def click_loop(filters):
                             except Exception as e:
                                 await log_line(f"[WARN] Slot-2-Filter-Prüfung fehlgeschlagen: {e}")
 
+                        # Wenn kein Slot passt, überspringen
                         if matched_slot is None:
-                            await log_line(f"[SKIP] Fall {idx + 1} passt zu keinem Slot – übersprungen")
+                            await log_line(f"[SKIP] Fall {idx + 1} entspricht keinem Slot-Filter - übersprungen")
                             continue
 
                         # Button innerhalb der Karte robust ermitteln
@@ -1345,14 +1346,11 @@ async def click_loop(filters):
                             except Exception:
                                 pass
 
-                            import re as _re
                             for scope in containers:
-                                # 1) Stabiler data-cy Selector
                                 candidate = await scope.query_selector("button[data-cy='submit']")
                                 if candidate:
                                     btn = candidate
                                     break
-                                # 2) Role + Regex mit Ü/ue Fallback
                                 try:
                                     loc = scope.get_by_role("button", name=_re.compile(r"Anfrage\s+(übernehmen|uebernehmen)", _re.I))
                                     if await loc.count() > 0:
@@ -1360,12 +1358,7 @@ async def click_loop(filters):
                                         break
                                 except Exception:
                                     pass
-                                # 3) Fallback: beliebiger Button mit Teiltext 'Übernehmen' oder 'Anfrage'
                                 candidate = await scope.query_selector("button:has-text('Übernehmen')")
-                                if candidate:
-                                    btn = candidate
-                                    break
-                                candidate = await scope.query_selector("button:has-text('Anfrage')")
                                 if candidate:
                                     btn = candidate
                                     break
@@ -1377,18 +1370,14 @@ async def click_loop(filters):
                             await log_line(f"[SKIP] Fall {idx + 1} hat keinen erkennbaren 'Übernehmen'-Button (auch nicht im Parent)")
                             continue
 
-                        # Falls Filter übereinstimmen, versuche zu übernehmen
+                        # Falls Filter übereinstimmen, versuche zu übernehmen (mit berechneter Zeit)
                         ok = await handle_case(page, btn, matched_filters, overlap_time, case_element=card)
                         if ok:
                             if matched_slot == 1:
                                 slot1_accepted += 1
-                            else:
+                            elif matched_slot == 2:
                                 slot2_accepted += 1
-                            patients_accepted = slot1_accepted + slot2_accepted
-                            await log_line(
-                                f"[DONE] ✅ Fall {idx + 1} → Slot {matched_slot} | "
-                                f"Slot 1: {slot1_accepted}/{slot1_max} | Slot 2: {slot2_accepted}/{slot2_max}"
-                            )
+                            await log_line(f"[DONE] ✅ Fall {idx + 1} erfolgreich übernommen! Slot {matched_slot}")
                             await asyncio.sleep(2)
 
                     # Prüfe, ob nächste Seite existiert (z.B. durch Pagination-Button)

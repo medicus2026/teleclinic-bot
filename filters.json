@@ -3,11 +3,11 @@
     "day_window": "heute"
   },
   "slot1": {
-    "time_start": "20:00",
+    "time_start": "20:30",
     "time_end": "21:30",
-    "max_patients": 10,
-    "interval_minutes": 5,
-    "diagnosis_include": "Psyche",
+    "max_patients": 0,
+    "interval_minutes": 6,
+    "diagnosis_include": "zzztest",
     "diagnosis_exclude": "",
     "wishes_include": "",
     "wishes_exclude": "",
@@ -17,13 +17,13 @@
     "age_max": "",
     "gender": ""
   },
-  "slot2_enabled": false,
+  "slot2_enabled": true,
   "slot2": {
-    "time_start": "16:30",
-    "time_end": "19:00",
+    "time_start": "23:00",
+    "time_end": "23:30",
     "max_patients": 5,
     "interval_minutes": 5,
-    "diagnosis_include": "",
+    "diagnosis_include": "Haut",
     "diagnosis_exclude": "",
     "wishes_include": "",
     "wishes_exclude": "",
@@ -34,7 +34,7 @@
     "gender": ""
   },
   "runtime": {
-    "interval_minutes": 5,
+    "interval_minutes": 6,
     "headless": false,
     "slowmo_ms": 0
   },

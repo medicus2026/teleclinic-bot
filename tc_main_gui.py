@@ -546,6 +546,12 @@ class TeleClinicBotGUI:
         else:
             self.slot2_frame.grid_remove()
 
+    @staticmethod
+    def normalize_time_input(t: str) -> str:
+        """Normalisiert Zeiteingabe: ersetzt Punkt durch Doppelpunkt (23.30 → 23:30)."""
+        t = t.strip().replace(".", ":")
+        return t
+
     def save_filters(self):
         """Speichere Filter in neuem Slot-Format"""
         try:
@@ -553,13 +559,15 @@ class TeleClinicBotGUI:
         except Exception:
             interval_min = 5
 
+        nt = self.normalize_time_input  # Kurzreferenz
+
         data = {
             "time_filter": {
                 "day_window": self.day_window.get()
             },
             "slot1": {
-                "time_start": self.time_from.get(),
-                "time_end": self.time_to.get(),
+                "time_start": nt(self.time_from.get()),
+                "time_end": nt(self.time_to.get()),
                 "max_patients": int(self.max_patients.get()),
                 "interval_minutes": int(self.interval_minutes.get()),
                 "diagnosis_include": self.diagnosis.get().strip(),
@@ -574,8 +582,8 @@ class TeleClinicBotGUI:
             },
             "slot2_enabled": self.slot2_enabled.get(),
             "slot2": {
-                "time_start": self.time_from_2.get().strip(),
-                "time_end": self.time_to_2.get().strip(),
+                "time_start": nt(self.time_from_2.get().strip()),
+                "time_end": nt(self.time_to_2.get().strip()),
                 "max_patients": int(self.max_patients_2.get()),
                 "interval_minutes": int(self.interval_minutes_2.get()),
                 "diagnosis_include": self.diagnosis_2.get().strip(),
