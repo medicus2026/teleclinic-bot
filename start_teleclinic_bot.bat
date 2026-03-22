@@ -25,10 +25,15 @@ if errorlevel 1 (
   exit /b 1
 )
 
-python "%APP_DIR%tc_main_gui.py" > "%LOG_FILE%" 2>&1
+python "%APP_DIR%tc_main_gui.py"
 if errorlevel 1 (
-  echo ERROR: Fehler beim Starten von tc_main_gui.py. >> "%LOG_FILE%"
-  start notepad.exe "%LOG_FILE%"
+  echo.
+  echo ============================================================
+  echo  FEHLER: tc_main_gui.py konnte nicht gestartet werden.
+  echo  Bitte schauen Sie auf die Fehlermeldung oben.
+  echo ============================================================
+  echo.
+  pause
   exit /b 1
 )
 

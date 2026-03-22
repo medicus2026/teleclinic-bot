@@ -558,17 +558,20 @@ class TeleClinicBotGUI:
     @staticmethod
     def normalize_time_input(t: str) -> str:
         """Normalisiert Zeiteingabe: ersetzt Punkt durch Doppelpunkt (23.30 → 23:30)."""
-        t = t.strip().replace(".", ":")
-        return t
+        return t.strip().replace(".", ":")
+
+    @staticmethod
+    def _safe_int(value, default=0):
+        """Konvertiert sicher zu int, gibt default zurück bei leerem/ungültigem Wert."""
+        try:
+            return int(str(value).strip())
+        except (ValueError, TypeError):
+            return default
 
     def save_filters(self):
         """Speichere Filter in neuem Slot-Format"""
-        try:
-            interval_min = int(self.interval_minutes.get()) if str(self.interval_minutes.get()).strip().isdigit() else 5
-        except Exception:
-            interval_min = 5
-
-        nt = self.normalize_time_input  # Kurzreferenz
+        si = self._safe_int
+        nt = self.normalize_time_input
 
         data = {
             "time_filter": {
@@ -577,8 +580,8 @@ class TeleClinicBotGUI:
             "slot1": {
                 "time_start": nt(self.time_from.get()),
                 "time_end": nt(self.time_to.get()),
-                "max_patients": int(self.max_patients.get()),
-                "interval_minutes": int(self.interval_minutes.get()),
+                "max_patients": si(self.max_patients.get(), 0),
+                "interval_minutes": si(self.interval_minutes.get(), 5),
                 "diagnosis_include": self.diagnosis.get().strip(),
                 "diagnosis_exclude": self.diagnosis_exclude.get().strip(),
                 "wishes_include": self.wishes.get().strip(),
@@ -593,8 +596,8 @@ class TeleClinicBotGUI:
             "slot2": {
                 "time_start": nt(self.time_from_2.get().strip()),
                 "time_end": nt(self.time_to_2.get().strip()),
-                "max_patients": int(self.max_patients_2.get()),
-                "interval_minutes": int(self.interval_minutes_2.get()),
+                "max_patients": si(self.max_patients_2.get(), 0),
+                "interval_minutes": si(self.interval_minutes_2.get(), 5),
                 "diagnosis_include": self.diagnosis_2.get().strip(),
                 "diagnosis_exclude": self.diagnosis_exclude_2.get().strip(),
                 "wishes_include": self.wishes_2.get().strip(),
@@ -606,7 +609,7 @@ class TeleClinicBotGUI:
                 "gender": self.gender_2.get() if self.gender_2.get() != "egal" else ""
             },
             "runtime": {
-                "interval_minutes": interval_min,
+                "interval_minutes": si(self.interval_minutes.get(), 5),
                 "headless": False,
                 "slowmo_ms": 0
             },
@@ -626,8 +629,8 @@ class TeleClinicBotGUI:
                 "exclude": ""
             },
             "loop": {
-                "scan_interval_sec": int(self.scan_interval.get()),
-                "max_pages": int(self.max_pages.get())
+                "scan_interval_sec": si(self.scan_interval.get(), 5),
+                "max_pages": si(self.max_pages.get(), 5)
             }
         }
         try:
