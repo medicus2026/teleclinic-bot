@@ -22682,3 +22682,226 @@ Weiblich, 31 Jahre, AU, weitere Informationen in d...
 [19:05:43] [SKIP] Fall 11 passt zu keinem Slot – übersprungen
 [19:05:43] [LOOP] 11 Anfragen gefunden | Slot 1: 3/10 | Slot 2: 0/0
 [19:05:43] [LOOP] Warte 5s bis zum nächsten Scan...
+======================================================================
+[2026-03-22 19:27:46] Neue Bot-Session gestartet
+
+[19:27:46] [INFO] Filter geladen.
+[19:27:46] [SCHEDULER] 🔄 Alte Termine für 2026-03-22 zurückgesetzt - neue Session startet!
+[19:27:46] [RESET] Patient-Counter auf 0 zurückgesetzt
+[19:27:46] [INFO] Prüfe Chrome Debug-Modus...
+[19:27:46] [INFO] Chrome läuft bereits - überspringe Login-Wartezeit
+[19:27:46] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[19:27:46] ======================================================================
+[19:27:46] [INFO] 🕐 SLOT 1: 20:00 - 21:30 | Max: 10
+[19:27:46] [INFO] SLOT 2: deaktiviert
+[19:27:46] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 5
+[19:27:46] ======================================================================
+[19:27:47] [START] Verbunden mit Google Chrome Debug-Session.
+[19:27:47] [INFO] Aktuelle URL: https://med.teleclinic.com/requests?tab=0&page=1
+[19:27:47] [INFO] 🗓️ Tag-Filter: Heute (Methode: URL tab=0 + Validierung)
+[19:27:47] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[19:27:47] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[19:27:47] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[19:27:47] [START] Bereit zum Scannen. Los geht's!
+[19:27:47] ======================================================================
+[19:27:47] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[19:27:47] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[19:27:47] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[19:27:47] [SCAN] Scanne Seite 1 (tab=0)...
+[19:27:47] [SCAN] Seite 1: 14 übernehmbare Anfragen gefunden.
+[19:27:47] [TRY] Seite 1, Fall 1/14 | Slot 1: 0/10 | Slot 2: 0/0
+[19:27:47] [FILTER] Prüfe Fall: 18:00 - 20:00
+
+GKV
+VIDEO
+
+Allergie
+
+English, Männlich, 29 Jahre, AU, weitere Informationen in der Fa...
+[19:27:47] [FILTER] ❌ Keine Zeitüberschneidung!
+[19:27:47]          Patient: 18:00 - 20:00
+[19:27:47]          Slot 1: 20:00 - 21:30
+[19:27:47] [SKIP] Fall 1 passt zu keinem Slot – übersprungen
+[19:27:47] [TRY] Seite 1, Fall 2/14 | Slot 1: 0/10 | Slot 2: 0/0
+[19:27:47] [FILTER] Prüfe Fall: 18:00 - 20:00
+
+GKV
+VIDEO
+
+Erektionsstörung
+
+English, Männlich, 23 Jahre, weitere Informationen in de...
+[19:27:47] [FILTER] ❌ Keine Zeitüberschneidung!
+[19:27:47]          Patient: 18:00 - 20:00
+[19:27:47]          Slot 1: 20:00 - 21:30
+[19:27:47] [SKIP] Fall 2 passt zu keinem Slot – übersprungen
+[19:27:47] [TRY] Seite 1, Fall 3/14 | Slot 1: 0/10 | Slot 2: 0/0
+[19:27:47] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Diabetes
+
+Männlich, 24 Jahre, Rezept, weitere Informationen in der Fallans...
+[19:27:47] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:47] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[19:27:47] [SKIP] Fall 3 passt zu keinem Slot – übersprungen
+[19:27:47] [TRY] Seite 1, Fall 4/14 | Slot 1: 0/10 | Slot 2: 0/0
+[19:27:47] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Weiblich, 34 Jahre, Rezept, weitere Informationen in der ...
+[19:27:47] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:47] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[19:27:47] [SKIP] Fall 4 passt zu keinem Slot – übersprungen
+[19:27:47] [TRY] Seite 1, Fall 5/14 | Slot 1: 0/10 | Slot 2: 0/0
+[19:27:47] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 48 Jahre, Rezept, weitere Informationen in de...
+[19:27:47] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:47] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[19:27:47] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[19:27:48] [POPUP] Dialog/Popup erkannt (oder Time-Input erscheint gleich).
+[19:27:49] [SCHEDULER] Slot zugewiesen: 20:00 (Patientenwunsch ab 20:00)
+[19:27:49] [TIME] ✅ Zeit gesetzt (React-JS): 20:00
+[19:27:49] [OK] Anfrage übernommen – Termin 20:00 gesetzt.
+[19:27:49] [INFO] 📊 Patienten übernommen: 1
+[19:27:49] [PATIENT] ✅ Patientendaten gespeichert (2026-03-22): 20:00 | Psychische Leiden | männlich | 48J
+[19:27:50] [DONE] ✅ Fall 5 → Slot 1 | Slot 1: 1/10 | Slot 2: 0/0
+[19:27:52] [TRY] Seite 1, Fall 6/14 | Slot 1: 1/10 | Slot 2: 0/0
+[19:27:52] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 29 Jahre, weitere Informationen in der Fallan...
+[19:27:53] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:53] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[19:27:53] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[19:27:53] [POPUP] Dialog/Popup erkannt (oder Time-Input erscheint gleich).
+[19:27:53] [SCHEDULER] Slot zugewiesen: 20:05 (Patientenwunsch ab 20:00)
+[19:27:54] [TIME] ✅ Zeit gesetzt (React-JS): 20:05
+[19:27:54] [OK] Anfrage übernommen – Termin 20:05 gesetzt.
+[19:27:54] [INFO] 📊 Patienten übernommen: 2
+[19:27:54] [PATIENT] ✅ Patientendaten gespeichert (2026-03-22): 20:05 | Psychische Leiden | männlich | 29J
+[19:27:55] [DONE] ✅ Fall 6 → Slot 1 | Slot 1: 2/10 | Slot 2: 0/0
+[19:27:57] [TRY] Seite 1, Fall 7/14 | Slot 1: 2/10 | Slot 2: 0/0
+[19:27:57] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Bewegungsschmerzen
+
+English, Männlich, 24 Jahre, AU und Rezept, weitere In...
+[19:27:57] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:57] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[19:27:58] [SKIP] Fall 7 passt zu keinem Slot – übersprungen
+[19:27:58] [TRY] Seite 1, Fall 8/14 | Slot 1: 2/10 | Slot 2: 0/0
+[19:27:58] [FILTER] Prüfe Fall: 19:00 -
+                              21:00GKVVIDEOPsychische LeidenWeiblich, 36 Jahre, AU, weitere ...
+[19:27:58] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:27:58] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[19:27:58] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[19:27:58] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[19:27:58] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[19:28:09] [POPUP] Dialog/Popup erkannt (oder Time-Input erscheint gleich).
+[19:28:09] [SCHEDULER] Slot zugewiesen: 20:10 (Patientenwunsch ab 20:00)
+[19:28:09] [ERROR] Zeitfeld im Popup nicht gefunden.
+[19:28:09] [TRY] Seite 1, Fall 9/14 | Slot 1: 2/10 | Slot 2: 0/0
+[19:28:09] [FILTER] Prüfe Fall: 19:00 - 21:00
+
+GKV
+VIDEO
+
+Wurmbefall
+
+Männlich, 26 Jahre, Rezept, weitere Informationen in der Falla...
+[19:28:09] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 20:00 (Slot 1: 20:00-21:30)
+[19:28:09] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[19:28:09] [SKIP] Fall 9 passt zu keinem Slot – übersprungen
+[19:28:09] [TRY] Seite 1, Fall 10/14 | Slot 1: 2/10 | Slot 2: 0/0
+[19:28:09] [FILTER] Prüfe Fall: 21:00 - 23:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 33 Jahre, weitere Informationen in der Fallan...
+[19:28:09] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 21:00 (Slot 1: 20:00-21:30)
+[19:28:09] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[19:28:09] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[19:28:10] [POPUP] Dialog/Popup erkannt (oder Time-Input erscheint gleich).
+[19:28:10] [SCHEDULER] Slot zugewiesen: 21:00 (Patientenwunsch ab 21:00)
+[19:28:11] [TIME] ✅ Zeit gesetzt (React-JS): 21:00
+[19:28:11] [OK] Anfrage übernommen – Termin 21:00 gesetzt.
+[19:28:11] [INFO] 📊 Patienten übernommen: 3
+[19:28:11] [PATIENT] ✅ Patientendaten gespeichert (2026-03-22): 21:00 | Psychische Leiden | männlich | 33J
+[19:28:12] [DONE] ✅ Fall 10 → Slot 1 | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [TRY] Seite 1, Fall 11/14 | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [FILTER] Prüfe Fall: 21:00 - 23:00
+
+GKV
+VIDEO
+
+Rücken- / Nackenschmerzen
+
+Männlich, 25 Jahre, weitere Informationen in de...
+[19:28:14] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 21:00 (Slot 1: 20:00-21:30)
+[19:28:14] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[19:28:14] [SKIP] Fall 11 passt zu keinem Slot – übersprungen
+[19:28:14] [TRY] Seite 1, Fall 12/14 | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [FILTER] Prüfe Fall: 22:00 -
+                              00:00GKVVIDEOHalsschmerzenMännlich, 22 Jahre, weitere Informat...
+[19:28:14] [FILTER] ❌ Keine Zeitüberschneidung!
+[19:28:14]          Patient: 22:00 - 00:00
+[19:28:14]          Slot 1: 20:00 - 21:30
+[19:28:14] [SKIP] Fall 12 passt zu keinem Slot – übersprungen
+[19:28:14] [TRY] Seite 1, Fall 13/14 | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [FILTER] Prüfe Fall: 22:00 -
+                              00:00GKVVIDEOAU, Erkältung / GrippeWeiblich, 31 Jahre, AU, wei...
+[19:28:14] [FILTER] ❌ Keine Zeitüberschneidung!
+[19:28:14]          Patient: 22:00 - 00:00
+[19:28:14]          Slot 1: 20:00 - 21:30
+[19:28:14] [SKIP] Fall 13 passt zu keinem Slot – übersprungen
+[19:28:14] [TRY] Seite 1, Fall 14/14 | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [FILTER] Prüfe Fall: 22:00 -
+                              00:00GKVVIDEOAU, DurchfallMännlich, 35 Jahre, AU, weitere Info...
+[19:28:14] [FILTER] ❌ Keine Zeitüberschneidung!
+[19:28:14]          Patient: 22:00 - 00:00
+[19:28:14]          Slot 1: 20:00 - 21:30
+[19:28:14] [SKIP] Fall 14 passt zu keinem Slot – übersprungen
+[19:28:14] [LOOP] 14 Anfragen gefunden | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:14] [LOOP] Warte 5s bis zum nächsten Scan...
+[19:28:19] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
+[19:28:30] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[19:28:32] [WARN] Unerwartete Zielseite nach Navigation: https://med.teleclinic.com/myappointments?tab=0&page=1
+[19:28:34] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 2/2)
+[19:28:45] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[19:28:47] [WARN] Unerwartete Zielseite nach Navigation: https://med.teleclinic.com/myappointments?tab=0&page=1
+[19:28:49] [ERROR] Requests-Seite konnte nicht stabil geöffnet werden: https://med.teleclinic.com/requests?tab=0&page=1
+[19:28:49] [WARN] Seite konnte in diesem Durchlauf nicht geladen werden - neuer Versuch im nächsten Loop
+[19:28:49] [LOOP] 0 Anfragen gefunden | Slot 1: 3/10 | Slot 2: 0/0
+[19:28:49] [LOOP] Warte 5s bis zum nächsten Scan...
+[19:28:54] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)

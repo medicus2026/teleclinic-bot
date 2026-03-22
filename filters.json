@@ -4,10 +4,10 @@
   },
   "slot1": {
     "time_start": "20:00",
-    "time_end": "21:00",
+    "time_end": "21:30",
     "max_patients": 10,
     "interval_minutes": 5,
-    "diagnosis_include": "Derma",
+    "diagnosis_include": "Psyche",
     "diagnosis_exclude": "",
     "wishes_include": "",
     "wishes_exclude": "",

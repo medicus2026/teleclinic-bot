@@ -1,25 +1,25 @@
 {
   "2026-03-22": {
     "20:00": {
-      "diagnosis": "Akne",
-      "wishes": "REZEPT, VIDEO",
-      "gender": "weiblich",
-      "age": "26",
-      "timestamp": "2026-03-22T19:05:14.997133"
-    },
-    "20:05": {
-      "diagnosis": "Psoriasis",
+      "diagnosis": "Psychische Leiden",
       "wishes": "REZEPT, VIDEO",
       "gender": "männlich",
-      "age": "36",
-      "timestamp": "2026-03-22T19:05:19.115689"
+      "age": "48",
+      "timestamp": "2026-03-22T19:27:49.897595"
     },
-    "20:10": {
-      "diagnosis": "Hautkrankheiten",
-      "wishes": "AU, VIDEO",
-      "gender": "weiblich",
+    "20:05": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "VIDEO",
+      "gender": "männlich",
+      "age": "29",
+      "timestamp": "2026-03-22T19:27:54.887281"
+    },
+    "21:00": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "VIDEO",
+      "gender": "männlich",
       "age": "33",
-      "timestamp": "2026-03-22T19:05:23.001977"
+      "timestamp": "2026-03-22T19:28:11.212537"
     }
   }
 }
