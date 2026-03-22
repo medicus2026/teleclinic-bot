@@ -1,12 +1,14 @@
 {
   "time_filter": {
     "day_window": "morgen",
-    "treatment_start": "11:00",
-    "treatment_end": "13:00"
+    "treatment_start": "08:30",
+    "treatment_end": "11:00",
+    "treatment_start_2": "16:30",
+    "treatment_end_2": "19:00"
   },
   "runtime": {
     "interval_minutes": 5,
-    "max_patients": 5,
+    "max_patients": 10,
     "headless": false,
     "slowmo_ms": 0
   },
