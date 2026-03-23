@@ -51,7 +51,10 @@ def word_boundary_match(text: str, term: str) -> bool:
 async def log_line(text: str):
     """Schreibt Logzeile mit Zeitstempel."""
     line = f"[{datetime.now().strftime('%H:%M:%S')}] {text}"
-    print(line)
+    try:
+        print(line)
+    except UnicodeEncodeError:
+        print(line.encode("ascii", errors="replace").decode("ascii"))
     LOG_PATH.write_text(LOG_PATH.read_text(encoding="utf-8") + "\n" + line if LOG_PATH.exists() else line, encoding="utf-8")
 
 
@@ -1186,7 +1189,11 @@ async def import_existing_appointments(page, filters) -> int:
                 break
 
             # Alle sichtbaren Texte auf der Seite durchsuchen
-            page_text = await page.evaluate("document.body.innerText")
+            try:
+                page_text = await page.evaluate("document.body.innerText")
+            except Exception as eval_err:
+                await log_line(f"[IMPORT] ⚠️ Seite konnte nicht gelesen werden: {eval_err}")
+                break
 
             # Regex: "HH:MM Uhr" — findet Uhrzeiten wie "07:55 Uhr", "08:00 Uhr"
             time_matches = re.findall(r'(\d{2}:\d{2})\s*Uhr', page_text)
@@ -1300,7 +1307,7 @@ async def click_loop(filters):
     async with async_playwright() as p:
         try:
             # Verbinde mit dem bereits laufenden Chrome im Debug-Modus
-            browser = await p.chromium.connect_over_cdp("http://localhost:9222")
+            browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
             await log_line("[START] Verbunden mit Google Chrome Debug-Session.")
 
             context = browser.contexts[0] if browser.contexts else await browser.new_context()
@@ -1571,4 +1578,8 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
-        print(f"[FATAL] Hauptfehler: {e}")
+        msg = f"[FATAL] Hauptfehler: {e}"
+        try:
+            print(msg)
+        except UnicodeEncodeError:
+            print(msg.encode("ascii", errors="replace").decode("ascii"))
