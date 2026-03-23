@@ -1181,6 +1181,8 @@ async def import_existing_appointments(page, filters) -> int:
             except Exception:
                 pass
             await asyncio.sleep(2)
+            # Extra-Wartezeit: dynamische Inhalte sicher im DOM abwarten
+            await page.wait_for_timeout(1500)
 
             # Prüfe ob wir auf der richtigen Seite sind
             current_url = page.url or ""
@@ -1188,15 +1190,45 @@ async def import_existing_appointments(page, filters) -> int:
                 await log_line(f"[IMPORT] ⚠️ Umgeleitet auf {current_url} - Login erforderlich?")
                 break
 
-            # Alle sichtbaren Texte auf der Seite durchsuchen
+            # Gezielter DOM-Ansatz: NUR echte Termin-Zeitangaben lesen
+            # Suche nach h3/h2/Zeitcontainern die exakt "HH:MM Uhr" enthalten
+            # Dadurch werden Tooltips, Anfahrtszeiten etc. ausgefiltert
             try:
-                page_text = await page.evaluate("document.body.innerText")
-            except Exception as eval_err:
-                await log_line(f"[IMPORT] ⚠️ Seite konnte nicht gelesen werden: {eval_err}")
-                break
+                time_matches_raw = await page.evaluate("""() => {
+                    const results = [];
+                    // Strategie 1: Suche alle Elemente mit exakt "HH:MM Uhr"-Muster
+                    // Teleclinic zeigt Termine als "09:00 Uhr", "18:30 Uhr" in h3/h2/div
+                    const allEls = document.querySelectorAll(
+                        'h3, h2, [class*="time"], [class*="hour"], [class*="slot"], [class*="appointment"]'
+                    );
+                    allEls.forEach(el => {
+                        const text = (el.innerText || el.textContent || '').trim();
+                        // Nur exaktes "HH:MM Uhr" Pattern - mit Uhr-Suffix als Pflicht
+                        const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
+                        if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
+                    });
 
-            # Regex: "HH:MM Uhr" — findet Uhrzeiten wie "07:55 Uhr", "08:00 Uhr"
-            time_matches = re.findall(r'(\d{2}:\d{2})\s*Uhr', page_text)
+                    // Strategie 2: Fallback - Suche Textnodes nach "HH:MM Uhr" Zeilen
+                    if (results.length === 0) {
+                        const walker = document.createTreeWalker(
+                            document.body, NodeFilter.SHOW_TEXT, null, false
+                        );
+                        let node;
+                        while ((node = walker.nextNode())) {
+                            const text = node.textContent.trim();
+                            // Exakt "HH:MM Uhr" als vollstaendige Textnode
+                            const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
+                            if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
+                        }
+                    }
+                    return results;
+                }""")
+            except Exception as eval_err:
+                await log_line(f"[IMPORT] ⚠️ DOM-Auswertung fehlgeschlagen: {eval_err}")
+                time_matches_raw = []
+
+            # Dedupliziert, Reihenfolge erhalten
+            time_matches = list(dict.fromkeys(time_matches_raw))
 
             if not time_matches:
                 await log_line(f"[IMPORT] Seite {page_num}: Keine Termine gefunden - Ende der Seiten.")

@@ -3,7 +3,6 @@ Schnelltest: Bestehende Termine aus 'Meine offene Fälle' importieren.
 Voraussetzung: Chrome läuft im Debug-Modus auf Port 9222 und ist eingeloggt.
 """
 import asyncio
-import re
 import json
 from pathlib import Path
 from playwright.async_api import async_playwright
@@ -23,8 +22,14 @@ async def test_import():
     print()
 
     async with async_playwright() as p:
-        browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-        context = browser.contexts[0]
+        try:
+            browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
+            if not browser.contexts:
+                raise RuntimeError("Keine Browser-Kontexte gefunden. Bitte sicherstellen, dass Chrome im Debug-Modus läuft.")
+            context = browser.contexts[0]
+        except Exception as e:
+            print(f"Fehler beim Verbinden mit dem Browser: {e}")
+            return
 
         alle_zeiten = set()
 
@@ -48,19 +53,49 @@ async def test_import():
                 except Exception:
                     pass
                 await asyncio.sleep(2)
+                # Kurze Extra-Wartezeit fuer dynamisch nachgeladene Inhalte
+                await page.wait_for_timeout(1500)
 
-                page_text = await page.evaluate("document.body.innerText")
+                # Gezielter DOM-Ansatz: NUR echte Termin-Zeitangaben lesen
+                # Nur Elemente mit exakt "HH:MM Uhr" - keine Tooltips, keine Anfahrtszeiten
+                try:
+                    time_matches_raw = await page.evaluate("""() => {
+                        const results = [];
+                        // Strategie 1: h3/h2 und Zeitcontainer
+                        const allEls = document.querySelectorAll(
+                            'h3, h2, [class*="time"], [class*="hour"], [class*="slot"], [class*="appointment"]'
+                        );
+                        allEls.forEach(el => {
+                            const text = (el.innerText || el.textContent || '').trim();
+                            const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
+                            if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
+                        });
+                        // Strategie 2: Fallback Textnodes
+                        if (results.length === 0) {
+                            const walker = document.createTreeWalker(
+                                document.body, NodeFilter.SHOW_TEXT, null, false
+                            );
+                            let node;
+                            while ((node = walker.nextNode())) {
+                                const text = node.textContent.trim();
+                                const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
+                                if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
+                            }
+                        }
+                        return results;
+                    }""")
+                except Exception as eval_err:
+                    print(f"  DOM-Auswertung fehlgeschlagen: {eval_err}")
+                    time_matches_raw = []
 
-                # Finde alle "HH:MM Uhr" Muster
-                time_matches = re.findall(r'(\d{2}:\d{2})\s*Uhr', page_text)
+                normalized_times = set(dict.fromkeys(time_matches_raw))
 
-                if time_matches:
-                    unique = sorted(set(time_matches))
+                if normalized_times:
+                    unique = sorted(normalized_times)
                     print(f"  {len(unique)} Termine: {', '.join(unique)}")
                     alle_zeiten.update(unique)
                 else:
-                    kurz = ' | '.join(line for line in page_text.split('\n') if line.strip())[:300]
-                    print(f"  Keine Termine. Seiteninhalt: {kurz}")
+                    print(f"  Keine Termine auf dieser Seite gefunden.")
 
             except Exception as e:
                 print(f"  Fehler bei Tab {check_tab}: {e}")
