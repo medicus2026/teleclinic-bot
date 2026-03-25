@@ -174,8 +174,12 @@ async def validate_and_fix_day_filter(page, day_window: str):
 def wait_for_enter():
     """Wartet auf ENTER-Taste in separatem Thread."""
     global manual_start
-    input()  # Blockiert bis ENTER gedrückt wird
-    manual_start = True
+    try:
+        input()  # Blockiert bis ENTER gedrückt wird
+        manual_start = True
+    except (EOFError, OSError):
+        # Kein echtes stdin (GUI-Subprocess mit DEVNULL) → sofort starten
+        manual_start = True
 
 
 def parse_time_range(text: str) -> tuple:
@@ -726,7 +730,17 @@ def start_chrome_debug_mode():
 
         # Starte Thread für ENTER-Erkennung
         # NUR wenn echtes Terminal vorhanden (nicht als GUI-Subprocess)
-        has_real_terminal = hasattr(sys.stdin, 'isatty') and sys.stdin.isatty()
+        # Robustere Erkennung: isatty() + stdin.closed prüfen
+        has_real_terminal = False
+        try:
+            has_real_terminal = (
+                hasattr(sys.stdin, 'isatty') and
+                sys.stdin.isatty() and
+                not getattr(sys.stdin, 'closed', True)
+            )
+        except Exception:
+            has_real_terminal = False
+
         if has_real_terminal:
             enter_thread = threading.Thread(target=wait_for_enter, daemon=True)
             enter_thread.start()
@@ -1588,11 +1602,18 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
             # ── IMPORT: Bestehende Termine aus "Meine offene Fälle" einlesen ──
-            # ABLAUF: 1) Slots resetten  2) Importieren  3) Slots sind korrekt befüllt
+            # ABLAUF: 1) Slots resetten  2) Patientenliste resetten  3) Importieren  4) Slots + Kalender korrekt befüllt
             # So werden extern terminierte Patienten als belegt markiert und
             # next_available_slot() vermeidet Doppelbelegungen.
             target_date = get_target_date_from_filters(filters)
             reset_slots_for_date(target_date)
+            # Auch scheduled_patients.json für heute leeren, damit GUI-Kalender keine veralteten Einträge zeigt
+            try:
+                from scheduled_patients import reset_patients_for_date as _reset_patients
+                _reset_patients(target_date)
+                await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert - frischer Import folgt...")
+            except Exception as rpe:
+                await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
             await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt - importiere bestehende Termine...")
 
             try:
@@ -1665,11 +1686,26 @@ async def click_loop(filters):
                 loop_counter += 1
                 if loop_counter % 5 == 0:
                     try:
+                        _reimport_date = get_target_date_from_filters(filters)
+                        # Slots + Patientenliste leeren, dann frisch importieren
+                        reset_slots_for_date(_reimport_date)
+                        try:
+                            from scheduled_patients import reset_patients_for_date as _rp
+                            _rp(_reimport_date)
+                        except Exception:
+                            pass
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
+                        # WICHTIG: Nach Import immer zurück zur Requests-Seite navigieren
+                        await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                     except Exception as reimport_err:
                         await log_line(f"[IMPORT-LOOP] ⚠️ Re-Import fehlgeschlagen: {reimport_err}")
+                        # Trotz Fehler zur Requests-Seite navigieren
+                        try:
+                            await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
+                        except Exception:
+                            pass
 
                 # Durchsuche alle Seiten
                 total_found = 0
