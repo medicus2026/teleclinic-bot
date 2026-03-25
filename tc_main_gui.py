@@ -656,7 +656,8 @@ class TeleClinicBotGUI:
         """Starte Scanner & Clicker"""
         self.save_filters()
 
-        # Vor neuem Lauf: gespeicherte Patienten für das aktuell gewählte Datum zurücksetzen
+        # Vor neuem Lauf: ALLE Patienten für das gewählte Datum zurücksetzen
+        # (auch importierte), weil der Bot sowieso sofort frisch aus Teleclinic importiert
         try:
             from scheduled_patients import reset_patients_for_date
             from datetime import datetime, timedelta
@@ -674,7 +675,7 @@ class TeleClinicBotGUI:
             for item in self.appointment_tree.get_children():
                 self.appointment_tree.delete(item)
 
-            self.log(f"🧹 Kalenderdaten für {target_date} zurückgesetzt")
+            self.log(f"🧹 Alle Kalenderdaten für {target_date} zurückgesetzt (werden frisch importiert)")
         except Exception as e:
             self.log(f"⚠️ Konnte Kalenderdaten nicht zurücksetzen: {e}")
 
@@ -733,9 +734,12 @@ class TeleClinicBotGUI:
                 return_code = 0
             else:
                 # Starte Bot als Subprocess und speichere Prozess-Handle
+                # stdin=DEVNULL damit start_chrome_debug_mode() die GUI-Modus-Erkennung nutzt
+                # und KEINE 90-Sekunden-Wartezeit startet
                 self.bot_process = subprocess.Popen(
                     [sys.executable, str(ROOT_PATH / "teleclinic_click_from_list_v9d.py")],
-                    cwd=str(ROOT_PATH)
+                    cwd=str(ROOT_PATH),
+                    stdin=subprocess.DEVNULL
                 )
 
                 # Warte auf Prozess-Ende
@@ -855,26 +859,38 @@ class TeleClinicBotGUI:
                 # Füge JEDEN Patienten einzeln hinzu
                 for idx, time_slot in enumerate(sorted_times, 1):
                     patient = patients[time_slot]
+                    source = patient.get("source", "bot")
 
                     # Extrahiere Patientendaten
                     uhrzeit = time_slot
-                    diagnose = patient.get("diagnosis", "(unbekannt)")
-                    wunsch = patient.get("wishes", "(keine)")
-                    alter = str(patient.get("age", "(egal)"))
-                    geschlecht = patient.get("gender", "(egal)")
+                    diagnose = patient.get("diagnosis", "")
+                    wunsch = patient.get("wishes", "")
+                    alter = str(patient.get("age", ""))
+                    geschlecht = patient.get("gender", "")
 
-                    # Bereinige leere Felder
-                    if not diagnose or diagnose.strip() == "":
-                        diagnose = "(unbekannt)"
-                    if not wunsch or wunsch.strip() == "":
-                        wunsch = "(keine)"
+                    # Kennzeichnung nach Quelle
+                    if source == "teleclinic_import":
+                        # Externer Termin: kennzeichnen
+                        if not diagnose or diagnose.strip() in ("", "Extern terminiert", "Bereits vorhanden"):
+                            diagnose = "📥 Extern terminiert"
+                        else:
+                            diagnose = f"📥 {diagnose}"
+                        if not wunsch or wunsch.strip() in ("", "(extern importiert)"):
+                            wunsch = "(extern)"
+                    else:
+                        # Bot-Termin: Standardwerte
+                        if not diagnose or diagnose.strip() == "":
+                            diagnose = "(unbekannt)"
+                        if not wunsch or wunsch.strip() == "":
+                            wunsch = "(keine)"
+
                     if not alter or alter.strip() == "":
                         alter = "(egal)"
                     if not geschlecht or geschlecht.strip() == "":
                         geschlecht = "(egal)"
 
                     # Kürze lange Texte
-                    diagnose = diagnose[:30]
+                    diagnose = diagnose[:35]
                     wunsch = wunsch[:30]
                     alter = alter[:20]
                     geschlecht = geschlecht[:15]
@@ -895,6 +911,34 @@ class TeleClinicBotGUI:
             print(f"[ERROR] Fehler beim Aktualisieren des Kalenders: {e}")
             import traceback
             traceback.print_exc()
+
+    def update_calendar_from_json(self):
+        """
+        Aktualisiert den Terminkalender basierend auf den Daten in scheduled_patients.json.
+        """
+        from scheduled_patients import load_patients
+
+        # Lade Patienten-Daten
+        patients = load_patients()
+        today = datetime.now().strftime("%Y-%m-%d")
+        today_patients = patients.get(today, {})
+
+        # Lösche alle bisherigen Einträge im Kalender
+        for item in self.appointment_tree.get_children():
+            self.appointment_tree.delete(item)
+
+        # Füge neue Einträge hinzu
+        for time_slot, patient_data in sorted(today_patients.items()):
+            self.appointment_tree.insert("", "end", values=(
+                time_slot,
+                patient_data.get("diagnosis", ""),
+                patient_data.get("wishes", ""),
+                patient_data.get("age", ""),
+                patient_data.get("gender", "")
+            ))
+
+        # Aktualisiere Status
+        self.status_label.config(text=f"Status: {len(today_patients)} Termine geladen für {today}")
 
     def stop_bot(self):
         """Stoppe Bot"""

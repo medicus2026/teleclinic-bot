@@ -5,15 +5,17 @@
 import asyncio
 import json
 import subprocess
+import sys
 import time
 import threading
 import re
+import re as _re
 from datetime import datetime, timedelta
 from pathlib import Path
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
 # Scheduler-Modul
-from core_scheduler import next_available_slot, validate_max_patients, reset_slots_for_date, load_slots, save_slots
+from core_scheduler import next_available_slot, confirm_slot, validate_max_patients, reset_slots_for_date, load_slots, save_slots
 
 ROOT = Path(__file__).resolve().parent
 FILTER_PATH = ROOT / "filters.json"
@@ -482,38 +484,39 @@ async def check_case_matches_filters(case_element, filters):
             if t2_start and t2_end:
                 slot_ranges.append((t2_start, t2_end, "Slot 2"))
 
-            # Fallback für alte/inkonsistente Filterdaten
+            # Wenn keine Zeitfilter gesetzt: Zeit-Prüfung überspringen (kein Fallback!)
             if not slot_ranges:
-                slot_ranges.append(("21:30", "23:30", "Fallback"))
-
-            candidate_starts = []
-            for start_str, end_str, slot_name in slot_ranges:
-                treatment_start = time_to_minutes(start_str)
-                treatment_end = time_to_minutes(end_str)
-                if treatment_start is None or treatment_end is None:
-                    continue
-
-                overlap_candidate = calculate_overlap_start(
-                    patient_start,
-                    patient_end,
-                    treatment_start,
-                    treatment_end
-                )
-                if overlap_candidate:
-                    candidate_starts.append((overlap_candidate, slot_name, start_str, end_str))
-
-            if not candidate_starts:
-                await log_line(f"[FILTER] ❌ Keine Zeitüberschneidung!")
-                await log_line(f"         Patient: {patient_start//60:02d}:{patient_start%60:02d} - {patient_end//60:02d}:{patient_end%60:02d}")
+                await log_line("[FILTER] ℹ️ Kein Zeitfilter gesetzt – Zeit-Prüfung übersprungen")
+                # overlap_start_time bleibt None → kein Zeitfenster erzwingen
+            else:
+                candidate_starts = []
                 for start_str, end_str, slot_name in slot_ranges:
-                    await log_line(f"         {slot_name}: {start_str} - {end_str}")
-                return (False, None)
+                    treatment_start = time_to_minutes(start_str)
+                    treatment_end = time_to_minutes(end_str)
+                    if treatment_start is None or treatment_end is None:
+                        continue
 
-            # Nimm die früheste passende Startzeit über beide Slots
-            candidate_starts.sort(key=lambda x: x[0])
-            overlap_start_time = candidate_starts[0][0]
-            best_slot_name, best_start, best_end = candidate_starts[0][1], candidate_starts[0][2], candidate_starts[0][3]
-            await log_line(f"[FILTER] ✅ Zeitüberschneidung vorhanden: Start bei {overlap_start_time} ({best_slot_name}: {best_start}-{best_end})")
+                    overlap_candidate = calculate_overlap_start(
+                        patient_start,
+                        patient_end,
+                        treatment_start,
+                        treatment_end
+                    )
+                    if overlap_candidate:
+                        candidate_starts.append((overlap_candidate, slot_name, start_str, end_str))
+
+                if not candidate_starts:
+                    await log_line(f"[FILTER] ❌ Keine Zeitüberschneidung!")
+                    await log_line(f"         Patient: {patient_start//60:02d}:{patient_start%60:02d} - {patient_end//60:02d}:{patient_end%60:02d}")
+                    for start_str, end_str, slot_name in slot_ranges:
+                        await log_line(f"         {slot_name}: {start_str} - {end_str}")
+                    return (False, None)
+
+                # Nimm die früheste passende Startzeit über beide Slots
+                candidate_starts.sort(key=lambda x: x[0])
+                overlap_start_time = candidate_starts[0][0]
+                best_slot_name, best_start, best_end = candidate_starts[0][1], candidate_starts[0][2], candidate_starts[0][3]
+                await log_line(f"[FILTER] ✅ Zeitüberschneidung vorhanden: Start bei {overlap_start_time} ({best_slot_name}: {best_start}-{best_end})")
         # Diagnose-Filter prüfen
         diag_include = filters.get("diagnosis", {}).get("include", "")
         diag_exclude = filters.get("diagnosis", {}).get("exclude", "")
@@ -722,8 +725,16 @@ def start_chrome_debug_mode():
         print("")
 
         # Starte Thread für ENTER-Erkennung
-        enter_thread = threading.Thread(target=wait_for_enter, daemon=True)
-        enter_thread.start()
+        # NUR wenn echtes Terminal vorhanden (nicht als GUI-Subprocess)
+        has_real_terminal = hasattr(sys.stdin, 'isatty') and sys.stdin.isatty()
+        if has_real_terminal:
+            enter_thread = threading.Thread(target=wait_for_enter, daemon=True)
+            enter_thread.start()
+        else:
+            # Kein Terminal (GUI-Subprocess) → sofort starten ohne Wartezeit
+            print("[INFO] Kein Terminal (GUI-Modus) – überspringe Login-Wartezeit, starte sofort.")
+            time.sleep(2)
+            return process
 
         # Countdown mit Abbruch bei ENTER
         for i in range(90, 0, -5):
@@ -747,6 +758,43 @@ def start_chrome_debug_mode():
         return None
 
 
+def bring_chrome_to_foreground():
+    """
+    Bringt das Chrome-Fenster in den Vordergrund (Windows).
+    Wichtig: Damit Playwright-Klicks auch registriert werden.
+    """
+    try:
+        import ctypes
+        import win32gui
+        import win32con
+
+        # Finde Chrome-Fenster
+        hwnd = win32gui.FindWindow(None, "Google Chrome")
+        if not hwnd:
+            # Fallback: Suche Fenster mit "Chrome" im Namen
+            def callback(hwnd, hwnds):
+                if "Chrome" in win32gui.GetWindowText(hwnd):
+                    hwnds.append(hwnd)
+                return True
+            hwnds = []
+            win32gui.EnumWindows(callback, hwnds)
+            if hwnds:
+                hwnd = hwnds[0]
+
+        if hwnd:
+            # Fenster in den Vordergrund
+            win32gui.SetForegroundWindow(hwnd)
+            # Optional: Fenster maximieren falls minimiert
+            if win32gui.IsIconic(hwnd):
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            return True
+    except Exception as e:
+        # Win32-Module möglicherweise nicht verfügbar - kein kritischer Fehler
+        pass
+    return False
+
+
+
 async def handle_case(page, case_button, filters, overlap_time=None, case_element=None):
     """
     Klickt auf 'Anfrage übernehmen', wartet auf das Popup,
@@ -760,6 +808,11 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
     try:
         await log_line("[SCAN] Anfrage gefunden – versuche zu übernehmen...")
         # Scroll & Klick robuster
+        try:
+            await page.bring_to_front()
+            await page.wait_for_timeout(100)
+        except Exception:
+            pass
         try:
             await case_button.scroll_into_view_if_needed(timeout=3000)
         except Exception:
@@ -787,13 +840,26 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
                     return False
 
         # Warte auf Dialog statt nur auf das Zeitfeld
+        dialog_found = False
         try:
-            dlg = page.get_by_role("dialog")
-            await dlg.first.wait_for(state="visible", timeout=10000)
+            dlg = page.get_by_role("dialog").first
+            await dlg.wait_for(state="visible", timeout=10000)
+            dialog_found = True
         except Exception:
             # Fallback: warte kurz und prüfe direkt auf Time-Input
             await page.wait_for_timeout(1000)
-        await log_line("[POPUP] Dialog/Popup erkannt (oder Time-Input erscheint gleich).")
+
+        if not dialog_found:
+            try:
+                if await page.locator("div[role='dialog']").count() > 0:
+                    dialog_found = True
+            except Exception:
+                pass
+
+        if dialog_found:
+            await log_line("[POPUP] Dialog/Popup erkannt.")
+        else:
+            await log_line("[POPUP] ⚠️ Dialog nicht sicher erkennbar - prüfe trotzdem auf Zeitfeld/Fallbacks.")
 
         # WICHTIG: Nutze IMMER den Scheduler für korrekte Intervalle!
         # overlap_time wird als min_start_time übergeben (frühester erlaubter Start)
@@ -933,7 +999,19 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             if await pickup.is_disabled():
                 await log_line("[WARN] 'Übernehmen'-Button ist deaktiviert – Zeit evtl. ungültig")
                 return False
-            await pickup.click(timeout=5000)
+            try:
+                await pickup.click(timeout=5000)
+            except Exception as e1:
+                await log_line(f"[WARN] Normaler Klick auf 'Übernehmen' fehlgeschlagen, versuche force=True: {e1}")
+                try:
+                    await pickup.click(timeout=5000, force=True)
+                except Exception as e2:
+                    await log_line(f"[WARN] Force-Klick auf 'Übernehmen' fehlgeschlagen, versuche JS-Fallback: {e2}")
+                    try:
+                        await pickup.evaluate("el => el.click()")
+                    except Exception as e3:
+                        await log_line(f"[ERROR] Klick auf 'Übernehmen' endgültig fehlgeschlagen: {e3}")
+                        return False
         except Exception as e:
             await log_line(f"[ERROR] Klick auf 'Übernehmen' fehlgeschlagen: {e}")
             return False
@@ -1061,6 +1139,23 @@ async def ensure_teleclinic_requests_page(page, tab_num: int, page_num: int = 1,
 
             if "login" in final_url or "auth" in final_url or "signin" in final_url:
                 await log_line(f"[WARN] Teleclinic verlangt Login/Bestätigung: {final_url}")
+                await log_line("[INFO] ⏳ Bitte jetzt im Chrome-Fenster einloggen! Warte bis zu 120 Sekunden...")
+                # Warte bis zu 120 Sekunden und prüfe wiederholt, ob Login abgeschlossen
+                for wait_sec in range(0, 120, 5):
+                    await asyncio.sleep(5)
+                    check_url = page.url or ""
+                    if "med.teleclinic.com/requests" in check_url or "med.teleclinic.com" in check_url and "auth" not in check_url and "login" not in check_url:
+                        await log_line(f"[INFO] ✅ Login erkannt! Seite: {check_url}")
+                        # Nach Login nochmal zur Zielseite navigieren
+                        try:
+                            await page.goto(target_url, wait_until="domcontentloaded", timeout=30000)
+                            await asyncio.sleep(2)
+                        except Exception:
+                            pass
+                        return True
+                    if wait_sec % 15 == 0 and wait_sec > 0:
+                        await log_line(f"[INFO] ⏳ Warte auf Login... ({120 - wait_sec}s verbleibend)")
+                await log_line("[ERROR] Login-Timeout nach 120 Sekunden - bitte manuell einloggen und Bot neu starten")
                 return False
 
             await log_line(f"[WARN] Unerwartete Zielseite nach Navigation: {final_url}")
@@ -1079,22 +1174,109 @@ async def ensure_teleclinic_requests_page(page, tab_num: int, page_num: int = 1,
     return False
 
 
+async def get_preferred_teleclinic_page(context):
+    """
+    Finde robust den richtigen Teleclinic-Tab statt blind context.pages[0] zu verwenden.
+    Priorität:
+    1. requests-Tab
+    2. myappointments-Tab
+    3. irgendein med.teleclinic.com-Tab
+    4. Fallback: erste vorhandene Seite oder neue Seite
+    """
+    pages = list(context.pages)
+
+    def url_of(p):
+        try:
+            return (p.url or "").lower()
+        except Exception:
+            return ""
+
+    requests_pages = [p for p in pages if "med.teleclinic.com/requests" in url_of(p)]
+    myappointments_pages = [p for p in pages if "med.teleclinic.com/myappointments" in url_of(p)]
+    teleclinic_pages = [p for p in pages if "med.teleclinic.com" in url_of(p)]
+
+    if requests_pages:
+        page = requests_pages[0]
+        await log_line(f"[TAB] Nutze vorhandenen Requests-Tab: {page.url}")
+    elif myappointments_pages:
+        page = myappointments_pages[0]
+        await log_line(f"[TAB] Nutze vorhandenen MyAppointments-Tab: {page.url}")
+    elif teleclinic_pages:
+        page = teleclinic_pages[0]
+        await log_line(f"[TAB] Nutze vorhandenen Teleclinic-Tab: {page.url}")
+    elif pages:
+        page = pages[0]
+        await log_line(f"[TAB] Kein Teleclinic-Tab gefunden, nutze erste offene Seite: {page.url}")
+    else:
+        page = await context.new_page()
+        await log_line("[TAB] Kein offener Tab gefunden, neue Seite erstellt")
+
+    try:
+        await page.bring_to_front()
+        await page.wait_for_timeout(150)
+        await log_line("[TAB] Tab in den Vordergrund geholt")
+    except Exception as e:
+        await log_line(f"[TAB] Vordergrund-Aktivierung nicht möglich (nicht kritisch): {e}")
+
+    return page
+
+
+def build_slot_filters(slot_data: dict, day_window: str, slot_num: int) -> dict:
+    """
+    Konvertiert Slot-Daten (neues GUI-Format) in das bisherige Filterformat,
+    damit check_case_matches_filters() unverändert weiterverwendet werden kann.
+    """
+    if not slot_data:
+        slot_data = {}
+
+    return {
+        "time_filter": {
+            "day_window": day_window,
+            "treatment_start": slot_data.get("time_start", ""),
+            "treatment_end": slot_data.get("time_end", ""),
+            # Für die slot-spezifische Prüfung bleibt das zweite Zeitfenster hier leer.
+            # Das Routing Slot 1 / Slot 2 passiert bereits in click_loop().
+            "treatment_start_2": "",
+            "treatment_end_2": "",
+        },
+        "runtime": {
+            "max_patients": slot_data.get("max_patients", 5),
+            "interval_minutes": slot_data.get("interval_minutes", 5),
+        },
+        "patients": {
+            "gender": slot_data.get("gender", ""),
+            "age_min": slot_data.get("age_min", ""),
+            "age_max": slot_data.get("age_max", ""),
+            "language_include": [x.strip() for x in str(slot_data.get("language_include", "")).split(",") if x.strip()],
+            "language_exclude": [x.strip() for x in str(slot_data.get("language_exclude", "")).split(",") if x.strip()],
+        },
+        "diagnosis": {
+            "include": slot_data.get("diagnosis_include", ""),
+            "exclude": slot_data.get("diagnosis_exclude", ""),
+        },
+        "wishes": {
+            "include": slot_data.get("wishes_include", ""),
+            "exclude": slot_data.get("wishes_exclude", ""),
+        },
+        "loop": {},
+    }
+
+
 async def check_and_update_day_window(filters, last_midnight_check=None):
     """
     Prüft ob Mitternacht überschritten wurde und aktualisiert day_window Filter.
     Returns: (updated_filters, last_midnight_check_time)
     """
     now = datetime.now()
-    current_time = now.time()
 
     if last_midnight_check:
         time_since_check = (now - last_midnight_check).total_seconds()
         if time_since_check < 30:
             return (filters, last_midnight_check)
 
+    current_time = now.time()
     if current_time.hour < 4 and last_midnight_check is None:
         old_day_window = filters.get("time_filter", {}).get("day_window", "heute")
-
         if old_day_window == "morgen":
             new_day_window = "heute"
             await log_line(f"[MIDNIGHT] 🌙 Mitternacht überschritten! Wechsle Filter: {old_day_window} → {new_day_window}")
@@ -1107,145 +1289,133 @@ async def check_and_update_day_window(filters, last_midnight_check=None):
     return (filters, now)
 
 
-def build_slot_filters(slot_data: dict, day_window: str, slot_num: int) -> dict:
-    """
-    Konvertiert Slot-Daten (neues Format) in das alte Filter-Format,
-    damit check_case_matches_filters() unverändert weiterverwendet werden kann.
-
-    slot_data: Inhalt von filters["slot1"] oder filters["slot2"]
-    day_window: z.B. "heute", "morgen", "später"
-    slot_num: 1 oder 2 (nur für Log-Ausgaben)
-    """
-    return {
-        "time_filter": {
-            "day_window": day_window,
-            "treatment_start": slot_data.get("time_start", ""),
-            "treatment_end": slot_data.get("time_end", ""),
-            # Slot 2 hat kein weiteres Sub-Slot → leer
-            "treatment_start_2": "",
-            "treatment_end_2": ""
-        },
-        "runtime": {
-            "max_patients": slot_data.get("max_patients", 5),
-            "interval_minutes": slot_data.get("interval_minutes", 5)
-        },
-        "patients": {
-            "gender": slot_data.get("gender", ""),
-            "age_min": slot_data.get("age_min", ""),
-            "age_max": slot_data.get("age_max", ""),
-            "language_include": [x.strip() for x in slot_data.get("language_include", "").split(",") if x.strip()],
-            "language_exclude": [x.strip() for x in slot_data.get("language_exclude", "").split(",") if x.strip()]
-        },
-        "diagnosis": {
-            "include": slot_data.get("diagnosis_include", ""),
-            "exclude": slot_data.get("diagnosis_exclude", "")
-        },
-        "wishes": {
-            "include": slot_data.get("wishes_include", ""),
-            "exclude": slot_data.get("wishes_exclude", "")
-        },
-        "loop": {}
-    }
+def get_target_date_from_filters(filters: dict) -> str:
+    """Bestimmt das Zieldatum passend zum day_window-Filter (lokale Hilfsfunktion)."""
+    day_window = normalize_text(filters.get("time_filter", {}).get("day_window", "heute"))
+    now = datetime.now()
+    if day_window == "morgen":
+        return (now + timedelta(days=1)).strftime("%Y-%m-%d")
+    if day_window == "später":
+        return (now + timedelta(days=2)).strftime("%Y-%m-%d")
+    return now.strftime("%Y-%m-%d")
 
 
 async def import_existing_appointments(page, filters) -> int:
     """
-    Liest bereits terminierte Patienten von "Meine offene Fälle" aus
+    Liest bereits terminierte Patienten von 'Meine offene Fälle' aus
     und markiert deren Uhrzeiten in scheduled_slots.json als belegt.
-
-    So plant next_available_slot() automatisch um bestehende Termine herum.
-
     Returns: Anzahl der importierten Zeitslots
     """
     day_window = normalize_text(filters.get("time_filter", {}).get("day_window", "heute"))
-
-    # Tab-Mapping für myappointments (0=heute, 1=morgen)
     if day_window == "morgen":
         tab = 1
     else:
-        tab = 0  # heute und später → Tab 0 (heute)
+        tab = 0
 
-    target_date = get_target_date(filters)
-    imported_times = set()
+    target_date = get_target_date_from_filters(filters)
+    imported_times = {}  # dict: time -> card-data
 
     await log_line("=" * 70)
     await log_line(f"[IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab={tab})...")
 
-    max_pages = 5  # Sicherheitslimit
+    max_pages = 5
     for page_num in range(1, max_pages + 1):
         url = f"https://med.teleclinic.com/myappointments?tab={tab}&page={page_num}"
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
             try:
-                await page.wait_for_load_state("networkidle", timeout=8000)
-            except Exception:
+                await page.wait_for_load_state("networkidle", timeout=10000)
+            except Exception as network_err:
+                await log_line(f"[IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): {network_err}")
                 pass
             await asyncio.sleep(2)
-            # Extra-Wartezeit: dynamische Inhalte sicher im DOM abwarten
-            await page.wait_for_timeout(1500)
+            await page.wait_for_timeout(2000)  # Erhöht von 1500
 
-            # Prüfe ob wir auf der richtigen Seite sind
             current_url = page.url or ""
             if "myappointments" not in current_url:
                 await log_line(f"[IMPORT] ⚠️ Umgeleitet auf {current_url} - Login erforderlich?")
                 break
 
-            # Gezielter DOM-Ansatz: NUR echte Termin-Zeitangaben lesen
-            # Suche nach h3/h2/Zeitcontainern die exakt "HH:MM Uhr" enthalten
-            # Dadurch werden Tooltips, Anfahrtszeiten etc. ausgefiltert
-            try:
-                time_matches_raw = await page.evaluate("""() => {
-                    const results = [];
-                    // Strategie 1: Suche alle Elemente mit exakt "HH:MM Uhr"-Muster
-                    // Teleclinic zeigt Termine als "09:00 Uhr", "18:30 Uhr" in h3/h2/div
-                    const allEls = document.querySelectorAll(
-                        'h3, h2, [class*="time"], [class*="hour"], [class*="slot"], [class*="appointment"]'
-                    );
-                    allEls.forEach(el => {
-                        const text = (el.innerText || el.textContent || '').trim();
-                        // Nur exaktes "HH:MM Uhr" Pattern - mit Uhr-Suffix als Pflicht
-                        const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
-                        if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
-                    });
+            await log_line(f"[IMPORT] 🔍 Scanneseite {page_num} nach Terminen...")
 
-                    // Strategie 2: Fallback - Suche Textnodes nach "HH:MM Uhr" Zeilen
-                    if (results.length === 0) {
-                        const walker = document.createTreeWalker(
-                            document.body, NodeFilter.SHOW_TEXT, null, false
-                        );
-                        let node;
-                        while ((node = walker.nextNode())) {
-                            const text = node.textContent.trim();
-                            // Exakt "HH:MM Uhr" als vollstaendige Textnode
-                            const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
-                            if (m) results.push(m[1].padStart(2,'0') + ':' + m[2]);
+
+            try:
+                cards_raw = await page.evaluate("""() => {
+                    const cards = [];
+                    const cardSelectors = [
+                        '[data-testid*="appointment"]', '[data-testid*="treatment"]',
+                        '[class*="appointment-card"]', '[class*="treatment-card"]',
+                        '[class*="card"]', 'li', 'article'
+                    ];
+                    let cardEls = [];
+                    for (const sel of cardSelectors) {
+                        const els = document.querySelectorAll(sel);
+                        for (const el of els) {
+                            const text = (el.innerText || el.textContent || '').trim();
+                            if (/\\d{1,2}:\\d{2}\\s+Uhr/.test(text) && text.length > 10) {
+                                cardEls.push(el);
+                            }
                         }
+                        if (cardEls.length > 0) break;
                     }
-                    return results;
+                    const outerEls = cardEls.filter(el =>
+                        !cardEls.some(other => other !== el && other.contains(el))
+                    );
+                    for (const card of outerEls) {
+                        const text = (card.innerText || card.textContent || '').trim();
+                        const timeM = text.match(/(\\d{1,2}):(\\d{2})\\s+Uhr/);
+                        if (!timeM) continue;
+                        const time = timeM[1].padStart(2,'0') + ':' + timeM[2];
+                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
+                        let diagnosis = '', wishes = '', gender = '', age = '';
+                        const skipPatterns = [
+                            /^\\d{1,2}:\\d{2}(\\s+Uhr)?$/, /^(video|gkv|pkv|selbstzahler|privat)$/i,
+                            /^\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}$/, /^\\d+$$/, /^(Mo|Di|Mi|Do|Fr|Sa|So),/i,
+                        ];
+                        for (const line of lines) {
+                            if (skipPatterns.some(p => p.test(line))) continue;
+                            if (!diagnosis && line.length >= 3) { diagnosis = line; continue; }
+                            if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
+                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) { gender = line; continue; }
+                            const ageM = line.match(/^(\\d{1,3})\\s*J(ahre|\\.)?$/i);
+                            if (!age && ageM) age = ageM[1];
+                        }
+                        cards.push({ time, diagnosis, wishes, gender, age });
+                    }
+                    if (cards.length === 0) {
+                        const allEls = document.querySelectorAll('h3, h2, [class*="time"], [class*="hour"]');
+                        allEls.forEach(el => {
+                            const text = (el.innerText || el.textContent || '').trim();
+                            const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
+                            if (m) cards.push({ time: m[1].padStart(2,'0') + ':' + m[2], diagnosis: '', wishes: '', gender: '', age: '' });
+                        });
+                    }
+                    return cards;
                 }""")
             except Exception as eval_err:
                 await log_line(f"[IMPORT] ⚠️ DOM-Auswertung fehlgeschlagen: {eval_err}")
-                time_matches_raw = []
+                cards_raw = []
 
-            # Dedupliziert, Reihenfolge erhalten
-            time_matches = list(dict.fromkeys(time_matches_raw))
+            seen_times = {}
+            for card in cards_raw:
+                t = card.get("time", "")
+                if t and t not in seen_times:
+                    seen_times[t] = card
+            time_matches = list(seen_times.keys())
 
             if not time_matches:
                 await log_line(f"[IMPORT] Seite {page_num}: Keine Termine gefunden - Ende der Seiten.")
                 break
 
             for t in time_matches:
-                imported_times.add(t)
-
+                imported_times[t] = seen_times[t]
             await log_line(f"[IMPORT] Seite {page_num}: {len(time_matches)} Termine gefunden")
 
-            # Prüfe ob nächste Seite existiert
-            next_btn = await page.query_selector('button[aria-label="Next page"], a[aria-label="Next"]')
             has_more = await page.evaluate("""() => {
                 const links = document.querySelectorAll('a[href*="page="]');
                 return links.length > 0;
             }""")
-            if not next_btn and not has_more:
+            if not has_more:
                 break
 
         except PlaywrightTimeoutError:
@@ -1255,18 +1425,31 @@ async def import_existing_appointments(page, filters) -> int:
             await log_line(f"[IMPORT] ⚠️ Fehler bei Seite {page_num}: {e}")
             break
 
-    # Schreibe importierte Zeiten in scheduled_slots.json
     if imported_times:
+        imported_time_set = set(imported_times.keys())
         slots = load_slots()
         existing = set(slots.get(target_date, []))
-        merged = sorted(existing | imported_times)
+        merged = sorted(existing | imported_time_set)
         slots[target_date] = merged
         save_slots(slots)
 
-        sorted_imports = sorted(imported_times)
-        await log_line(f"[IMPORT] ✅ {len(imported_times)} bestehende Termine importiert für {target_date}:")
+        try:
+            from scheduled_patients import add_imported_appointment
+            for t in sorted(imported_time_set):
+                card = imported_times[t]
+                add_imported_appointment(
+                    t, date=target_date,
+                    diagnosis=card.get("diagnosis") or "Extern terminiert",
+                    wishes=card.get("wishes") or "",
+                    gender=card.get("gender") or "",
+                    age=card.get("age") or ""
+                )
+        except Exception as patient_import_err:
+            await log_line(f"[IMPORT] ⚠️ Kalender-Spiegelung fehlgeschlagen: {patient_import_err}")
+
+        sorted_imports = sorted(imported_time_set)
+        await log_line(f"[IMPORT] ✅ {len(imported_time_set)} bestehende Termine importiert für {target_date}:")
         await log_line(f"[IMPORT]    Zeiten: {', '.join(sorted_imports)}")
-        await log_line(f"[IMPORT]    Gesamt belegte Slots: {len(merged)}")
     else:
         await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine für {target_date} gefunden.")
 
@@ -1316,9 +1499,23 @@ async def click_loop(filters):
     slot1_filters = build_slot_filters(slot1_data, day_window_global, 1)
     slot2_filters = build_slot_filters(slot2_data, day_window_global, 2) if slot2_data else None
 
-    # Pro-Slot-Limits
-    slot1_max = int(slot1_data.get("max_patients", 5))
-    slot2_max = int(slot2_data.get("max_patients", 5)) if slot2_data else 0
+    # Pro-Slot-Limits (robust gegen leere oder ungültige Werte)
+    try:
+        slot1_max = int(slot1_data.get("max_patients") or 5)
+        if slot1_max <= 0:
+            slot1_max = 5
+    except (ValueError, TypeError):
+        slot1_max = 5
+
+    if slot2_data:
+        try:
+            slot2_max = int(slot2_data.get("max_patients") or 5)
+            if slot2_max <= 0:
+                slot2_max = 5
+        except (ValueError, TypeError):
+            slot2_max = 5
+    else:
+        slot2_max = 0
 
     # Pro-Slot-Zähler
     slot1_accepted = 0
@@ -1343,11 +1540,44 @@ async def click_loop(filters):
             await log_line("[START] Verbunden mit Google Chrome Debug-Session.")
 
             context = browser.contexts[0] if browser.contexts else await browser.new_context()
-            page = context.pages[0] if context.pages else await context.new_page()
+            page = await get_preferred_teleclinic_page(context)
 
             # Prüfe aktuelle URL
             current_url = page.url
             await log_line(f"[INFO] Aktuelle URL: {current_url}")
+
+            # ── LOGIN-VERIFIZIERUNG ──────────────────────────────────────────
+            # Schnelle Prüfung: Wenn bereits bei med.teleclinic.com OHNE auth/login-Seiten,
+            # dann ist der User eingeloggt → springe die Wartezeit!
+            is_already_logged_in = (
+                current_url and
+                "med.teleclinic.com" in current_url and
+                "auth" not in current_url and
+                "login" not in current_url
+            )
+
+            if not is_already_logged_in:
+                await log_line("[LOGIN] ⏳ Chrome ist noch nicht bei Teleclinic eingeloggt.")
+                await log_line("[LOGIN] ⏳ Bitte jetzt im Chrome-Fenster einloggen! Warte bis zu 120 Sekunden...")
+                login_ok = False
+                for wait_sec in range(0, 120, 5):
+                    await asyncio.sleep(5)
+                    try:
+                        check_url = page.url or ""
+                        if "med.teleclinic.com" in check_url and "auth" not in check_url and "login" not in check_url:
+                            await log_line(f"[LOGIN] ✅ Login erkannt! Seite: {check_url}")
+                            login_ok = True
+                            break
+                        if wait_sec % 15 == 0 and wait_sec > 0:
+                            await log_line(f"[LOGIN] ⏳ Warte auf Login... ({120 - wait_sec}s verbleibend)")
+                    except Exception:
+                        pass
+                if not login_ok:
+                    await log_line("[LOGIN] ❌ Login-Timeout nach 120 Sekunden.")
+                    await log_line("[LOGIN] Bitte manuell einloggen und Bot neu starten.")
+                    return
+            else:
+                await log_line("[LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.")
 
             # HYBRID-ANSATZ: URL-Navigation mit Validierung
             day_window = filters.get("time_filter", {}).get("day_window", "heute")
@@ -1358,11 +1588,25 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
             # ── IMPORT: Bestehende Termine aus "Meine offene Fälle" einlesen ──
-            # Muss VOR dem Scan passieren, damit next_available_slot() drumherum plant
+            # ABLAUF: 1) Slots resetten  2) Importieren  3) Slots sind korrekt befüllt
+            # So werden extern terminierte Patienten als belegt markiert und
+            # next_available_slot() vermeidet Doppelbelegungen.
+            target_date = get_target_date_from_filters(filters)
+            reset_slots_for_date(target_date)
+            await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt - importiere bestehende Termine...")
+
             try:
                 imported_count = await import_existing_appointments(page, filters)
                 if imported_count > 0:
                     await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
+                    # Zeige die belegten Slots zur Kontrolle
+                    from core_scheduler import load_slots as _load_slots
+                    _slots = _load_slots()
+                    _today = _slots.get(target_date, [])
+                    if _today:
+                        await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
+                else:
+                    await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.")
             except Exception as e:
                 await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
 
@@ -1377,8 +1621,12 @@ async def click_loop(filters):
             if needs_navigation:
                 navigation_ok = await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                 if not navigation_ok:
-                    await log_line("[ERROR] Requests-Seite nicht erreichbar oder Login nicht mehr aktiv.")
-                    return
+                    await log_line("[WARN] Erster Navigationsversuch fehlgeschlagen - warte 10 Sekunden und versuche erneut...")
+                    await asyncio.sleep(10)
+                    navigation_ok = await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
+                    if not navigation_ok:
+                        await log_line("[ERROR] Requests-Seite nicht erreichbar oder Login nicht mehr aktiv.")
+                        return
 
             # VALIDIERUNG + FALLBACK: Prüfe ob Tag-Filter wirklich gesetzt ist
             validation_ok = await validate_and_fix_day_filter(page, day_window)
@@ -1393,14 +1641,35 @@ async def click_loop(filters):
             await log_line("[INFO] Stelle sicher, dass Chrome im Debug-Modus läuft.")
             return
 
+        loop_counter = 0  # Zähler für Re-Import-Intervall
         while True:
             try:
                 # 🌙 OVERNIGHT-FEATURE: Prüfe ob Mitternacht überschritten wurde
                 filters, last_midnight_check = await check_and_update_day_window(filters, last_midnight_check)
 
+                # Stelle pro Loop sicher, dass wir weiter mit dem richtigen Teleclinic-Tab arbeiten
+                page = await get_preferred_teleclinic_page(context)
+
+                # 🪟 WICHTIG: Chrome-Fenster in den Vordergrund für zuverlässige Klicks
+                bring_chrome_to_foreground()
+                await page.bring_to_front()
+                await asyncio.sleep(0.2)
+
                 # HYBRID-ANSATZ: Bestimme Tab und navigiere
                 day_window = filters.get("time_filter", {}).get("day_window", "heute")
                 tab_num = get_tab_number(day_window)
+
+                # 📋 RE-IMPORT: Alle 5 Loops erneut terminierte Patienten importieren
+                # um Doppelbelegungen zu verhindern (falls Termine manuell gesetzt wurden)
+                # Nicht bei JEDEM Loop, um die Scan-Geschwindigkeit nicht zu beeinträchtigen
+                loop_counter += 1
+                if loop_counter % 5 == 0:
+                    try:
+                        reimport_count = await import_existing_appointments(page, filters)
+                        if reimport_count > 0:
+                            await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
+                    except Exception as reimport_err:
+                        await log_line(f"[IMPORT-LOOP] ⚠️ Re-Import fehlgeschlagen: {reimport_err}")
 
                 # Durchsuche alle Seiten
                 total_found = 0
@@ -1456,8 +1725,9 @@ async def click_loop(filters):
                             except Exception as e:
                                 await log_line(f"[WARN] Slot-1-Filter-Prüfung fehlgeschlagen: {e}")
 
-                        # Slot 2 prüfen (unabhängig von Slot 1, wenn aktiv und noch nicht voll)
-                        if slot2_enabled and slot2_filters and not slot2_full:
+                        # Slot 2 prüfen (nur wenn Slot 1 NICHT bereits zugewiesen wurde, aktiv und noch nicht voll)
+                        # FIX: matched_slot == None verhindert, dass Slot 2 den bereits gesetzten Slot 1 überschreibt
+                        if matched_slot is None and slot2_enabled and slot2_filters and not slot2_full:
                             try:
                                 matches2, ot2 = await check_case_matches_filters(card, slot2_filters)
                                 if matches2:
@@ -1575,12 +1845,14 @@ async def main():
         await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
         return
 
-    # RESET: Setze Counter auf 0 und lösche alte Slots für das gewählte Ziel-Datum beim Bot-Start
+    # RESET: Setze Counter auf 0 beim Bot-Start
+    # WICHTIG: Slots werden NICHT mehr hier gelöscht!
+    # Der Import in click_loop() übernimmt die bestehenden Termine.
+    # reset_slots_for_date() wird erst NACH dem Import in click_loop() aufgerufen,
+    # damit keine extern terminierten Patienten verloren gehen.
     patients_accepted = 0
     target_date = get_target_date(filters)
-    reset_slots_for_date(target_date)
-    await log_line(f"[SCHEDULER] 🔄 Alte Termine für {target_date} zurückgesetzt - neue Session startet!")
-    await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt")
+    await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")
 
 
     # Starte Chrome im Debug-Modus (falls noch nicht gestartet)
