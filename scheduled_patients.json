@@ -1,25 +1,65 @@
 {
   "2026-03-22": {
-    "20:00": {
-      "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
+    "23:00": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, VIDEO",
       "gender": "männlich",
       "age": "48",
-      "timestamp": "2026-03-22T19:27:49.897595"
+      "timestamp": "2026-03-22T20:55:05.781539"
+    }
+  },
+  "2026-03-23": {
+    "15:30": {
+      "diagnosis": "Weiblich, 20 Jahre, Au, Weitere Informationen In Der Fallansicht",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "20",
+      "timestamp": "2026-03-23T11:43:06.761155"
     },
-    "20:05": {
+    "15:35": {
+      "diagnosis": "Au, Bauchschmerzen",
+      "wishes": "AU, VIDEO",
+      "gender": "männlich",
+      "age": "27",
+      "timestamp": "2026-03-23T11:43:12.245297"
+    },
+    "15:40": {
+      "diagnosis": "Au, Kopfschmerzen",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "34",
+      "timestamp": "2026-03-23T11:43:20.376333"
+    },
+    "15:45": {
+      "diagnosis": "Au, Erkältung / Grippe",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "52",
+      "timestamp": "2026-03-23T11:43:28.404185"
+    },
+    "15:50": {
+      "diagnosis": "Au, Erkältung / Grippe",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "26",
+      "timestamp": "2026-03-23T11:43:37.086902"
+    },
+    "15:55": {
+      "diagnosis": "Au, Halsschmerzen",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "32",
+      "timestamp": "2026-03-23T11:43:45.600629"
+    }
+  },
+  "2026-03-24": {
+    "20:00": {
       "diagnosis": "Psychische Leiden",
       "wishes": "VIDEO",
       "gender": "männlich",
-      "age": "29",
-      "timestamp": "2026-03-22T19:27:54.887281"
-    },
-    "21:00": {
-      "diagnosis": "Psychische Leiden",
-      "wishes": "VIDEO",
-      "gender": "männlich",
-      "age": "33",
-      "timestamp": "2026-03-22T19:28:11.212537"
+      "age": "30",
+      "timestamp": "2026-03-24T15:40:18.602384",
+      "source": "bot"
     }
   }
 }

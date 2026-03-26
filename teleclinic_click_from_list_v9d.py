@@ -51,13 +51,20 @@ def word_boundary_match(text: str, term: str) -> bool:
 
 
 async def log_line(text: str):
-    """Schreibt Logzeile mit Zeitstempel."""
+    """Schreibt Logzeile mit Zeitstempel (append-Modus, keine Datei-Lock-Fehler)."""
     line = f"[{datetime.now().strftime('%H:%M:%S')}] {text}"
     try:
         print(line)
     except UnicodeEncodeError:
         print(line.encode("ascii", errors="replace").decode("ascii"))
-    LOG_PATH.write_text(LOG_PATH.read_text(encoding="utf-8") + "\n" + line if LOG_PATH.exists() else line, encoding="utf-8")
+
+    # Append-Modus statt unlink() → verhindert WinError 32 bei Datei-Lock
+    try:
+        with LOG_PATH.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception as log_err:
+        # Stille fehl schlagen — Log-Fehler sollten Bot nicht stoppen
+        pass
 
 
 async def load_filters() -> dict:
@@ -1386,9 +1393,16 @@ async def import_existing_appointments(page, filters) -> int:
                             /^\\d{1,2}:\\d{2}(\\s+Uhr)?$/, /^(video|gkv|pkv|selbstzahler|privat)$/i,
                             /^\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}$/, /^\\d+$$/, /^(Mo|Di|Mi|Do|Fr|Sa|So),/i,
                         ];
-                        for (const line of lines) {
+                        // Diagnose-Erfassung: ERSTE valide Zeile nach GKV/VIDEO/Zeit (nicht Geschlecht)
+                        let foundDiagnosis = false;
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i];
                             if (skipPatterns.some(p => p.test(line))) continue;
-                            if (!diagnosis && line.length >= 3) { diagnosis = line; continue; }
+                            if (!foundDiagnosis && line.length >= 3 && !/(männlich|weiblich|male|female)/i.test(line)) {
+                                diagnosis = line;
+                                foundDiagnosis = true;
+                                continue;
+                            }
                             if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
                             if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) { gender = line; continue; }
                             const ageM = line.match(/^(\\d{1,3})\\s*J(ahre|\\.)?$/i);
@@ -1867,25 +1881,16 @@ async def main():
     """Hauptfunktion: lädt Filter und startet den Click-Loop."""
     global patients_accepted
 
-    # Robuster Start: Kein Löschen der Log-Datei (vermeidet WinError 32 bei Datei-Lock).
-    # Stattdessen schreiben wir einen Session-Header im Append-Modus.
+    # Session-Header in Append-Modus schreiben (verhindert WinError 32)
     try:
         with LOG_PATH.open("a", encoding="utf-8") as f:
             f.write("\n" + "=" * 70 + "\n")
-            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Neue Bot-Session gestartet\n")
+            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🚀 Neue Bot-Session gestartet\n")
+            f.write("=" * 70 + "\n")
     except Exception as e:
         print(f"[WARN] Konnte Session-Header nicht in Log schreiben: {e}")
 
-    filters = await load_filters()
-    if not filters:
-        await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
-        return
-
-    # RESET: Setze Counter auf 0 beim Bot-Start
-    # WICHTIG: Slots werden NICHT mehr hier gelöscht!
-    # Der Import in click_loop() übernimmt die bestehenden Termine.
-    # reset_slots_for_date() wird erst NACH dem Import in click_loop() aufgerufen,
-    # damit keine extern terminierten Patienten verloren gehen.
+    # ...existing code...
     patients_accepted = 0
     target_date = get_target_date(filters)
     await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")

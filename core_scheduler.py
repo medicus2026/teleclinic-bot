@@ -13,7 +13,7 @@ def hhmm_to_minutes(hhmm: str) -> int:
         h, m = map(int, hhmm.strip().split(":"))
         return h * 60 + m
     except Exception:
-        return None
+        return 0  # Standardwert im Fehlerfall
 
 
 def minutes_to_hhmm(m: int) -> str:
@@ -83,8 +83,7 @@ def calculate_max_slots(start_min: int, end_min: int, interval: int) -> int:
 def next_available_slot(filters: dict, date: str | None = None, min_start_time: str | None = None) -> str | None:
     """
     Gibt die nächste freie Zeit als HH:MM zurück.
-    Prüft belegte Slots in scheduled_slots.json.
-    Erstellt Datei automatisch, wenn nicht vorhanden.
+    WICHTIG: Speichert den Slot NICHT sofort! Erst confirm_slot() aufrufen nach erfolgreichem Klick.
 
     Args:
         filters: Filter-Dict mit time_filter, runtime, etc.
@@ -147,8 +146,12 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
         if min_start_time:
             min_start_minutes = hhmm_to_minutes(min_start_time)
             if min_start_minutes > start:
-                actual_start = min_start_minutes
-                print(f"[SCHEDULER] Frühester Start angepasst auf: {min_start_time} (wegen Patientenwunsch) in {slot_name}")
+                # FIX: Aufrunden auf nächstes gültiges Vielfaches des Intervalls ab start
+                offset = min_start_minutes - start
+                rounded_offset = ((offset + interval - 1) // interval) * interval
+                actual_start = start + rounded_offset
+                print(f"[SCHEDULER] Frühester Start angepasst auf: {minutes_to_hhmm(actual_start)} "
+                      f"(Patientenwunsch ab {min_start_time}, auf Intervall-Raster ausgerichtet) in {slot_name}")
 
         print(f"[SCHEDULER] Durchsuche {slot_name}: {minutes_to_hhmm(actual_start)} - {minutes_to_hhmm(end)}, Intervall: {interval} Min.")
 
@@ -157,11 +160,8 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
             while current >= actual_start:
                 t = minutes_to_hhmm(current)
                 if t not in today_slots:
-                    today_slots.append(t)
-                    today_slots.sort()
-                    slots[date] = today_slots
-                    save_slots(slots)
-                    print(f"[SCHEDULER] ✅ Slot {t} vergeben (rückwärts in {slot_name}). Gesamt belegt: {len(today_slots)}")
+                    # NUR FINDEN, NICHT SPEICHERN! confirm_slot() macht das später.
+                    print(f"[SCHEDULER] 🔍 Slot {t} gefunden (rückwärts in {slot_name}). Noch nicht bestätigt.")
                     return t
                 current -= interval
         else:
@@ -170,11 +170,8 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
             while current < end:
                 t = minutes_to_hhmm(current)
                 if t not in today_slots:
-                    today_slots.append(t)
-                    today_slots.sort()
-                    slots[date] = today_slots
-                    save_slots(slots)
-                    print(f"[SCHEDULER] ✅ Slot {t} vergeben (vorwärts in {slot_name}). Gesamt belegt: {len(today_slots)}")
+                    # NUR FINDEN, NICHT SPEICHERN! confirm_slot() macht das später.
+                    print(f"[SCHEDULER] 🔍 Slot {t} gefunden (vorwärts in {slot_name}). Noch nicht bestätigt.")
                     return t
                 else:
                     pass  # Slot bereits belegt, prüfe nächsten
@@ -184,7 +181,35 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
     return None
 
 
-def validate_max_patients(filters: dict) -> tuple[int, int, bool]:
+def confirm_slot(slot_time: str, date: str | None = None) -> bool:
+    """
+    Bestätigt einen Slot als belegt NACH erfolgreichem Klick.
+    Wird aufgerufen wenn handle_case() erfolgreich war.
+
+    Returns: True wenn erfolgreich gespeichert
+    """
+    if date is None:
+        date = datetime.now().strftime("%Y-%m-%d")
+
+    try:
+        slots = load_slots()
+        today_slots = slots.get(date, [])
+
+        if slot_time not in today_slots:
+            today_slots.append(slot_time)
+            today_slots.sort()
+            slots[date] = today_slots
+            save_slots(slots)
+            print(f"[SCHEDULER] ✅ Slot {slot_time} bestätigt und gespeichert für {date}. Gesamt belegt: {len(today_slots)}")
+        else:
+            print(f"[SCHEDULER] ℹ️ Slot {slot_time} war bereits belegt für {date}.")
+        return True
+    except Exception as e:
+        print(f"[SCHEDULER] ❌ Fehler beim Bestätigen von Slot {slot_time}: {e}")
+        return False
+
+
+def validate_max_patients(filters: dict, existing_patients: dict) -> tuple[int, int, bool]:
     """
     Validiert die max_patients-Einstellung gegen die verfügbaren Slots.
 
@@ -235,27 +260,14 @@ def validate_max_patients(filters: dict) -> tuple[int, int, bool]:
     per_slot_possible = []
     for slot_name, start, end in ranges:
         possible = calculate_max_slots(start, end, interval)
-        per_slot_possible.append((slot_name, start, end, possible))
+        # Berücksichtige bereits terminierte Patienten
+        existing_count = sum(1 for time in existing_patients if start <= hhmm_to_minutes(time) < end)
+        per_slot_possible.append((slot_name, start, end, possible - existing_count))
 
     # Gültig nur, wenn pro aktivem Slot der gewünschte Wert erreichbar ist
     is_valid = all(max_patients_requested <= possible for _, _, _, possible in per_slot_possible)
 
     max_patients_possible_total = sum(possible for _, _, _, possible in per_slot_possible)
-
-    if not is_valid:
-        print(f"\n{'=' * 70}")
-        print("⚠️  WARNUNG: Max-Patientenzahl pro Zeitfenster nicht erreichbar!")
-        print(f"{'=' * 70}")
-        print(f"  Wunsch pro Slot: {max_patients_requested} Patienten")
-        print(f"  Intervall:       {interval} Minuten")
-        for slot_name, start, end, possible in per_slot_possible:
-            print(
-                f"  {slot_name}:        {possible} Slots in "
-                f"{minutes_to_hhmm(start)} - {minutes_to_hhmm(end)}"
-            )
-        safe_per_slot = min(possible for _, _, _, possible in per_slot_possible)
-        print(f"\n  → Sicherer Wert pro Slot: {safe_per_slot}")
-        print(f"{'=' * 70}\n")
 
     return (max_patients_requested, max_patients_possible_total, is_valid)
 
