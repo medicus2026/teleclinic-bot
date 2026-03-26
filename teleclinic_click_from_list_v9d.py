@@ -828,14 +828,24 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
 
     try:
         await log_line("[SCAN] Anfrage gefunden – versuche zu übernehmen...")
-        # Scroll & Klick robuster
+        # Seite in Vordergrund + scrollen
         try:
             await page.bring_to_front()
-            await page.wait_for_timeout(100)
+            await page.wait_for_timeout(150)
         except Exception:
             pass
         try:
             await case_button.scroll_into_view_if_needed(timeout=3000)
+            await page.wait_for_timeout(300)  # kurz warten nach Scroll
+        except Exception:
+            pass
+
+        # Warte bis Element enabled ist (max 3 Sekunden)
+        try:
+            for _ in range(15):
+                if await case_button.is_enabled():
+                    break
+                await asyncio.sleep(0.2)
         except Exception:
             pass
 
@@ -1621,11 +1631,12 @@ async def click_loop(filters):
             # next_available_slot() vermeidet Doppelbelegungen.
             target_date = get_target_date_from_filters(filters)
             reset_slots_for_date(target_date)
-            # Auch scheduled_patients.json für heute leeren, damit GUI-Kalender keine veralteten Einträge zeigt
+            # Patientenliste für heute leeren — ABER importierte Termine behalten
+            # damit GUI sie sofort anzeigen kann, bevor der Re-Import läuft
             try:
                 from scheduled_patients import reset_patients_for_date as _reset_patients
-                _reset_patients(target_date)
-                await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert - frischer Import folgt...")
+                _reset_patients(target_date, keep_imported=True)
+                await log_line(f"[IMPORT] 🗑️ Bot-Patienten für {target_date} geleert - importierte Termine behalten...")
             except Exception as rpe:
                 await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
             await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt - importiere bestehende Termine...")
@@ -1701,11 +1712,11 @@ async def click_loop(filters):
                 if loop_counter % 5 == 0:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        # Slots + Patientenliste leeren, dann frisch importieren
+                        # Slots leeren, importierte Termine aber behalten (GUI bleibt gefüllt)
                         reset_slots_for_date(_reimport_date)
                         try:
                             from scheduled_patients import reset_patients_for_date as _rp
-                            _rp(_reimport_date)
+                            _rp(_reimport_date, keep_imported=True)
                         except Exception:
                             pass
                         reimport_count = await import_existing_appointments(page, filters)
@@ -1890,7 +1901,11 @@ async def main():
     except Exception as e:
         print(f"[WARN] Konnte Session-Header nicht in Log schreiben: {e}")
 
-    # ...existing code...
+    filters = await load_filters()
+    if not filters:
+        await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
+        return
+
     patients_accepted = 0
     target_date = get_target_date(filters)
     await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")
