@@ -119,6 +119,8 @@ class TeleClinicBotGUI:
 
         self.setup_ui()
         self.load_filters()
+        # Beim Start sofort vorhandene Bestandstermine im Kalender anzeigen
+        self.root.after(500, self._load_existing_from_teleclinic)
 
     def setup_ui(self):
         """Erstelle die GUI"""
@@ -651,6 +653,23 @@ class TeleClinicBotGUI:
         self.log_text.see("end")
         self.log_text.config(state="disabled")
         print(line)
+
+    def _load_existing_from_teleclinic(self):
+        """
+        Liest Bestandstermine aus Teleclinic (scheduled_patients.json)
+        und zeigt sie im GUI-Kalender an.
+        Wird beim GUI-Start aufgerufen — OHNE den Bot zu starten.
+        """
+        try:
+            self._update_calendar_from_json()
+            # Zeige wie viele Termine geladen wurden
+            count = len(self.appointment_tree.get_children())
+            if count > 0:
+                self.log(f"📅 {count} Bestandstermine aus letztem Import geladen.")
+            else:
+                self.log("ℹ️ Keine Bestandstermine vorhanden (erst nach 'test_import_standalone.py' verfügbar).")
+        except Exception as e:
+            self.log(f"⚠️ Bestandstermine konnten nicht geladen werden: {e}")
 
     def start_bot(self):
         """Starte Scanner & Clicker"""

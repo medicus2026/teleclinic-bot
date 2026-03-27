@@ -22,6 +22,7 @@ from playwright.async_api import async_playwright
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from core_scheduler import import_existing_appointments
+from scheduled_patients import add_imported_appointment
 
 
 def get_tab_from_filters() -> tuple:
@@ -325,6 +326,28 @@ async def main():
             print(f"     Heute  ({ergebnis['date_heute']}): {ergebnis['heute']}")
             print(f"     Morgen ({ergebnis['date_morgen']}): {ergebnis['morgen']}")
             print(f"     Neu hinzugefügt: {ergebnis['neu_hinzugefuegt']} Slots")
+
+            # ── In GUI-Kalender übertragen (scheduled_patients.json) ─────────
+            print("\n" + "=" * 70)
+            print("  📅 Übertrage Bestandstermine in GUI-Kalender (scheduled_patients.json)...")
+            print("=" * 70)
+            gui_neu = 0
+            for e in alle:
+                t = e.get("time", "")
+                if not t:
+                    continue
+                day_label = e.get("day", "Heute")
+                date_key = date_morgen if day_label == "Morgen" else date_heute
+                add_imported_appointment(
+                    time=t,
+                    date=date_key,
+                    diagnosis=e.get("diagnosis") or "Extern terminiert",
+                    wishes=e.get("wishes") or "",
+                    gender=e.get("gender") or "",
+                    age=e.get("age") or "",
+                )
+                gui_neu += 1
+            print(f"[OK] GUI-Kalender: {gui_neu} Termine in scheduled_patients.json eingetragen")
         else:
             print("\n[INFO] Keine Termine zum Importieren gefunden.")
 
