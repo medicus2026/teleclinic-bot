@@ -1047,12 +1047,15 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await log_line(f"[ERROR] Klick auf 'Übernehmen' fehlgeschlagen: {e}")
             return False
 
+        # ✅ Slot als belegt bestätigen (MUSS nach erfolgreichem Klick passieren!)
+        confirm_slot(slot, date=target_date)
+
         # Counter erhöhen
         patients_accepted += 1
         await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
         await log_line(f"[INFO] 📊 Patienten übernommen: {patients_accepted}")
 
-        # NEEU: Speichere Patient-Daten in scheduled_patients.json
+        # Speichere Patient-Daten in scheduled_patients.json
         if case_element:
             try:
                 from scheduled_patients import add_patient

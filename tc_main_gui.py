@@ -670,12 +670,18 @@ class TeleClinicBotGUI:
             else:
                 target_date = datetime.now().strftime("%Y-%m-%d")
 
-            reset_patients_for_date(target_date)
+            # keep_imported=True: extern terminierte Patienten NICHT löschen –
+            # der Bot importiert sie sofort beim Start frisch aus Teleclinic.
+            # Damit sind sie im GUI-Kalender sichtbar bevor der erste Scan abgeschlossen ist.
+            reset_patients_for_date(target_date, keep_imported=True)
 
             for item in self.appointment_tree.get_children():
                 self.appointment_tree.delete(item)
 
-            self.log(f"🧹 Alle Kalenderdaten für {target_date} zurückgesetzt (werden frisch importiert)")
+            self.log(f"🧹 Bot-Patienten für {target_date} zurückgesetzt (Bestandstermine bleiben bis Frisch-Import)")
+
+            # Kalender sofort mit vorhandenen Daten füllen (importierte Bestandstermine)
+            self._update_calendar_from_json()
         except Exception as e:
             self.log(f"⚠️ Konnte Kalenderdaten nicht zurücksetzen: {e}")
 

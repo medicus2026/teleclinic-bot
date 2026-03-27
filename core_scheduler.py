@@ -325,6 +325,70 @@ def reset_all_slots() -> None:
     print("[SCHEDULER] ✅ Alle Slots komplett zurückgesetzt.")
 
 
+def import_existing_appointments(appointments: list, date_heute: str | None = None, date_morgen: str | None = None) -> dict:
+    """
+    Überträgt aus Teleclinic gelesene Bestandstermine in scheduled_slots.json.
+    Bestehende Einträge werden NICHT gelöscht — nur neue Slots hinzugefügt.
+
+    Args:
+        appointments: Liste von Dicts mit keys: time, diagnosis, day ("Heute"/"Morgen"), ...
+        date_heute:   Datum für "Heute" als YYYY-MM-DD (default: heute)
+        date_morgen:  Datum für "Morgen" als YYYY-MM-DD (default: morgen)
+
+    Returns:
+        Dict mit {"heute": [slots], "morgen": [slots], "neu_hinzugefuegt": int}
+    """
+    from datetime import timedelta
+
+    if date_heute is None:
+        date_heute = datetime.now().strftime("%Y-%m-%d")
+    if date_morgen is None:
+        date_morgen = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    slots = load_slots()
+    neu_hinzugefuegt = 0
+
+    for appt in appointments:
+        time_str = appt.get("time", "").strip()
+        day_label = appt.get("day", "Heute")
+
+        if not time_str:
+            continue
+
+        # Datum bestimmen
+        if day_label == "Morgen":
+            date_key = date_morgen
+        else:
+            date_key = date_heute
+
+        # Slot eintragen falls noch nicht vorhanden
+        if date_key not in slots:
+            slots[date_key] = []
+
+        if time_str not in slots[date_key]:
+            slots[date_key].append(time_str)
+            slots[date_key].sort()
+            neu_hinzugefuegt += 1
+            print(f"[SCHEDULER] ✅ Bestandstermin importiert: {date_key} {time_str} ({appt.get('diagnosis','')})")
+        else:
+            print(f"[SCHEDULER] ℹ️  Slot bereits bekannt: {date_key} {time_str}")
+
+    save_slots(slots)
+
+    result = {
+        "heute": slots.get(date_heute, []),
+        "morgen": slots.get(date_morgen, []),
+        "neu_hinzugefuegt": neu_hinzugefuegt,
+        "date_heute": date_heute,
+        "date_morgen": date_morgen,
+    }
+    print(f"[SCHEDULER] 📥 Import abgeschlossen: {neu_hinzugefuegt} neue Slots. "
+          f"Heute={len(result['heute'])}, Morgen={len(result['morgen'])}")
+    return result
+
+
+
+
 if __name__ == "__main__":
     import sys
 

@@ -88199,3 +88199,1606 @@ Weiblich, 21 Jahre, Rezept, weitere Informationen in der...
 [06:47:01] ======================================================================
 [06:47:01] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
 [06:47:02] [SHUTDOWN] TeleClinic Clicker beendet.
+======================================================================
+[2026-03-26 15:57:37] 🚀 Neue Bot-Session gestartet
+======================================================================
+
+======================================================================
+[2026-03-26 16:04:30] 🚀 Neue Bot-Session gestartet
+======================================================================
+[16:04:30] [INFO] Filter geladen.
+[16:04:30] [RESET] Patient-Counter auf 0 zurückgesetzt für 2026-03-26
+[16:04:30] [INFO] Prüfe Chrome Debug-Modus...
+[16:04:41] [INFO] Chrome gestartet mit PID 9080
+[16:04:41] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[16:04:41] ======================================================================
+[16:04:41] [INFO] 🕐 SLOT 1: 16:50 - 18:00 | Max: 4
+[16:04:41] [INFO] SLOT 2: deaktiviert
+[16:04:41] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 4
+[16:04:41] ======================================================================
+[16:04:42] [START] Verbunden mit Google Chrome Debug-Session.
+[16:04:42] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[16:04:42] [TAB] Tab in den Vordergrund geholt
+[16:04:42] [INFO] Aktuelle URL: https://med.teleclinic.com/requests?tab=0&page=1
+[16:04:42] [LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.
+[16:04:42] [INFO] 🗓️ Tag-Filter: Heute (Methode: URL tab=0 + Validierung)
+[16:04:42] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[16:04:42] [IMPORT] 🗑️ Patientenliste für 2026-03-26 geleert - frischer Import folgt...
+[16:04:42] [SCHEDULER] 🔄 Slots für 2026-03-26 zurückgesetzt - importiere bestehende Termine...
+[16:04:42] ======================================================================
+[16:04:42] [IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab=0)...
+[16:04:53] [IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): Timeout 10000ms exceeded.
+=========================== logs ===========================
+"load" event fired
+============================================================
+[16:04:57] [IMPORT] 🔍 Scanneseite 1 nach Terminen...
+[16:04:57] [IMPORT] Seite 1: Keine Termine gefunden - Ende der Seiten.
+[16:04:57] [IMPORT] ℹ️ Keine bestehenden Termine für 2026-03-26 gefunden.
+[16:04:57] ======================================================================
+[16:04:57] [IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.
+[16:04:57] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
+[16:05:07] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[16:05:09] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[16:05:09] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[16:05:09] [START] Bereit zum Scannen. Los geht's!
+[16:05:09] ======================================================================
+[16:05:09] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[16:05:09] [TAB] Tab in den Vordergrund geholt
+[16:05:09] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[16:05:09] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[16:05:09] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[16:05:09] [SCAN] Scanne Seite 1 (tab=0)...
+[16:05:09] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[16:05:09] [TRY] Seite 1, Fall 1/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:05:09] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Diabetes
+
+Weiblich, 27 Jahre, Rezept, weitere Informationen in der Fallans...
+[16:05:09] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:09] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:09] [SKIP] Fall 1 entspricht keinem Slot-Filter - übersprungen
+[16:05:09] [TRY] Seite 1, Fall 2/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:05:09] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Männlich, 41 Jahre, weitere Informationen in der Fallansi...
+[16:05:09] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:09] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:09] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[16:05:09] [TRY] Seite 1, Fall 3/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:05:10] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Weiblich, 24 Jahre, weitere Informationen in der Fallansi...
+[16:05:10] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:10] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:05:10] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:05:11] [POPUP] Dialog/Popup erkannt.
+[16:05:11] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:05:12] [TIME] ✅ Zeit gesetzt (React-JS): 16:50
+[16:05:12] [OK] Anfrage übernommen – Termin 16:50 gesetzt.
+[16:05:12] [INFO] 📊 Patienten übernommen: 1
+[16:05:12] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 16:50 | Hautkrankheiten | weiblich | 24J
+[16:05:13] [DONE] ✅ Fall 3 erfolgreich übernommen! Slot 1
+[16:05:15] [TRY] Seite 1, Fall 4/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:15] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenEnglish, Männlich, 28 Jahre, Rez...
+[16:05:15] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:15] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:15] [SKIP] Fall 4 entspricht keinem Slot-Filter - übersprungen
+[16:05:15] [TRY] Seite 1, Fall 5/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:15] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenWeiblich, 17 Jahre, weitere Inform...
+[16:05:15] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:15] [FILTER] ❌ Alter 17 unter Mindestalter 18
+[16:05:15] [SKIP] Fall 5 entspricht keinem Slot-Filter - übersprungen
+[16:05:15] [TRY] Seite 1, Fall 6/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:15] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsoriasisWeiblich, 29 Jahre, Rezept, weitere Info...
+[16:05:15] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:15] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:05:15] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:05:15] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:05:15] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:05:27] [POPUP] Dialog/Popup erkannt.
+[16:05:27] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:05:27] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:05:27] [TRY] Seite 1, Fall 7/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:27] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenWeiblich, 29 Jahre, weitere Inform...
+[16:05:27] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:27] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:05:27] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:05:27] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:05:27] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:05:38] [POPUP] Dialog/Popup erkannt.
+[16:05:38] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:05:38] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:05:38] [TRY] Seite 1, Fall 8/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOInfektionskrankheitMännlich, 53 Jahre, Rezept, we...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:38] [SKIP] Fall 8 entspricht keinem Slot-Filter - übersprungen
+[16:05:38] [TRY] Seite 1, Fall 9/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenMännlich, 28 Jahre, Rezept, weit...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:38] [SKIP] Fall 9 entspricht keinem Slot-Filter - übersprungen
+[16:05:38] [TRY] Seite 1, Fall 10/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOBauchschmerzenEnglish, Männlich, 24 Jahre, weiter...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:38] [SKIP] Fall 10 entspricht keinem Slot-Filter - übersprungen
+[16:05:38] [TRY] Seite 1, Fall 11/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOGenitalherpesEnglish, Männlich, 32 Jahre, Rezept,...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:38] [SKIP] Fall 11 entspricht keinem Slot-Filter - übersprungen
+[16:05:38] [TRY] Seite 1, Fall 12/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenWeiblich, 85 Jahre, Rezept, weit...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:38] [SKIP] Fall 12 entspricht keinem Slot-Filter - übersprungen
+[16:05:38] [TRY] Seite 1, Fall 13/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:38] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsoriasisWeiblich, 29 Jahre, Rezept, weitere Info...
+[16:05:38] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:38] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:05:38] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:05:38] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:05:38] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:05:49] [POPUP] Dialog/Popup erkannt.
+[16:05:49] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:05:49] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:05:49] [TRY] Seite 1, Fall 14/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:49] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenMännlich, 19 Jahre, Rezept, weit...
+[16:05:49] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:49] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:05:49] [SKIP] Fall 14 entspricht keinem Slot-Filter - übersprungen
+[16:05:49] [TRY] Seite 1, Fall 15/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:05:49] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenMännlich, 31 Jahre, Rezept, weiter...
+[16:05:49] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:05:49] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:05:49] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:05:50] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:05:50] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:06:01] [POPUP] Dialog/Popup erkannt.
+[16:06:01] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:06:01] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:06:01] [TRY] Seite 1, Fall 16/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:01] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenMännlich, 26 Jahre, weitere Info...
+[16:06:01] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:01] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:01] [SKIP] Fall 16 entspricht keinem Slot-Filter - übersprungen
+[16:06:01] [TRY] Seite 1, Fall 17/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:01] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOMultiple SkleroseWeiblich, 41 Jahre, Rezept, weit...
+[16:06:01] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:01] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:01] [SKIP] Fall 17 entspricht keinem Slot-Filter - übersprungen
+[16:06:01] [TRY] Seite 1, Fall 18/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:01] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenEnglish, Weiblich, 41 Jahre, AU un...
+[16:06:01] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:01] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:06:01] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:06:01] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:06:01] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:06:12] [POPUP] Dialog/Popup erkannt.
+[16:06:12] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:06:12] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:06:12] [TRY] Seite 1, Fall 19/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:12] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOAkneMännlich, 19 Jahre, Rezept, weitere Informati...
+[16:06:12] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:12] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:06:12] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:06:13] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:06:13] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:06:24] [POPUP] Dialog/Popup erkannt.
+[16:06:24] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:06:24] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:06:24] [TRY] Seite 1, Fall 20/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenMännlich, 36 Jahre, Rezept, weit...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:24] [SKIP] Fall 20 entspricht keinem Slot-Filter - übersprungen
+[16:06:24] [TRY] Seite 1, Fall 21/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOSchlafstörungenMännlich, 27 Jahre, Rezept, weiter...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:24] [SKIP] Fall 21 entspricht keinem Slot-Filter - übersprungen
+[16:06:24] [TRY] Seite 1, Fall 22/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOGenitalwarzeMännlich, 26 Jahre, weitere Informati...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:24] [SKIP] Fall 22 entspricht keinem Slot-Filter - übersprungen
+[16:06:24] [TRY] Seite 1, Fall 23/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenMännlich, 38 Jahre, weitere Info...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:24] [SKIP] Fall 23 entspricht keinem Slot-Filter - übersprungen
+[16:06:24] [TRY] Seite 1, Fall 24/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenWeiblich, 7 Jahre, Rezept, weitere...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ❌ Alter 7 unter Mindestalter 18
+[16:06:24] [SKIP] Fall 24 entspricht keinem Slot-Filter - übersprungen
+[16:06:24] [TRY] Seite 1, Fall 25/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:24] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenEnglish, Weiblich, 37 Jahre, AU un...
+[16:06:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:24] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:06:24] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:06:24] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:06:24] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:06:35] [POPUP] Dialog/Popup erkannt.
+[16:06:35] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:06:35] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:06:35] [TRY] Seite 1, Fall 26/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:35] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOPsychische LeidenWeiblich, 30 Jahre, AU, weitere ...
+[16:06:35] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:35] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:35] [SKIP] Fall 26 entspricht keinem Slot-Filter - übersprungen
+[16:06:35] [TRY] Seite 1, Fall 27/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:35] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOAUEnglish, Weiblich, 35 Jahre, AU, weitere Inform...
+[16:06:35] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:35] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:35] [SKIP] Fall 27 entspricht keinem Slot-Filter - übersprungen
+[16:06:35] [TRY] Seite 1, Fall 28/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:35] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOHautkrankheitenMännlich, 35 Jahre, Rezept, weiter...
+[16:06:35] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:35] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:06:35] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:06:36] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[16:06:36] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[16:06:47] [POPUP] Dialog/Popup erkannt.
+[16:06:47] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:06:47] [ERROR] Zeitfeld im Popup nicht gefunden.
+[16:06:47] [TRY] Seite 1, Fall 29/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:47] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOMuskelschmerzenEnglish, Männlich, 37 Jahre, Rezep...
+[16:06:47] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:47] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:47] [SKIP] Fall 29 entspricht keinem Slot-Filter - übersprungen
+[16:06:47] [TRY] Seite 1, Fall 30/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:47] [FILTER] Prüfe Fall: 15:00 -
+                              17:00GKVVIDEOAU, SchlafstörungenMännlich, 45 Jahre, AU, weiter...
+[16:06:47] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:47] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:47] [SKIP] Fall 30 entspricht keinem Slot-Filter - übersprungen
+[16:06:47] [LOOP] 30 Anfragen gefunden | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:47] [LOOP] Warte 5s bis zum nächsten Scan...
+[16:06:52] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[16:06:52] [TAB] Tab in den Vordergrund geholt
+[16:06:52] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[16:06:52] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[16:06:52] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[16:06:52] [SCAN] Scanne Seite 1 (tab=0)...
+[16:06:52] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[16:06:52] [TRY] Seite 1, Fall 1/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:52] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Diabetes
+
+Weiblich, 27 Jahre, Rezept, weitere Informationen in der Fallans...
+[16:06:52] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:52] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:52] [SKIP] Fall 1 entspricht keinem Slot-Filter - übersprungen
+[16:06:52] [TRY] Seite 1, Fall 2/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:52] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Männlich, 41 Jahre, weitere Informationen in der Fallansi...
+[16:06:52] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:52] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:52] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[16:06:52] [TRY] Seite 1, Fall 3/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:52] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+English, Männlich, 28 Jahre, Rezept, weitere Informatio...
+[16:06:52] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:52] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:06:52] [SKIP] Fall 3 entspricht keinem Slot-Filter - übersprungen
+[16:06:52] [TRY] Seite 1, Fall 4/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:52] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Weiblich, 17 Jahre, weitere Informationen in der Fallansi...
+[16:06:52] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:52] [FILTER] ❌ Alter 17 unter Mindestalter 18
+[16:06:52] [SKIP] Fall 4 entspricht keinem Slot-Filter - übersprungen
+[16:06:52] [TRY] Seite 1, Fall 5/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:06:52] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psoriasis
+
+Weiblich, 29 Jahre, Rezept, weitere Informationen in der Fallan...
+[16:06:52] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:06:52] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:06:52] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:06:58] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Timeout 5000ms exceeded.
+Call log:
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+      - waiting 100ms
+    9 × waiting for element to be visible, enabled and stable
+      - element is not enabled
+    - retrying click action
+      - waiting 500ms
+
+
+======================================================================
+[2026-03-26 16:20:20] 🚀 Neue Bot-Session gestartet
+======================================================================
+[16:20:20] [INFO] Filter geladen.
+[16:20:20] [RESET] Patient-Counter auf 0 zurückgesetzt für 2026-03-26
+[16:20:20] [INFO] Prüfe Chrome Debug-Modus...
+[16:20:31] [INFO] Chrome gestartet mit PID 6792
+[16:20:31] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[16:20:31] ======================================================================
+[16:20:31] [INFO] 🕐 SLOT 1: 16:50 - 18:00 | Max: 4
+[16:20:31] [INFO] SLOT 2: deaktiviert
+[16:20:31] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 4
+[16:20:31] ======================================================================
+[16:20:32] [START] Verbunden mit Google Chrome Debug-Session.
+[16:20:32] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[16:20:32] [TAB] Tab in den Vordergrund geholt
+[16:20:32] [INFO] Aktuelle URL: https://med.teleclinic.com/requests?tab=0&page=1
+[16:20:32] [LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.
+[16:20:32] [INFO] 🗓️ Tag-Filter: Heute (Methode: URL tab=0 + Validierung)
+[16:20:32] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[16:20:32] [IMPORT] 🗑️ Bot-Patienten für 2026-03-26 geleert - importierte Termine behalten...
+[16:20:32] [SCHEDULER] 🔄 Slots für 2026-03-26 zurückgesetzt - importiere bestehende Termine...
+[16:20:32] ======================================================================
+[16:20:32] [IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab=0)...
+[16:20:43] [IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): Timeout 10000ms exceeded.
+=========================== logs ===========================
+"load" event fired
+============================================================
+[16:20:47] [IMPORT] 🔍 Scanneseite 1 nach Terminen...
+[16:20:47] [IMPORT] Seite 1: Keine Termine gefunden - Ende der Seiten.
+[16:20:47] [IMPORT] ℹ️ Keine bestehenden Termine für 2026-03-26 gefunden.
+[16:20:47] ======================================================================
+[16:20:47] [IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.
+[16:20:47] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
+[16:20:58] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[16:21:00] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[16:21:00] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[16:21:00] [START] Bereit zum Scannen. Los geht's!
+[16:21:00] ======================================================================
+[16:21:00] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[16:21:00] [TAB] Tab in den Vordergrund geholt
+[16:21:00] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[16:21:00] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[16:21:00] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[16:21:00] [SCAN] Scanne Seite 1 (tab=0)...
+[16:21:00] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[16:21:00] [TRY] Seite 1, Fall 1/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:21:00] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Diabetes
+
+Weiblich, 27 Jahre, Rezept, weitere Informationen in der Fallans...
+[16:21:00] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:00] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:00] [SKIP] Fall 1 entspricht keinem Slot-Filter - übersprungen
+[16:21:00] [TRY] Seite 1, Fall 2/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:21:00] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Männlich, 41 Jahre, weitere Informationen in der Fallansi...
+[16:21:00] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:00] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:00] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[16:21:00] [TRY] Seite 1, Fall 3/30 | Slot 1: 0/4 | Slot 2: 0/0
+[16:21:00] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Weiblich, 24 Jahre, weitere Informationen in der Fallansi...
+[16:21:00] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:00] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:21:00] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:21:02] [POPUP] Dialog/Popup erkannt.
+[16:21:02] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:21:03] [TIME] ✅ Zeit gesetzt (React-JS): 16:50
+[16:21:03] [OK] Anfrage übernommen – Termin 16:50 gesetzt.
+[16:21:03] [INFO] 📊 Patienten übernommen: 1
+[16:21:03] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 16:50 | Hautkrankheiten | weiblich | 24J
+[16:21:04] [DONE] ✅ Fall 3 erfolgreich übernommen! Slot 1
+[16:21:06] [TRY] Seite 1, Fall 4/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+English, Männlich, 28 Jahre, Rezept, weitere Informatio...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 4 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 5/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Weiblich, 17 Jahre, weitere Informationen in der Fallansi...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Alter 17 unter Mindestalter 18
+[16:21:06] [SKIP] Fall 5 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 6/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Infektionskrankheit
+
+Männlich, 24 Jahre, Rezept, weitere Informationen in ...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 6 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 7/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Infektionskrankheit
+
+Männlich, 53 Jahre, Rezept, weitere Informationen in ...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 7 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 8/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 28 Jahre, Rezept, weitere Informationen in de...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 8 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 9/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Genitalherpes
+
+English, Männlich, 32 Jahre, Rezept, weitere Informationen ...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 9 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 10/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Weiblich, 85 Jahre, Rezept, weitere Informationen in de...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 10 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 11/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 19 Jahre, Rezept, weitere Informationen in de...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:06] [SKIP] Fall 11 entspricht keinem Slot-Filter - übersprungen
+[16:21:06] [TRY] Seite 1, Fall 12/30 | Slot 1: 1/4 | Slot 2: 0/0
+[16:21:06] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 31 Jahre, Rezept, weitere Informationen in der ...
+[16:21:06] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:06] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:21:06] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:21:07] [POPUP] Dialog/Popup erkannt.
+[16:21:07] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:21:08] [TIME] ✅ Zeit gesetzt (React-JS): 16:50
+[16:21:08] [OK] Anfrage übernommen – Termin 16:50 gesetzt.
+[16:21:08] [INFO] 📊 Patienten übernommen: 2
+[16:21:08] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 16:50 | Hautkrankheiten | männlich | 31J
+[16:21:09] [DONE] ✅ Fall 12 erfolgreich übernommen! Slot 1
+[16:21:11] [TRY] Seite 1, Fall 13/30 | Slot 1: 2/4 | Slot 2: 0/0
+[16:21:11] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 26 Jahre, weitere Informationen in der Fallan...
+[16:21:11] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:11] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[16:21:11] [SKIP] Fall 13 entspricht keinem Slot-Filter - übersprungen
+[16:21:11] [TRY] Seite 1, Fall 14/30 | Slot 1: 2/4 | Slot 2: 0/0
+[16:21:11] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+English, Weiblich, 41 Jahre, AU und Rezept, weitere Infor...
+[16:21:11] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:11] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:21:11] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:21:13] [POPUP] Dialog/Popup erkannt.
+[16:21:13] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:21:14] [TIME] ✅ Zeit gesetzt (React-JS): 16:50
+[16:21:14] [OK] Anfrage übernommen – Termin 16:50 gesetzt.
+[16:21:14] [INFO] 📊 Patienten übernommen: 3
+[16:21:14] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 16:50 | Hautkrankheiten | weiblich | 41J
+[16:21:15] [DONE] ✅ Fall 14 erfolgreich übernommen! Slot 1
+[16:21:17] [TRY] Seite 1, Fall 15/30 | Slot 1: 3/4 | Slot 2: 0/0
+[16:21:17] [FILTER] Prüfe Fall: 15:00 - 17:00
+
+GKV
+VIDEO
+
+Akne
+
+Männlich, 19 Jahre, Rezept, weitere Informationen in der Fallansicht...
+[16:21:17] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 16:50 (Slot 1: 16:50-18:00)
+[16:21:17] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[16:21:17] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[16:21:19] [POPUP] Dialog/Popup erkannt.
+[16:21:19] [SCHEDULER] Slot zugewiesen: 16:50 (Patientenwunsch ab 16:50)
+[16:21:20] [TIME] ✅ Zeit gesetzt (React-JS): 16:50
+[16:21:20] [OK] Anfrage übernommen – Termin 16:50 gesetzt.
+[16:21:20] [INFO] 📊 Patienten übernommen: 4
+[16:21:20] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 16:50 | Akne | männlich | 19J
+[16:21:21] [DONE] ✅ Fall 15 erfolgreich übernommen! Slot 1
+[16:21:23] ======================================================================
+[16:21:23] [STOP] 🎯 Alle Slots voll: Slot 1 4/4 | Slot 2 0/0
+[16:21:23] [STOP] Bot wird beendet. Ziel erreicht!
+[16:21:23] ======================================================================
+[16:21:23] [SHUTDOWN] TeleClinic Clicker beendet.
+
+======================================================================
+[2026-03-26 17:13:43] 🚀 Neue Bot-Session gestartet
+======================================================================
+[17:13:43] [INFO] Filter geladen.
+[17:13:43] [RESET] Patient-Counter auf 0 zurückgesetzt für 2026-03-26
+[17:13:43] [INFO] Prüfe Chrome Debug-Modus...
+[17:13:43] [INFO] Chrome läuft bereits - überspringe Login-Wartezeit
+[17:13:43] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[17:13:43] ======================================================================
+[17:13:43] [INFO] 🕐 SLOT 1: 17:30 - 20:00 | Max: 4
+[17:13:43] [INFO] SLOT 2: deaktiviert
+[17:13:43] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 4
+[17:13:43] ======================================================================
+[17:13:44] [START] Verbunden mit Google Chrome Debug-Session.
+[17:13:44] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=2
+[17:13:44] [TAB] Tab in den Vordergrund geholt
+[17:13:44] [INFO] Aktuelle URL: https://med.teleclinic.com/requests?tab=0&page=2
+[17:13:44] [LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.
+[17:13:44] [INFO] 🗓️ Tag-Filter: Heute (Methode: URL tab=0 + Validierung)
+[17:13:44] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[17:13:44] [IMPORT] 🗑️ Bot-Patienten für 2026-03-26 geleert - importierte Termine behalten...
+[17:13:44] [SCHEDULER] 🔄 Slots für 2026-03-26 zurückgesetzt - importiere bestehende Termine...
+[17:13:44] ======================================================================
+[17:13:44] [IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab=0)...
+[17:13:55] [IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): Timeout 10000ms exceeded.
+=========================== logs ===========================
+"load" event fired
+============================================================
+[17:13:59] [IMPORT] 🔍 Scanneseite 1 nach Terminen...
+[17:13:59] [IMPORT] Seite 1: Keine Termine gefunden - Ende der Seiten.
+[17:13:59] [IMPORT] ℹ️ Keine bestehenden Termine für 2026-03-26 gefunden.
+[17:13:59] ======================================================================
+[17:13:59] [IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.
+[17:13:59] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
+[17:14:10] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[17:14:12] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[17:14:12] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[17:14:12] [START] Bereit zum Scannen. Los geht's!
+[17:14:12] ======================================================================
+[17:14:12] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[17:14:12] [TAB] Tab in den Vordergrund geholt
+[17:14:12] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[17:14:12] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[17:14:12] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[17:14:12] [SCAN] Scanne Seite 1 (tab=0)...
+[17:14:13] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[17:14:13] [TRY] Seite 1, Fall 1/30 | Slot 1: 0/4 | Slot 2: 0/0
+[17:14:13] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 22 Jahre, Rezept, weitere Informationen in de...
+[17:14:13] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:13] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:14:13] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:14:14] [POPUP] Dialog/Popup erkannt.
+[17:14:14] [SCHEDULER] Slot zugewiesen: 17:30 (Patientenwunsch ab 17:30)
+[17:14:15] [TIME] ✅ Zeit gesetzt (React-JS): 17:30
+[17:14:15] [OK] Anfrage übernommen – Termin 17:30 gesetzt.
+[17:14:15] [INFO] 📊 Patienten übernommen: 1
+[17:14:15] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:30 | Psychische Leiden | männlich | 22J
+[17:14:16] [DONE] ✅ Fall 1 erfolgreich übernommen! Slot 1
+[17:14:18] [TRY] Seite 1, Fall 2/30 | Slot 1: 1/4 | Slot 2: 0/0
+[17:14:18] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Weiblich, 37 Jahre, Rezept, weitere Informationen in der ...
+[17:14:18] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:18] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:18] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[17:14:18] [TRY] Seite 1, Fall 3/30 | Slot 1: 1/4 | Slot 2: 0/0
+[17:14:18] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Weiblich, 24 Jahre, Rezept, weitere Informationen in der ...
+[17:14:18] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:18] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:18] [SKIP] Fall 3 entspricht keinem Slot-Filter - übersprungen
+[17:14:18] [TRY] Seite 1, Fall 4/30 | Slot 1: 1/4 | Slot 2: 0/0
+[17:14:18] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 30 Jahre, Rezept, weitere Informationen in de...
+[17:14:18] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:18] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:14:18] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:14:20] [POPUP] Dialog/Popup erkannt.
+[17:14:20] [SCHEDULER] Slot zugewiesen: 17:35 (Patientenwunsch ab 17:30)
+[17:14:21] [TIME] ✅ Zeit gesetzt (React-JS): 17:35
+[17:14:21] [OK] Anfrage übernommen – Termin 17:35 gesetzt.
+[17:14:21] [INFO] 📊 Patienten übernommen: 2
+[17:14:21] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:35 | Psychische Leiden | männlich | 30J
+[17:14:22] [DONE] ✅ Fall 4 erfolgreich übernommen! Slot 1
+[17:14:24] [TRY] Seite 1, Fall 5/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 33 Jahre, Rezept, weitere Informationen in der ...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 5 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 6/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hand-Fuß-Mund
+
+Männlich, 26 Jahre, Rezept, weitere Informationen in der Fa...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 6 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 7/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 34 Jahre, Rezept, weitere Informationen in der ...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 7 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 8/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Infektionskrankheit
+
+Männlich, 35 Jahre, Rezept, weitere Informationen in ...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 8 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 9/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Genitaler Juckreiz
+
+Männlich, 31 Jahre, Rezept, weitere Informationen in d...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 9 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 10/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Kranus Edera (DiGA bei Erektionsstörung)
+
+Männlich, 31 Jahre, weitere Info...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:24] [SKIP] Fall 10 entspricht keinem Slot-Filter - übersprungen
+[17:14:24] [TRY] Seite 1, Fall 11/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:14:24] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 21 Jahre, weitere Informationen in der Fallan...
+[17:14:24] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:24] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:14:24] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:14:26] [POPUP] Dialog/Popup erkannt.
+[17:14:26] [SCHEDULER] Slot zugewiesen: 17:40 (Patientenwunsch ab 17:30)
+[17:14:26] [TIME] ✅ Zeit gesetzt (React-JS): 17:40
+[17:14:27] [OK] Anfrage übernommen – Termin 17:40 gesetzt.
+[17:14:27] [INFO] 📊 Patienten übernommen: 3
+[17:14:27] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:40 | Psychische Leiden | männlich | 21J
+[17:14:28] [DONE] ✅ Fall 11 erfolgreich übernommen! Slot 1
+[17:14:30] [TRY] Seite 1, Fall 12/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:14:30] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Akne
+
+English, Männlich, 24 Jahre, Rezept, weitere Informationen in der Fa...
+[17:14:30] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:30] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:30] [SKIP] Fall 12 entspricht keinem Slot-Filter - übersprungen
+[17:14:30] [TRY] Seite 1, Fall 13/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:14:30] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Räuspern
+
+Männlich, 36 Jahre, Rezept, weitere Informationen in der Fallans...
+[17:14:30] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:30] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:30] [SKIP] Fall 13 entspricht keinem Slot-Filter - übersprungen
+[17:14:30] [TRY] Seite 1, Fall 14/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:14:30] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 53 Jahre, Rezept, weitere Informationen in der ...
+[17:14:30] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:30] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:30] [SKIP] Fall 14 entspricht keinem Slot-Filter - übersprungen
+[17:14:30] [TRY] Seite 1, Fall 15/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:14:30] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+English, Weiblich, 41 Jahre, Rezept, weitere Informatione...
+[17:14:30] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:30] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:14:30] [SKIP] Fall 15 entspricht keinem Slot-Filter - übersprungen
+[17:14:30] [TRY] Seite 1, Fall 16/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:14:30] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 41 Jahre, weitere Informationen in der Fallan...
+[17:14:30] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:14:30] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:14:30] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:14:31] [POPUP] Dialog/Popup erkannt.
+[17:14:31] [SCHEDULER] Slot zugewiesen: 17:45 (Patientenwunsch ab 17:30)
+[17:14:32] [TIME] ✅ Zeit gesetzt (React-JS): 17:45
+[17:14:32] [OK] Anfrage übernommen – Termin 17:45 gesetzt.
+[17:14:32] [INFO] 📊 Patienten übernommen: 4
+[17:14:32] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:45 | Psychische Leiden | männlich | 41J
+[17:14:33] [DONE] ✅ Fall 16 erfolgreich übernommen! Slot 1
+[17:14:35] ======================================================================
+[17:14:35] [STOP] 🎯 Alle Slots voll: Slot 1 4/4 | Slot 2 0/0
+[17:14:35] [STOP] Bot wird beendet. Ziel erreicht!
+[17:14:35] ======================================================================
+[17:14:35] [SHUTDOWN] TeleClinic Clicker beendet.
+
+======================================================================
+[2026-03-26 17:19:27] 🚀 Neue Bot-Session gestartet
+======================================================================
+[17:19:27] [INFO] Filter geladen.
+[17:19:27] [RESET] Patient-Counter auf 0 zurückgesetzt für 2026-03-26
+[17:19:27] [INFO] Prüfe Chrome Debug-Modus...
+[17:19:27] [INFO] Chrome läuft bereits - überspringe Login-Wartezeit
+[17:19:27] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[17:19:27] ======================================================================
+[17:19:27] [INFO] 🕐 SLOT 1: 17:30 - 20:00 | Max: 4
+[17:19:27] [INFO] SLOT 2: deaktiviert
+[17:19:27] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 4
+[17:19:27] ======================================================================
+[17:19:28] [START] Verbunden mit Google Chrome Debug-Session.
+[17:19:28] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[17:19:28] [TAB] Tab in den Vordergrund geholt
+[17:19:28] [INFO] Aktuelle URL: https://med.teleclinic.com/requests?tab=0&page=1
+[17:19:28] [LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.
+[17:19:28] [INFO] 🗓️ Tag-Filter: Heute (Methode: URL tab=0 + Validierung)
+[17:19:28] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[17:19:28] [IMPORT] 🗑️ Bot-Patienten für 2026-03-26 geleert - importierte Termine behalten...
+[17:19:28] [SCHEDULER] 🔄 Slots für 2026-03-26 zurückgesetzt - importiere bestehende Termine...
+[17:19:28] ======================================================================
+[17:19:28] [IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab=0)...
+[17:19:39] [IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): Timeout 10000ms exceeded.
+=========================== logs ===========================
+"load" event fired
+============================================================
+[17:19:43] [IMPORT] 🔍 Scanneseite 1 nach Terminen...
+[17:19:43] [IMPORT] Seite 1: Keine Termine gefunden - Ende der Seiten.
+[17:19:43] [IMPORT] ℹ️ Keine bestehenden Termine für 2026-03-26 gefunden.
+[17:19:43] ======================================================================
+[17:19:43] [IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.
+[17:19:43] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=0&page=1... (Versuch 1/2)
+[17:19:53] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[17:19:55] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[17:19:55] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[17:19:55] [START] Bereit zum Scannen. Los geht's!
+[17:19:55] ======================================================================
+[17:19:55] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=0&page=1
+[17:19:55] [TAB] Tab in den Vordergrund geholt
+[17:19:56] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=0&page=1
+[17:19:56] [FILTER] Validierung: Button zeigt 'HEUTE', erwartet 'Heute'
+[17:19:56] [FILTER] ✅ Datumsfilter korrekt: 'Heute'
+[17:19:56] [SCAN] Scanne Seite 1 (tab=0)...
+[17:19:56] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[17:19:56] [TRY] Seite 1, Fall 1/30 | Slot 1: 0/4 | Slot 2: 0/0
+[17:19:56] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 22 Jahre, Rezept, weitere Informationen in de...
+[17:19:56] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:19:56] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:19:56] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:19:57] [POPUP] Dialog/Popup erkannt.
+[17:19:57] [SCHEDULER] Slot zugewiesen: 17:30 (Patientenwunsch ab 17:30)
+[17:19:58] [TIME] ✅ Zeit gesetzt (React-JS): 17:30
+[17:19:58] [OK] Anfrage übernommen – Termin 17:30 gesetzt.
+[17:19:58] [INFO] 📊 Patienten übernommen: 1
+[17:19:58] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:30 | Psychische Leiden | männlich | 22J
+[17:19:59] [DONE] ✅ Fall 1 erfolgreich übernommen! Slot 1
+[17:20:01] [TRY] Seite 1, Fall 2/30 | Slot 1: 1/4 | Slot 2: 0/0
+[17:20:01] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Schlafstörungen
+
+Weiblich, 24 Jahre, Rezept, weitere Informationen in der ...
+[17:20:01] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:01] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:01] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[17:20:01] [TRY] Seite 1, Fall 3/30 | Slot 1: 1/4 | Slot 2: 0/0
+[17:20:01] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 30 Jahre, Rezept, weitere Informationen in de...
+[17:20:01] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:01] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:20:01] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:20:03] [POPUP] Dialog/Popup erkannt.
+[17:20:03] [SCHEDULER] Slot zugewiesen: 17:35 (Patientenwunsch ab 17:30)
+[17:20:04] [TIME] ✅ Zeit gesetzt (React-JS): 17:35
+[17:20:04] [OK] Anfrage übernommen – Termin 17:35 gesetzt.
+[17:20:04] [INFO] 📊 Patienten übernommen: 2
+[17:20:04] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:35 | Psychische Leiden | männlich | 30J
+[17:20:05] [DONE] ✅ Fall 3 erfolgreich übernommen! Slot 1
+[17:20:07] [TRY] Seite 1, Fall 4/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 33 Jahre, Rezept, weitere Informationen in der ...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:07] [SKIP] Fall 4 entspricht keinem Slot-Filter - übersprungen
+[17:20:07] [TRY] Seite 1, Fall 5/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 34 Jahre, Rezept, weitere Informationen in der ...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:07] [SKIP] Fall 5 entspricht keinem Slot-Filter - übersprungen
+[17:20:07] [TRY] Seite 1, Fall 6/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Infektionskrankheit
+
+Männlich, 35 Jahre, Rezept, weitere Informationen in ...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:07] [SKIP] Fall 6 entspricht keinem Slot-Filter - übersprungen
+[17:20:07] [TRY] Seite 1, Fall 7/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Genitaler Juckreiz
+
+Männlich, 31 Jahre, Rezept, weitere Informationen in d...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:07] [SKIP] Fall 7 entspricht keinem Slot-Filter - übersprungen
+[17:20:07] [TRY] Seite 1, Fall 8/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Kranus Edera (DiGA bei Erektionsstörung)
+
+Männlich, 31 Jahre, weitere Info...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:07] [SKIP] Fall 8 entspricht keinem Slot-Filter - übersprungen
+[17:20:07] [TRY] Seite 1, Fall 9/30 | Slot 1: 2/4 | Slot 2: 0/0
+[17:20:07] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 21 Jahre, weitere Informationen in der Fallan...
+[17:20:07] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:07] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:20:07] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:20:08] [POPUP] Dialog/Popup erkannt.
+[17:20:08] [SCHEDULER] Slot zugewiesen: 17:40 (Patientenwunsch ab 17:30)
+[17:20:09] [TIME] ✅ Zeit gesetzt (React-JS): 17:40
+[17:20:09] [OK] Anfrage übernommen – Termin 17:40 gesetzt.
+[17:20:09] [INFO] 📊 Patienten übernommen: 3
+[17:20:09] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:40 | Psychische Leiden | männlich | 21J
+[17:20:10] [DONE] ✅ Fall 9 erfolgreich übernommen! Slot 1
+[17:20:12] [TRY] Seite 1, Fall 10/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:20:12] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Akne
+
+English, Männlich, 24 Jahre, Rezept, weitere Informationen in der Fa...
+[17:20:12] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:12] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:12] [SKIP] Fall 10 entspricht keinem Slot-Filter - übersprungen
+[17:20:12] [TRY] Seite 1, Fall 11/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:20:12] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 53 Jahre, Rezept, weitere Informationen in der ...
+[17:20:12] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:12] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:12] [SKIP] Fall 11 entspricht keinem Slot-Filter - übersprungen
+[17:20:12] [TRY] Seite 1, Fall 12/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:20:12] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+English, Weiblich, 41 Jahre, Rezept, weitere Informatione...
+[17:20:12] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:12] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[17:20:12] [SKIP] Fall 12 entspricht keinem Slot-Filter - übersprungen
+[17:20:12] [TRY] Seite 1, Fall 13/30 | Slot 1: 3/4 | Slot 2: 0/0
+[17:20:12] [FILTER] Prüfe Fall: 16:00 - 18:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Männlich, 41 Jahre, weitere Informationen in der Fallan...
+[17:20:12] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 17:30 (Slot 1: 17:30-20:00)
+[17:20:12] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[17:20:13] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[17:20:14] [POPUP] Dialog/Popup erkannt.
+[17:20:14] [SCHEDULER] Slot zugewiesen: 17:45 (Patientenwunsch ab 17:30)
+[17:20:15] [TIME] ✅ Zeit gesetzt (React-JS): 17:45
+[17:20:15] [OK] Anfrage übernommen – Termin 17:45 gesetzt.
+[17:20:15] [INFO] 📊 Patienten übernommen: 4
+[17:20:15] [PATIENT] ✅ Patientendaten gespeichert (2026-03-26): 17:45 | Psychische Leiden | männlich | 41J
+[17:20:16] [DONE] ✅ Fall 13 erfolgreich übernommen! Slot 1
+[17:20:18] ======================================================================
+[17:20:18] [STOP] 🎯 Alle Slots voll: Slot 1 4/4 | Slot 2 0/0
+[17:20:18] [STOP] Bot wird beendet. Ziel erreicht!
+[17:20:18] ======================================================================
+[17:20:18] [SHUTDOWN] TeleClinic Clicker beendet.
+
+======================================================================
+[2026-03-26 21:04:28] 🚀 Neue Bot-Session gestartet
+======================================================================
+[21:04:28] [INFO] Filter geladen.
+[21:04:28] [RESET] Patient-Counter auf 0 zurückgesetzt für 2026-03-27
+[21:04:28] [INFO] Prüfe Chrome Debug-Modus...
+[21:04:39] [INFO] Chrome gestartet mit PID 1844
+[21:04:39] [RESET] Patientenanzahl auf 0 zurückgesetzt.
+[21:04:39] ======================================================================
+[21:04:39] [INFO] 🕐 SLOT 1: 10:00 - 12:00 | Max: 6
+[21:04:39] [INFO] SLOT 2: deaktiviert
+[21:04:39] [INFO] Scan-Intervall: 5 Sekunden | Max. Seiten: 1
+[21:04:39] ======================================================================
+[21:04:40] [START] Verbunden mit Google Chrome Debug-Session.
+[21:04:40] [TAB] Nutze vorhandenen MyAppointments-Tab: https://med.teleclinic.com/myappointments?tab=0&page=1
+[21:04:40] [TAB] Tab in den Vordergrund geholt
+[21:04:40] [INFO] Aktuelle URL: https://med.teleclinic.com/myappointments?tab=0&page=1
+[21:04:40] [LOGIN] ✅ Bereits eingeloggt! Springe Wartezeit.
+[21:04:40] [INFO] 🗓️ Tag-Filter: Morgen (Methode: URL tab=1 + Validierung)
+[21:04:40] [INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert
+[21:04:40] [IMPORT] 🗑️ Bot-Patienten für 2026-03-27 geleert - importierte Termine behalten...
+[21:04:40] [SCHEDULER] 🔄 Slots für 2026-03-27 zurückgesetzt - importiere bestehende Termine...
+[21:04:40] ======================================================================
+[21:04:40] [IMPORT] 📋 Lese bestehende Termine aus 'Meine offene Fälle' (Tab=1)...
+[21:04:51] [IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): Timeout 10000ms exceeded.
+=========================== logs ===========================
+"load" event fired
+============================================================
+[21:04:55] [IMPORT] 🔍 Scanneseite 1 nach Terminen...
+[21:04:55] [IMPORT] Seite 1: Keine Termine gefunden - Ende der Seiten.
+[21:04:55] [IMPORT] ℹ️ Keine bestehenden Termine für 2026-03-27 gefunden.
+[21:04:55] ======================================================================
+[21:04:55] [IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.
+[21:04:55] [INFO] Navigiere zu https://med.teleclinic.com/requests?tab=1&page=1... (Versuch 1/2)
+[21:05:05] [INFO] Seite noch aktiv/lädt weiter - fahre mit DOM-Check fort
+[21:05:07] [FILTER] Validierung: Button zeigt 'MORGEN', erwartet 'Morgen'
+[21:05:07] [FILTER] ✅ Datumsfilter korrekt: 'Morgen'
+[21:05:07] [START] Bereit zum Scannen. Los geht's!
+[21:05:07] ======================================================================
+[21:05:07] [TAB] Nutze vorhandenen Requests-Tab: https://med.teleclinic.com/requests?tab=1&page=1
+[21:05:07] [TAB] Tab in den Vordergrund geholt
+[21:05:08] [INFO] Bereits auf Zielseite: https://med.teleclinic.com/requests?tab=1&page=1
+[21:05:08] [FILTER] Validierung: Button zeigt 'MORGEN', erwartet 'Morgen'
+[21:05:08] [FILTER] ✅ Datumsfilter korrekt: 'Morgen'
+[21:05:08] [SCAN] Scanne Seite 1 (tab=1)...
+[21:05:08] [SCAN] Seite 1: 30 übernehmbare Anfragen gefunden.
+[21:05:08] [TRY] Seite 1, Fall 1/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 22:00 - 00:00
+
+GKV
+VIDEO
+
+Akne
+
+Weiblich, 25 Jahre, Rezept, weitere Informationen in der Fallansicht...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 22:00 - 24:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 1 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 2/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 22:00 - 00:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+English, Männlich, 32 Jahre, Rezept, weitere Informatio...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 22:00 - 24:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 2 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 3/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 22:00 - 00:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 26 Jahre, weitere Informationen in der Fallansi...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 22:00 - 24:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 3 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 4/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 22:00 - 00:00
+
+GKV
+VIDEO
+
+Bauchschmerzen
+
+English, Männlich, 33 Jahre, Rezept, weitere Informationen...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 22:00 - 24:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 4 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 5/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 23:00 - 01:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 25 Jahre, weitere Informationen in der Fallansi...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 23:00 - 25:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 5 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 6/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 00:00 - 06:00
+
+GKV
+VIDEO
+
+Blasenentzündung
+
+Weiblich, 53 Jahre, AU, weitere Informationen in der Fal...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 00:00 - 06:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 6 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 7/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 01:00 - 03:00
+
+GKV
+VIDEO
+
+AU, Kopfschmerzen
+
+Männlich, 27 Jahre, AU, weitere Informationen in der Fa...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 01:00 - 03:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 7 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 8/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 03:00 - 05:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Weiblich, 42 Jahre, weitere Informationen in der Fallan...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 03:00 - 05:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 8 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 9/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 06:00 - 08:00
+
+GKV
+VIDEO
+
+Infektionskrankheit
+
+Weiblich, 31 Jahre, Rezept, weitere Informationen in ...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 06:00 - 08:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 9 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 10/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 07:00 - 09:00
+
+GKV
+VIDEO
+
+Genitalherpes
+
+Weiblich, 30 Jahre, Rezept, weitere Informationen in der Fa...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 07:00 - 09:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 10 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 11/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 08:00 - 10:00
+
+GKV
+VIDEO
+
+Erektionsstörung
+
+Männlich, 37 Jahre, weitere Informationen in der Fallans...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 08:00 - 10:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 11 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 12/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 08:00 - 10:00
+
+GKV
+VIDEO
+
+AU, psychische Leiden
+
+Weiblich, 57 Jahre, AU, weitere Informationen in de...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 08:00 - 10:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 12 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 13/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 08:00 - 10:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+Männlich, 51 Jahre, Rezept, weitere Informationen in der ...
+[21:05:08] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:08]          Patient: 08:00 - 10:00
+[21:05:08]          Slot 1: 10:00 - 12:00
+[21:05:08] [SKIP] Fall 13 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 14/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 09:00 - 11:00
+
+GKV
+VIDEO
+
+Asthma
+
+Weiblich, 24 Jahre, Rezept, weitere Informationen in der Fallansic...
+[21:05:08] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:08] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:08] [SKIP] Fall 14 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 15/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 09:00 - 11:00
+
+GKV
+VIDEO
+
+Psychische Leiden
+
+Weiblich, 25 Jahre, weitere Informationen in der Fallan...
+[21:05:08] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:08] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:08] [SKIP] Fall 15 entspricht keinem Slot-Filter - übersprungen
+[21:05:08] [TRY] Seite 1, Fall 16/30 | Slot 1: 0/6 | Slot 2: 0/0
+[21:05:08] [FILTER] Prüfe Fall: 09:00 - 11:00
+
+GKV
+VIDEO
+
+Hautkrankheiten
+
+English, Männlich, 27 Jahre, Rezept, weitere Informatione...
+[21:05:08] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:08] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[21:05:08] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[21:05:09] [POPUP] Dialog/Popup erkannt.
+[21:05:09] [SCHEDULER] Slot zugewiesen: 10:00 (Patientenwunsch ab 10:00)
+[21:05:10] [TIME] ✅ Zeit gesetzt (React-JS): 10:00
+[21:05:10] [OK] Anfrage übernommen – Termin 10:00 gesetzt.
+[21:05:10] [INFO] 📊 Patienten übernommen: 1
+[21:05:10] [PATIENT] ✅ Patientendaten gespeichert (2026-03-27): 10:00 | Hautkrankheiten | männlich | 27J
+[21:05:11] [DONE] ✅ Fall 16 erfolgreich übernommen! Slot 1
+[21:05:13] [TRY] Seite 1, Fall 17/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:13] [FILTER] Prüfe Fall: 09:00 -
+                              11:00GKVVIDEOPsychische LeidenWeiblich, 19 Jahre, Rezept, weit...
+[21:05:13] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:13] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:13] [SKIP] Fall 17 entspricht keinem Slot-Filter - übersprungen
+[21:05:13] [TRY] Seite 1, Fall 18/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:13] [FILTER] Prüfe Fall: 10:00 -
+                              12:00GKVVIDEOPsychische LeidenEnglish, Männlich, 28 Jahre, Rez...
+[21:05:13] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:13] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:13] [SKIP] Fall 18 entspricht keinem Slot-Filter - übersprungen
+[21:05:13] [TRY] Seite 1, Fall 19/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:13] [FILTER] Prüfe Fall: 10:00 -
+                              12:00GKVVIDEOErektionsstörungEnglish, Männlich, 30 Jahre, weit...
+[21:05:13] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 10:00 (Slot 1: 10:00-12:00)
+[21:05:13] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:13] [SKIP] Fall 19 entspricht keinem Slot-Filter - übersprungen
+[21:05:13] [TRY] Seite 1, Fall 20/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:13] [FILTER] Prüfe Fall: 11:00 -
+                              13:00GKVVIDEOHautkrankheitenWeiblich, 34 Jahre, Rezept, weiter...
+[21:05:13] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 11:00 (Slot 1: 10:00-12:00)
+[21:05:13] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[21:05:13] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[21:05:14] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[21:05:14] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[21:05:25] [POPUP] Dialog/Popup erkannt.
+[21:05:25] [SCHEDULER] Slot zugewiesen: 11:00 (Patientenwunsch ab 11:00)
+[21:05:25] [ERROR] Zeitfeld im Popup nicht gefunden.
+[21:05:25] [TRY] Seite 1, Fall 21/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:25] [FILTER] Prüfe Fall: 11:00 -
+                              13:00GKVVIDEOAkneMännlich, 21 Jahre, Rezept, weitere Informati...
+[21:05:25] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 11:00 (Slot 1: 10:00-12:00)
+[21:05:25] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[21:05:25] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[21:05:25] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[21:05:25] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[21:05:36] [POPUP] Dialog/Popup erkannt.
+[21:05:36] [SCHEDULER] Slot zugewiesen: 11:00 (Patientenwunsch ab 11:00)
+[21:05:36] [ERROR] Zeitfeld im Popup nicht gefunden.
+[21:05:36] [TRY] Seite 1, Fall 22/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:36] [FILTER] Prüfe Fall: 11:00 -
+                              13:00GKVVIDEOHautkrankheitenEnglish, Weiblich, 27 Jahre, weite...
+[21:05:36] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 11:00 (Slot 1: 10:00-12:00)
+[21:05:36] [FILTER] ✅ Fall entspricht allen Filterkriterien
+[21:05:36] [SCAN] Anfrage gefunden – versuche zu übernehmen...
+[21:05:37] [WARN] Normaler Klick fehlgeschlagen, versuche force=True: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+
+[21:05:37] [WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: ElementHandle.click: Element is not attached to the DOM
+Call log:
+  - attempting click action
+    - scrolling into view if needed
+
+[21:05:48] [POPUP] Dialog/Popup erkannt.
+[21:05:48] [SCHEDULER] Slot zugewiesen: 11:00 (Patientenwunsch ab 11:00)
+[21:05:48] [ERROR] Zeitfeld im Popup nicht gefunden.
+[21:05:48] [TRY] Seite 1, Fall 23/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 11:00 -
+                              13:00GKVVIDEOPsychische LeidenWeiblich, 40 Jahre, weitere Info...
+[21:05:48] [FILTER] ✅ Zeitüberschneidung vorhanden: Start bei 11:00 (Slot 1: 10:00-12:00)
+[21:05:48] [FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)
+[21:05:48] [SKIP] Fall 23 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 24/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 12:00 -
+                              14:00GKVVIDEOErkältungEnglisch, Weiblich, 27 Jahre, AU, weiter...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 12:00 - 14:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 24 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 25/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 13:00 -
+                              15:00GKVVIDEOPsychische LeidenWeiblich, 19 Jahre, weitere Info...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 13:00 - 15:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 25 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 26/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 14:00 -
+                              16:00GKVVIDEOSelfapy (App bei Binge Eating)Weiblich, 22 Jahre,...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 14:00 - 16:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 26 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 27/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 14:00 -
+                              16:00GKVVIDEOAkneEnglish, Männlich, 24 Jahre, Rezept, weitere ...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 14:00 - 16:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 27 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 28/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 14:00 -
+                              16:00GKVVIDEOErektionsstörungMännlich, 42 Jahre, weitere Infor...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 14:00 - 16:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 28 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 29/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 14:00 -
+                              16:00GKVVIDEOAU, Erkältung / GrippeEnglish, Männlich, 26 Jahre...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 14:00 - 16:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 29 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [TRY] Seite 1, Fall 30/30 | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [FILTER] Prüfe Fall: 14:00 -
+                              16:00GKVVIDEOAU, HalsschmerzenWeiblich, 24 Jahre, AU, weitere ...
+[21:05:48] [FILTER] ❌ Keine Zeitüberschneidung!
+[21:05:48]          Patient: 14:00 - 16:00
+[21:05:48]          Slot 1: 10:00 - 12:00
+[21:05:48] [SKIP] Fall 30 entspricht keinem Slot-Filter - übersprungen
+[21:05:48] [LOOP] 30 Anfragen gefunden | Slot 1: 1/6 | Slot 2: 0/0
+[21:05:48] [LOOP] Warte 5s bis zum nächsten Scan...

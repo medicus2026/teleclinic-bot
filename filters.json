@@ -1,16 +1,16 @@
 {
   "time_filter": {
-    "day_window": "heute"
+    "day_window": "morgen"
   },
   "slot1": {
-    "time_start": "14:30",
-    "time_end": "17:00",
-    "max_patients": 100,
+    "time_start": "10:00",
+    "time_end": "12:00",
+    "max_patients": 6,
     "interval_minutes": 5,
-    "diagnosis_include": "",
-    "diagnosis_exclude": "Psyche, Haut",
-    "wishes_include": "AU",
-    "wishes_exclude": "Rezept",
+    "diagnosis_include": "Haut",
+    "diagnosis_exclude": "",
+    "wishes_include": "",
+    "wishes_exclude": "",
     "language_include": "",
     "language_exclude": "",
     "age_min": "18",
@@ -55,6 +55,6 @@
   },
   "loop": {
     "scan_interval_sec": 5,
-    "max_pages": 4
+    "max_pages": 1
   }
 }

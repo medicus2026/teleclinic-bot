@@ -61,5 +61,49 @@
       "timestamp": "2026-03-24T15:40:18.602384",
       "source": "bot"
     }
+  },
+  "2026-03-26": {
+    "17:30": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "REZEPT, VIDEO",
+      "gender": "männlich",
+      "age": "22",
+      "timestamp": "2026-03-26T17:19:58.633442",
+      "source": "bot"
+    },
+    "17:35": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "REZEPT, VIDEO",
+      "gender": "männlich",
+      "age": "30",
+      "timestamp": "2026-03-26T17:20:04.296706",
+      "source": "bot"
+    },
+    "17:40": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "VIDEO",
+      "gender": "männlich",
+      "age": "21",
+      "timestamp": "2026-03-26T17:20:09.953604",
+      "source": "bot"
+    },
+    "17:45": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "VIDEO",
+      "gender": "männlich",
+      "age": "41",
+      "timestamp": "2026-03-26T17:20:15.358959",
+      "source": "bot"
+    }
+  },
+  "2026-03-27": {
+    "10:00": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, REZEPT",
+      "gender": "männlich",
+      "age": "27",
+      "timestamp": "2026-03-26T21:05:10.789665",
+      "source": "bot"
+    }
   }
 }
