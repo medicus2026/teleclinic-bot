@@ -940,30 +940,9 @@ class TeleClinicBotGUI:
     def update_calendar_from_json(self):
         """
         Aktualisiert den Terminkalender basierend auf den Daten in scheduled_patients.json.
+        Delegiert an _update_calendar_from_json für konsistentes Verhalten.
         """
-        from scheduled_patients import load_patients
-
-        # Lade Patienten-Daten
-        patients = load_patients()
-        today = datetime.now().strftime("%Y-%m-%d")
-        today_patients = patients.get(today, {})
-
-        # Lösche alle bisherigen Einträge im Kalender
-        for item in self.appointment_tree.get_children():
-            self.appointment_tree.delete(item)
-
-        # Füge neue Einträge hinzu
-        for time_slot, patient_data in sorted(today_patients.items()):
-            self.appointment_tree.insert("", "end", values=(
-                time_slot,
-                patient_data.get("diagnosis", ""),
-                patient_data.get("wishes", ""),
-                patient_data.get("age", ""),
-                patient_data.get("gender", "")
-            ))
-
-        # Aktualisiere Status
-        self.status_label.config(text=f"Status: {len(today_patients)} Termine geladen für {today}")
+        self._update_calendar_from_json()
 
     def stop_bot(self):
         """Stoppe Bot"""

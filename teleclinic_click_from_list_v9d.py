@@ -1411,15 +1411,23 @@ async def import_existing_appointments(page, filters) -> int:
                         for (let i = 0; i < lines.length; i++) {
                             const line = lines[i];
                             if (skipPatterns.some(p => p.test(line))) continue;
-                            if (!foundDiagnosis && line.length >= 3 && !/(männlich|weiblich|male|female)/i.test(line)) {
+                            // Kombinierte Gender+Age Zeile: "Männlich, 43 Jahre" → splitten
+                            const genderAgeCombo = line.match(/(männlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
+                            if (genderAgeCombo) {
+                                if (!gender) gender = genderAgeCombo[1].trim();
+                                if (!age) age = genderAgeCombo[2];
+                                continue;
+                            }
+                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line) && !/(\\d{1,3})\\s*(J\\.?|Jahre?)/i.test(line)) { gender = line; continue; }
+                            const ageM = line.match(/(\\d{1,3})\\s*(J(ahre|\\.)?)/i);
+                            if (!age && ageM) { age = ageM[1]; continue; }
+                            if (!age && /^\\d{1,3}$/.test(line.trim())) { age = line.trim(); continue; }
+                            if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
+                            if (!foundDiagnosis && line.length >= 3 && !/(männlich|weiblich|male|female|divers|English|Englisch|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
                                 diagnosis = line;
                                 foundDiagnosis = true;
                                 continue;
                             }
-                            if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
-                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) { gender = line; continue; }
-                            const ageM = line.match(/^(\\d{1,3})\\s*J(ahre|\\.)?$/i);
-                            if (!age && ageM) age = ageM[1];
                         }
                         cards.push({ time, diagnosis, wishes, gender, age });
                     }
@@ -1715,13 +1723,9 @@ async def click_loop(filters):
                 if loop_counter % 5 == 0:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        # Slots leeren, importierte Termine aber behalten (GUI bleibt gefüllt)
+                        # Nur Slots resetten — Bot-Patienten in scheduled_patients.json NICHT löschen!
+                        # Sonst verschwinden frisch geklickte Patienten aus der GUI.
                         reset_slots_for_date(_reimport_date)
-                        try:
-                            from scheduled_patients import reset_patients_for_date as _rp
-                            _rp(_reimport_date, keep_imported=True)
-                        except Exception:
-                            pass
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")

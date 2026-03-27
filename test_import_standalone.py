@@ -164,19 +164,30 @@ PARSE_CARDS_JS = """() => {
             if (!language && /(English|Englisch|Türkçe|Türkisch|Русский|Arabisch|Französisch)/i.test(line)) {
                 language = line.trim(); continue;
             }
+            // Kombinierte Gender+Age Zeile: "Männlich, 43 Jahre" oder "weiblich 28 J." → splitten
+            const genderAgeCombo = line.match(/(männlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
+            if (genderAgeCombo) {
+                if (!gender) gender = genderAgeCombo[1].trim();
+                if (!age) age = genderAgeCombo[2];
+                continue;
+            }
+            // Nur Gender (ohne Alter)
+            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line) &&
+                !/(\\d{1,3})\\s*(J\\.?|Jahre?)/i.test(line)) {
+                gender = line.trim(); continue;
+            }
+            // Nur Alter
+            const m = line.match(/(\\d{1,3})\\s*(J\\.?|Jahre?)/i);
+            if (!age && m) { age = m[1]; continue; }
+            if (!age && /^\\d{1,3}$/.test(line.trim())) { age = line.trim(); continue; }
+
+            if (!wishes && /(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung|Bescheinigung)/i.test(line)) {
+                wishes = line.trim(); continue;
+            }
             if (!diagFound && line.length >= 3 &&
                 !/(männlich|weiblich|male|female|divers|English|Englisch|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
                 diagnosis = line.trim(); diagFound = true; continue;
             }
-            if (!wishes && /(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung|Bescheinigung)/i.test(line)) {
-                wishes = line.trim(); continue;
-            }
-            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) {
-                gender = line.trim(); continue;
-            }
-            const m = line.match(/(\\d{1,3})\\s*(J\\.?|Jahre?)/i);
-            if (!age && m) { age = m[1]; continue; }
-            if (!age && /^\\d{1,3}$/.test(line.trim())) { age = line.trim(); }
         }
         results.push({ time: time_str, diagnosis, wishes, gender, age, language,
                        pageDate,
