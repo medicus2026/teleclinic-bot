@@ -95,20 +95,19 @@ def add_imported_appointment(time: str, date: str | None = None,
     existing = patients[date].get(time)
     if existing:
         if existing.get("source") == "bot":
-            # Bot-Termin hat immer Vorrang
+            # Bot-Termin hat immer Vorrang — nie überschreiben
             return
         if existing.get("source") == "teleclinic_import":
-            # Aktualisiere nur, wenn jetzt echte Daten vorhanden sind
-            if diagnosis and diagnosis != "Extern terminiert":
-                patients[date][time].update({
-                    "diagnosis": diagnosis,
-                    "wishes": wishes or existing.get("wishes", ""),
-                    "gender": gender or existing.get("gender", ""),
-                    "age": age or existing.get("age", ""),
-                    "timestamp": datetime.now().isoformat(),
-                })
-                save_patients(patients)
-                print(f"[PATIENT] ℹ️ Externer Termin {time} mit Patientendaten aktualisiert")
+            # Immer aktualisieren mit den aktuellsten Daten aus Teleclinic
+            patients[date][time].update({
+                "diagnosis": diagnosis if diagnosis else existing.get("diagnosis", ""),
+                "wishes": wishes if wishes else existing.get("wishes", ""),
+                "gender": gender if gender else existing.get("gender", ""),
+                "age": age if age else existing.get("age", ""),
+                "timestamp": datetime.now().isoformat(),
+            })
+            save_patients(patients)
+            print(f"[PATIENT] ℹ️ Externer Termin {time} aktualisiert: {diagnosis} | {gender} | {age}J")
             return
 
     patients[date][time] = {

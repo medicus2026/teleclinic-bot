@@ -1050,90 +1050,76 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
         # ✅ Slot als belegt bestätigen (MUSS nach erfolgreichem Klick passieren!)
         confirm_slot(slot, date=target_date)
 
-        # Counter erhöhen
-        patients_accepted += 1
-        await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
-        await log_line(f"[INFO] 📊 Patienten übernommen: {patients_accepted}")
-
-        # Speichere Patient-Daten in scheduled_patients.json
+        # Speichere Patient-Daten in scheduled_patients.json VOR dem [OK]-Log-Eintrag,
+        # damit die GUI beim Trigger schon die aktuellen Daten in der JSON findet.
         if case_element:
             try:
                 from scheduled_patients import add_patient
-                from datetime import datetime, timedelta
+                import re as _re
 
                 # Extrahiere Patient-Daten aus case_element
                 parent = await case_element.evaluate_handle('el => el.parentElement')
                 case_text = await parent.evaluate('el => el.innerText')
                 case_text_lower = normalize_text(case_text)
 
-                # Parse TATSÄCHLICHE Diagnose aus dem Fall
-                # SIMPEL: Die Diagnose ist die ERSTE Zeile nach GKV/VIDEO
+                # Parse Diagnose: erste valide Zeile (nicht GKV/Video/Zahl/Gender)
                 diagnosis = "(unbekannt)"
-
-                lines = case_text.split("\n")
-                skip_next = False
-
-                for line in lines:
+                for line in case_text.split("\n"):
+                    line = line.strip()
                     line_lower = normalize_text(line)
-
-                    # Springe GKV/VIDEO über
-                    if line_lower in ["gkv", "video"]:
-                        skip_next = True
+                    if not line or len(line) < 3:
                         continue
+                    if line_lower in ["gkv", "video", "pkv", "privat"]:
+                        continue
+                    if _re.match(r'^\d{1,2}:\d{2}', line):
+                        continue
+                    if _re.match(r'^\d{1,3}\s*(J\.?|Jahre?|years?|yrs?)$', line, _re.I):
+                        continue
+                    if _re.match(r'^(männlich|weiblich|divers|male|female)', line, _re.I):
+                        continue
+                    diagnosis = line.strip()
+                    break
 
-                    # Nach GKV/VIDEO: nimm die erste nicht-leere, nicht-Zahl-Zeile
-                    if skip_next and line and len(line) > 2:
-                        # Überspringe reine Zahlen/Alter
-                        if not line.replace(",", "").replace(" ", "").replace(".", "").replace("-", "").replace("(", "").replace(")", "").replace("jahre", "").replace("year", "").replace("yrs", "").isdigit():
-                            diagnosis = line.title()
-                            break
-
-                # Parse TATSÄCHLICHE Wünsche aus dem Fall
-                wishes = "(keine)"
-                wishes_keywords = ["au", "arbeitsunfähigkeit", "rezept", "beratung", "video", "telemedizin"]
+                # Parse Wünsche (AU, Rezept, ...)
+                wishes = ""
                 found_wishes = []
-                for keyword in wishes_keywords:
-                    if keyword in case_text_lower:
-                        found_wishes.append(keyword.upper() if keyword != "au" else "AU")
-                if found_wishes:
-                    wishes = ", ".join(found_wishes[:2])  # Max 2 Wünsche
+                for kw in ["AU", "Rezept", "Beratung", "Krankschreib", "Attest", "Überweisung"]:
+                    if kw.lower() in case_text_lower:
+                        found_wishes.append(kw)
+                wishes = ", ".join(found_wishes[:2]) if found_wishes else ""
 
-                # Parse Alter
-                import re
-                age = "(egal)"
-                m_age = re.search(r"(\d{1,3})\s*(jahre|years|yrs|year|yo)", case_text_lower)
+                # Parse Alter — unterstützt "43 J.", "43 Jahre", "43 years", reine Zahl
+                age = ""
+                m_age = _re.search(r'(\d{1,3})\s*(J\.?|Jahre?|years?|yrs?)', case_text, _re.I)
                 if m_age:
                     age = m_age.group(1)
+                else:
+                    # Kombinierte Zeile "Männlich, 43 J." im Originaltext suchen
+                    m_combo = _re.search(r'(?:männlich|weiblich|divers|male|female)[,\s]+(\d{1,3})', case_text, _re.I)
+                    if m_combo:
+                        age = m_combo.group(1)
 
-                # Parse Geschlecht
+                # Parse Geschlecht — auch kombinierte Zeile "Männlich, 43 J." abdecken
                 gender = ""
-                if "männlich" in case_text_lower or "male" in case_text_lower:
-                    gender = "männlich"
-                elif "weiblich" in case_text_lower or "female" in case_text_lower:
-                    gender = "weiblich"
-                elif "divers" in case_text_lower or "diverse" in case_text_lower:
-                    gender = "divers"
-                else:
-                    gender = "(egal)"
+                m_gender = _re.search(r'(männlich|weiblich|divers|male|female)', case_text, _re.I)
+                if m_gender:
+                    g = m_gender.group(1).lower()
+                    if g in ("male",):
+                        gender = "männlich"
+                    elif g in ("female",):
+                        gender = "weiblich"
+                    else:
+                        gender = g
 
-                # Bestimme das richtige Datum basierend auf dem Filter
-                from datetime import datetime, timedelta
-                day_window = filters.get("time_filter", {}).get("day_window", "heute")
-                if day_window == "morgen":
-                    # Scanner läuft auf Morgen-Seite → speichere für morgen
-                    target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-                elif day_window == "später":
-                    # Scanner läuft auf Später-Seite → speichere für übermorgen
-                    target_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-                else:
-                    # Scanner läuft auf Heute-Seite → speichere für heute
-                    target_date = datetime.now().strftime("%Y-%m-%d")
-
-                # Speichere mit richtigem Datum
                 add_patient(slot, diagnosis, wishes, gender, age, date=target_date)
                 await log_line(f"[PATIENT] ✅ Patientendaten gespeichert ({target_date}): {slot} | {diagnosis} | {gender} | {age}J")
             except Exception as e:
                 await log_line(f"[PATIENT] ⚠️ Fehler beim Speichern: {e}")
+
+        # Counter erhöhen NACH add_patient, damit GUI-Trigger schon aktuelle JSON sieht
+        patients_accepted += 1
+        await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
+        await log_line(f"[INFO] 📊 Patienten übernommen: {patients_accepted}")
 
         await asyncio.sleep(1)
         return True
