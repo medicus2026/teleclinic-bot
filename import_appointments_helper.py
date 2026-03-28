@@ -25,12 +25,15 @@ sys.path.insert(0, str(ROOT))
 
 
 # ---------------------------------------------------------------------------
-# Karten-Parse-JS (identisch mit test_import_standalone.py)
+# Karten-Parse-JS — 1:1 aus test_import_standalone.py (funktionierende Version)
+# WICHTIG: direkte Unicode-Zeichen verwenden (nicht escaped), damit deutsche
+#          Wörter (männlich, weiblich, Überweisung …) korrekt erkannt werden!
 # ---------------------------------------------------------------------------
 PARSE_CARDS_JS = """() => {
     const results = [];
+
     const bodyText = document.body.innerText || '';
-    const dateMatch = bodyText.match(/(Heute|Morgen|Sp\\u00e4ter)[,\\s]+(\\d{1,2})\\.(\\s*\\w+)?(\\s*\\d{4})?/i);
+    const dateMatch = bodyText.match(/(Heute|Morgen|Später)[,\\s]+(\\d{1,2})\\.(\\s*\\w+)?(\\s*\\d{4})?/i);
     const pageDate = dateMatch ? dateMatch[0].trim() : '';
 
     const timeEls = Array.from(document.querySelectorAll('*')).filter(el => {
@@ -44,7 +47,8 @@ PARSE_CARDS_JS = """() => {
         for (let i = 0; i < 6 && el; i++) {
             const txt = (el.innerText || '').trim();
             if (txt.length > 30 && /\\d{1,2}:\\d{2}/.test(txt)) {
-                cards.add(el); break;
+                cards.add(el);
+                break;
             }
             el = el.parentElement;
         }
@@ -59,7 +63,8 @@ PARSE_CARDS_JS = """() => {
         for (const sel of selectors) {
             for (const el of document.querySelectorAll(sel)) {
                 const text = (el.innerText || '').trim();
-                if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 15) cards.add(el);
+                if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 15)
+                    cards.add(el);
             }
             if (cards.size > 0) break;
         }
@@ -68,7 +73,8 @@ PARSE_CARDS_JS = """() => {
     if (cards.size === 0) {
         for (const el of document.querySelectorAll('li, article')) {
             const text = (el.innerText || '').trim();
-            if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 15) cards.add(el);
+            if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 15)
+                cards.add(el);
         }
     }
 
@@ -90,32 +96,36 @@ PARSE_CARDS_JS = """() => {
             /^(video|gkv|pkv|privat|selbstzahler|termin stornieren|zum fall|mehr infos)$/i,
             /^\\d{1,2}\\.\\d{1,2}(\\.\\d{2,4})?$/,
             /^\\d+\\s*km$/i,
-            /^(morgen|heute|sp\\u00e4ter)/i
+            /^(morgen|heute|später)/i
         ];
         let diagFound = false;
         for (const line of lines) {
             if (skip.some(p => p.test(line.trim()))) continue;
-            if (!language && /(English|Englisch|T\\u00fcrk\\u00e7e|T\\u00fcrkisch|\\u0420\\u0443\\u0441\\u0441\\u043a\\u0438\\u0439|Arabisch|Franz\\u00f6sisch)/i.test(line)) {
+            if (!language && /(English|Englisch|Türkçe|Türkisch|Русский|Arabisch|Französisch)/i.test(line)) {
                 language = line.trim(); continue;
             }
-            const genderAgeCombo = line.match(/(m\\u00e4nnlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
+            // Kombinierte Gender+Age Zeile: "Männlich, 43 Jahre" oder "weiblich 28 J." → splitten
+            const genderAgeCombo = line.match(/(männlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
             if (genderAgeCombo) {
                 if (!gender) gender = genderAgeCombo[1].trim();
                 if (!age) age = genderAgeCombo[2];
                 continue;
             }
-            if (!gender && /(m\\u00e4nnlich|weiblich|divers|male|female)/i.test(line) &&
+            // Nur Gender (ohne Alter)
+            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line) &&
                 !/(\\d{1,3})\\s*(J\\.?|Jahre?)/i.test(line)) {
                 gender = line.trim(); continue;
             }
+            // Nur Alter
             const m = line.match(/(\\d{1,3})\\s*(J\\.?|Jahre?)/i);
             if (!age && m) { age = m[1]; continue; }
             if (!age && /^\\d{1,3}$/.test(line.trim())) { age = line.trim(); continue; }
-            if (!wishes && /(AU|Rezept|Beratung|Krankschreib|Attest|\\u00dcberweisung|Bescheinigung)/i.test(line)) {
+
+            if (!wishes && /(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung|Bescheinigung)/i.test(line)) {
                 wishes = line.trim(); continue;
             }
             if (!diagFound && line.length >= 3 &&
-                !/(m\\u00e4nnlich|weiblich|male|female|divers|English|Englisch|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
+                !/(männlich|weiblich|male|female|divers|English|Englisch|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
                 diagnosis = line.trim(); diagFound = true; continue;
             }
         }
