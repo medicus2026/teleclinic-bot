@@ -121,5 +121,23 @@
       "timestamp": "2026-03-27T21:39:46.779502",
       "source": "bot"
     }
+  },
+  "2026-03-28": {
+    "20:00": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "",
+      "gender": "weiblich",
+      "age": "43",
+      "timestamp": "2026-03-28T08:23:09.760755",
+      "source": "bot"
+    },
+    "22:00": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "",
+      "gender": "weiblich",
+      "age": "57",
+      "timestamp": "2026-03-28T08:23:14.938103",
+      "source": "bot"
+    }
   }
 }
