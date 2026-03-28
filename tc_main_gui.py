@@ -740,14 +740,47 @@ class TeleClinicBotGUI:
         self.stop_btn.config(state="normal")
         self.status_label.config(text="Status: 🟢 Bot läuft...")
 
-        # Starte Bot in separatem Thread
-        thread = threading.Thread(target=self._run_bot, daemon=True)
+        # Starte Import-Thread (Bestandstermine holen) + danach Bot-Thread
+        thread = threading.Thread(target=self._run_import_then_bot, daemon=True)
         thread.start()
 
         # Starte Monitor-Thread
         if self.monitor_thread is None or not self.monitor_thread.is_alive():
             self.monitor_thread = threading.Thread(target=self._monitor_log, daemon=True)
             self.monitor_thread.start()
+
+    def _run_import_then_bot(self):
+        """
+        Schritt 1: Bestandstermine aus Teleclinic importieren (non-interaktiv).
+        Schritt 2: Erst danach den eigentlichen Bot/Clicker starten.
+        Läuft komplett im Hintergrund — GUI bleibt immer reaktionsfähig.
+        """
+        self.log("=" * 60)
+        self.log("📥 SCHRITT 1: Lese Bestandstermine aus Teleclinic...")
+        self.log("=" * 60)
+        try:
+            from import_appointments_helper import run_import_once
+            import_result = asyncio.run(run_import_once(
+                log_callback=self.log,
+                timeout_seconds=90
+            ))
+            if import_result.get("fehler"):
+                self.log(f"⚠️ Import-Warnung: {import_result['fehler']}")
+                self.log("⚠️ Bot startet trotzdem — Bestandstermine nicht geladen")
+            else:
+                self.log(f"✅ Import abgeschlossen: "
+                         f"{import_result['heute']} heute | "
+                         f"{import_result['morgen']} morgen")
+            # Kalender sofort aktualisieren
+            self._update_calendar_from_json()
+        except Exception as e:
+            self.log(f"⚠️ Import-Fehler (unkritisch): {e}")
+            self.log("▶️  Bot startet trotzdem...")
+
+        self.log("=" * 60)
+        self.log("🚀 SCHRITT 2: Starte Scanner & Clicker...")
+        self.log("=" * 60)
+        self._run_bot()
 
     def _run_bot(self):
         """Führe Bot aus"""
