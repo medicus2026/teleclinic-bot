@@ -281,13 +281,20 @@ async def run_import_once(log_callback=None, timeout_seconds: int = 60) -> dict:
                         continue
                     day_label = e.get("day", "Heute")
                     date_key = date_morgen if day_label == "Morgen" else date_heute
+
+                    # Sicherstellen: diagnosis = Krankheitsbild, wishes = Wunschleistung (AU, Rezept…)
+                    diag_val  = (e.get("diagnosis") or "").strip() or "Extern terminiert"
+                    wish_val  = (e.get("wishes")   or "").strip()
+                    gend_val  = (e.get("gender")   or "").strip()
+                    age_val   = (e.get("age")      or "").strip()
+
                     add_imported_appointment(
                         time=t,
                         date=date_key,
-                        diagnosis=e.get("diagnosis") or "Extern terminiert",
-                        wishes=e.get("wishes") or "",
-                        gender=e.get("gender") or "",
-                        age=e.get("age") or "",
+                        diagnosis=diag_val,
+                        wishes=wish_val,
+                        gender=gend_val,
+                        age=age_val,
                     )
                     gui_neu += 1
                 log(f"📥 [IMPORT] GUI-Kalender: {gui_neu} Termine eingetragen")

@@ -928,13 +928,12 @@ class TeleClinicBotGUI:
 
                     # Kennzeichnung nach Quelle
                     if source == "teleclinic_import":
-                        # Externer Termin: kennzeichnen
+                        # 📥 hinter die Uhrzeit — Diagnose bleibt sauber
+                        uhrzeit = f"{time_slot} 📥"
                         if not diagnose or diagnose.strip() in ("", "Extern terminiert", "Bereits vorhanden"):
-                            diagnose = "📥 Extern terminiert"
-                        else:
-                            diagnose = f"📥 {diagnose}"
+                            diagnose = "(Extern terminiert)"
                         if not wunsch or wunsch.strip() in ("", "(extern importiert)"):
-                            wunsch = "(extern)"
+                            wunsch = ""
                     else:
                         # Bot-Termin: Standardwerte
                         if not diagnose or diagnose.strip() == "":
