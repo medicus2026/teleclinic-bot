@@ -7,6 +7,7 @@ scheduled_patients.py - Speichert terminierte Patienten mit vollständigen Daten
 import json
 from pathlib import Path
 from datetime import datetime
+import re
 
 ROOT = Path(__file__).resolve().parent
 PATIENTS_FILE = ROOT / "scheduled_patients.json"
@@ -85,6 +86,22 @@ def add_imported_appointment(time: str, date: str | None = None,
     werden diese gespeichert. Andernfalls wird ein Platzhalter eingetragen.
     Bereits vom Bot gesetzte Termine (source='bot') werden NICHT überschrieben.
     """
+    # Robuste Normalisierung gegen vertauschte Felder aus externem Parsing:
+    # Wenn diagnosis leer/Platzhalter ist und wishes eher wie Krankheitsbild aussieht,
+    # dann tauschen wir diagnosis <-> wishes.
+    diagnosis = (diagnosis or "").strip()
+    wishes = (wishes or "").strip()
+    gender = (gender or "").strip()
+    age = (age or "").strip()
+
+    if (not diagnosis or diagnosis.lower() in ("extern terminiert", "bereits vorhanden")) and wishes:
+        is_typical_wish = bool(re.search(r"(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung|Bescheinigung)", wishes, re.IGNORECASE))
+        if not is_typical_wish:
+            diagnosis, wishes = wishes, ""
+
+    if not diagnosis:
+        diagnosis = "Extern terminiert"
+
     if date is None:
         date = datetime.now().strftime("%Y-%m-%d")
 

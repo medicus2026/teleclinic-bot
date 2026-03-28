@@ -123,20 +123,62 @@
     }
   },
   "2026-03-28": {
+    "20:55": {
+      "diagnosis": "Extern terminiert",
+      "wishes": "Hautkrankheiten",
+      "gender": "Weiblich",
+      "age": "28",
+      "timestamp": "2026-03-28T10:12:14.733571",
+      "source": "teleclinic_import"
+    },
     "20:00": {
       "diagnosis": "Psychische Leiden",
       "wishes": "",
-      "gender": "weiblich",
+      "gender": "Weiblich",
       "age": "43",
-      "timestamp": "2026-03-28T08:23:09.760755",
-      "source": "bot"
+      "timestamp": "2026-03-28T10:12:14.730273",
+      "source": "teleclinic_import"
     },
     "22:00": {
       "diagnosis": "Psychische Leiden",
       "wishes": "",
-      "gender": "weiblich",
-      "age": "57",
-      "timestamp": "2026-03-28T08:23:14.938103",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-28T10:12:14.735535",
+      "source": "teleclinic_import"
+    },
+    "22:05": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "",
+      "gender": "",
+      "age": "",
+      "timestamp": "2026-03-28T10:12:14.737852",
+      "source": "teleclinic_import"
+    }
+  },
+  "2026-03-29": {
+    "15:00": {
+      "diagnosis": "Akne",
+      "wishes": "",
+      "gender": "Weiblich",
+      "age": "20",
+      "timestamp": "2026-03-28T20:49:28.736685",
+      "source": "teleclinic_import"
+    },
+    "14:30": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "",
+      "gender": "männlich",
+      "age": "29",
+      "timestamp": "2026-03-28T20:50:02.663187",
+      "source": "bot"
+    },
+    "16:00": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "Rezept",
+      "gender": "männlich",
+      "age": "35",
+      "timestamp": "2026-03-28T20:50:07.860497",
       "source": "bot"
     }
   }
