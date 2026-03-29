@@ -1112,6 +1112,7 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
                 # Speichere mit richtigem Datum
                 add_patient(slot, diagnosis, wishes, gender, age, date=target_date)
                 await log_line(f"[PATIENT] ✅ Patientendaten gespeichert ({target_date}): {slot} | {diagnosis} | {gender} | {age}J")
+                await log_line("[PATIENT] GUI-Kalender-Update nach Import")
             except Exception as e:
                 await log_line(f"[PATIENT] ⚠️ Fehler beim Speichern: {e}")
 
@@ -1702,7 +1703,8 @@ async def click_loop(filters):
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
-                            await log_line("[PATIENT] GUI-Kalender-Update nach Import")
+                        # Immer GUI aktualisieren — auch wenn keine Bestandstermine gefunden wurden
+                        await log_line("[PATIENT] GUI-Kalender-Update nach Import")
                         # WICHTIG: Nach Import immer zurück zur Requests-Seite navigieren
                         await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                     except Exception as reimport_err:

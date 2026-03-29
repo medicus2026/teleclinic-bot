@@ -813,9 +813,10 @@ class TeleClinicBotGUI:
                                 self._update_calendar_from_json()
                                 last_calendar_update = time.time()
 
-                            # 2b. Import abgeschlossen → Kalender aktualisieren
-                            elif "[PATIENT] GUI-Kalender-Update nach Import" in line or \
-                                 "[IMPORT] 📋" in line:
+                            # 2b. Import oder neuer Patient → Kalender aktualisieren
+                            elif ("[PATIENT] GUI-Kalender-Update nach Import" in line or
+                                  "[IMPORT] 📋" in line or
+                                  "[PATIENT] ✅" in line):
                                 self._update_calendar_from_json()
                                 last_calendar_update = time.time()
 
