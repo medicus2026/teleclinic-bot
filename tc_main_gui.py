@@ -656,53 +656,30 @@ class TeleClinicBotGUI:
 
     def _load_existing_from_teleclinic(self):
         """
-        Liest Bestandstermine aus Teleclinic (scheduled_patients.json)
-        und zeigt sie im GUI-Kalender an.
-        Wird beim GUI-Start aufgerufen — OHNE den Bot zu starten.
+        Liest Bestandstermine aus scheduled_patients.json (lokale JSON) und zeigt
+        sie im GUI-Kalender an.
+        KEIN automatischer Chrome-Start hier — das würde den Clicker blockieren,
+        der Chrome später mit Debug-Port (9222) braucht.
+        Der vollständige Import aus Teleclinic passiert beim Drücken von START.
         """
         try:
             self._update_calendar_from_json()
-            # Zeige wie viele Termine geladen wurden
             count = len(self.appointment_tree.get_children())
             if count > 0:
-                self.log(f"📅 {count} Bestandstermine aus letztem Import geladen.")
+                self.log(f"📅 {count} Bestandstermine aus letztem Lauf geladen.")
             else:
-                self.log("ℹ️ Keine Bestandstermine vorhanden (erst nach 'test_import_standalone.py' verfügbar).")
+                self.log("ℹ️ Noch keine Bestandstermine vorhanden — werden beim START automatisch aus Teleclinic geladen.")
         except Exception as e:
             self.log(f"⚠️ Bestandstermine konnten nicht geladen werden: {e}")
+
 
     def start_bot(self):
         """Starte Scanner & Clicker"""
         self.save_filters()
-
-        # Vor neuem Lauf: ALLE Patienten für das gewählte Datum zurücksetzen
-        # (auch importierte), weil der Bot sowieso sofort frisch aus Teleclinic importiert
-        try:
-            from scheduled_patients import reset_patients_for_date
-            from datetime import datetime, timedelta
-
-            day_window = self.day_window.get()
-            if day_window == "morgen":
-                target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-            elif day_window == "später":
-                target_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-            else:
-                target_date = datetime.now().strftime("%Y-%m-%d")
-
-            # keep_imported=True: extern terminierte Patienten NICHT löschen –
-            # der Bot importiert sie sofort beim Start frisch aus Teleclinic.
-            # Damit sind sie im GUI-Kalender sichtbar bevor der erste Scan abgeschlossen ist.
-            reset_patients_for_date(target_date, keep_imported=True)
-
-            for item in self.appointment_tree.get_children():
-                self.appointment_tree.delete(item)
-
-            self.log(f"🧹 Bot-Patienten für {target_date} zurückgesetzt (Bestandstermine bleiben bis Frisch-Import)")
-
-            # Kalender sofort mit vorhandenen Daten füllen (importierte Bestandstermine)
-            self._update_calendar_from_json()
-        except Exception as e:
-            self.log(f"⚠️ Konnte Kalenderdaten nicht zurücksetzen: {e}")
+        # KEIN Reset hier — der Clicker macht Reset + Import intern in der richtigen Reihenfolge:
+        # 1) Reset  2) Import aus Teleclinic  3) Scan/Klick
+        # Würden wir hier löschen, wären die bereits angezeigten Bestandstermine weg
+        # bevor der Clicker sie neu laden kann.
 
         # Zeige Filter-Übersicht
         self.log("=" * 80)
@@ -751,34 +728,12 @@ class TeleClinicBotGUI:
 
     def _run_import_then_bot(self):
         """
-        Schritt 1: Bestandstermine aus Teleclinic importieren (non-interaktiv).
-        Schritt 2: Erst danach den eigentlichen Bot/Clicker starten.
-        Läuft komplett im Hintergrund — GUI bleibt immer reaktionsfähig.
+        Stabiler Ein-Pfad-Start:
+        Kein separater Import vorab (würde Chrome ohne Debug-Port öffnen und den Clicker blockieren).
+        Der Clicker übernimmt Reset + Import + Scan intern über denselben Chrome-Debug-Port (9222).
         """
         self.log("=" * 60)
-        self.log("📥 SCHRITT 1: Lese Bestandstermine aus Teleclinic...")
-        self.log("=" * 60)
-        try:
-            from import_appointments_helper import run_import_once
-            import_result = asyncio.run(run_import_once(
-                log_callback=self.log,
-                timeout_seconds=90
-            ))
-            if import_result.get("fehler"):
-                self.log(f"⚠️ Import-Warnung: {import_result['fehler']}")
-                self.log("⚠️ Bot startet trotzdem — Bestandstermine nicht geladen")
-            else:
-                self.log(f"✅ Import abgeschlossen: "
-                         f"{import_result['heute']} heute | "
-                         f"{import_result['morgen']} morgen")
-            # Kalender sofort aktualisieren
-            self._update_calendar_from_json()
-        except Exception as e:
-            self.log(f"⚠️ Import-Fehler (unkritisch): {e}")
-            self.log("▶️  Bot startet trotzdem...")
-
-        self.log("=" * 60)
-        self.log("🚀 SCHRITT 2: Starte Scanner & Clicker...")
+        self.log("🚀 Starte Scanner & Clicker...")
         self.log("=" * 60)
         self._run_bot()
 
@@ -791,9 +746,9 @@ class TeleClinicBotGUI:
                 asyncio.run(clicker_main())
                 return_code = 0
             else:
-                # Starte Bot als Subprocess und speichere Prozess-Handle
-                # stdin=DEVNULL damit start_chrome_debug_mode() die GUI-Modus-Erkennung nutzt
-                # und KEINE 90-Sekunden-Wartezeit startet
+                # Starte Bot als Subprocess.
+                # stdin=DEVNULL verhindert blockierende Terminal-Eingaben;
+                # der Scanner läuft jetzt ohne Debug-Chrome-Modus.
                 self.bot_process = subprocess.Popen(
                     [sys.executable, str(ROOT_PATH / "teleclinic_click_from_list_v9d.py")],
                     cwd=str(ROOT_PATH),
@@ -855,6 +810,12 @@ class TeleClinicBotGUI:
                                 formatted_line = f"[{terminated_count}] ✅ {line}"
 
                                 # Sofortige Terminkalender-Aktualisierung
+                                self._update_calendar_from_json()
+                                last_calendar_update = time.time()
+
+                            # 2b. Import abgeschlossen → Kalender aktualisieren
+                            elif "[PATIENT] GUI-Kalender-Update nach Import" in line or \
+                                 "[IMPORT] 📋" in line:
                                 self._update_calendar_from_json()
                                 last_calendar_update = time.time()
 

@@ -51,20 +51,13 @@ def word_boundary_match(text: str, term: str) -> bool:
 
 
 async def log_line(text: str):
-    """Schreibt Logzeile mit Zeitstempel (append-Modus, keine Datei-Lock-Fehler)."""
+    """Schreibt Logzeile mit Zeitstempel."""
     line = f"[{datetime.now().strftime('%H:%M:%S')}] {text}"
     try:
         print(line)
     except UnicodeEncodeError:
         print(line.encode("ascii", errors="replace").decode("ascii"))
-
-    # Append-Modus statt unlink() → verhindert WinError 32 bei Datei-Lock
-    try:
-        with LOG_PATH.open("a", encoding="utf-8") as f:
-            f.write(line + "\n")
-    except Exception as log_err:
-        # Stille fehl schlagen — Log-Fehler sollten Bot nicht stoppen
-        pass
+    LOG_PATH.write_text(LOG_PATH.read_text(encoding="utf-8") + "\n" + line if LOG_PATH.exists() else line, encoding="utf-8")
 
 
 async def load_filters() -> dict:
@@ -828,24 +821,14 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
 
     try:
         await log_line("[SCAN] Anfrage gefunden – versuche zu übernehmen...")
-        # Seite in Vordergrund + scrollen
+        # Scroll & Klick robuster
         try:
             await page.bring_to_front()
-            await page.wait_for_timeout(150)
+            await page.wait_for_timeout(100)
         except Exception:
             pass
         try:
             await case_button.scroll_into_view_if_needed(timeout=3000)
-            await page.wait_for_timeout(300)  # kurz warten nach Scroll
-        except Exception:
-            pass
-
-        # Warte bis Element enabled ist (max 3 Sekunden)
-        try:
-            for _ in range(15):
-                if await case_button.is_enabled():
-                    break
-                await asyncio.sleep(0.2)
         except Exception:
             pass
 
@@ -1047,79 +1030,90 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await log_line(f"[ERROR] Klick auf 'Übernehmen' fehlgeschlagen: {e}")
             return False
 
-        # ✅ Slot als belegt bestätigen (MUSS nach erfolgreichem Klick passieren!)
-        confirm_slot(slot, date=target_date)
+        # Counter erhöhen
+        patients_accepted += 1
+        await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
+        await log_line(f"[INFO] 📊 Patienten übernommen: {patients_accepted}")
 
-        # Speichere Patient-Daten in scheduled_patients.json VOR dem [OK]-Log-Eintrag,
-        # damit die GUI beim Trigger schon die aktuellen Daten in der JSON findet.
+        # NEEU: Speichere Patient-Daten in scheduled_patients.json
         if case_element:
             try:
                 from scheduled_patients import add_patient
-                import re as _re
+                from datetime import datetime, timedelta
 
                 # Extrahiere Patient-Daten aus case_element
                 parent = await case_element.evaluate_handle('el => el.parentElement')
                 case_text = await parent.evaluate('el => el.innerText')
                 case_text_lower = normalize_text(case_text)
 
-                # Parse Diagnose: erste valide Zeile (nicht GKV/Video/Zahl/Gender)
+                # Parse TATSÄCHLICHE Diagnose aus dem Fall
+                # SIMPEL: Die Diagnose ist die ERSTE Zeile nach GKV/VIDEO
                 diagnosis = "(unbekannt)"
-                for line in case_text.split("\n"):
-                    line = line.strip()
+
+                lines = case_text.split("\n")
+                skip_next = False
+
+                for line in lines:
                     line_lower = normalize_text(line)
-                    if not line or len(line) < 3:
-                        continue
-                    if line_lower in ["gkv", "video", "pkv", "privat"]:
-                        continue
-                    if _re.match(r'^\d{1,2}:\d{2}', line):
-                        continue
-                    if _re.match(r'^\d{1,3}\s*(J\.?|Jahre?|years?|yrs?)$', line, _re.I):
-                        continue
-                    if _re.match(r'^(männlich|weiblich|divers|male|female)', line, _re.I):
-                        continue
-                    diagnosis = line.strip()
-                    break
 
-                # Parse Wünsche (AU, Rezept, ...)
-                wishes = ""
+                    # Springe GKV/VIDEO über
+                    if line_lower in ["gkv", "video"]:
+                        skip_next = True
+                        continue
+
+                    # Nach GKV/VIDEO: nimm die erste nicht-leere, nicht-Zahl-Zeile
+                    if skip_next and line and len(line) > 2:
+                        # Überspringe reine Zahlen/Alter
+                        if not line.replace(",", "").replace(" ", "").replace(".", "").replace("-", "").replace("(", "").replace(")", "").replace("jahre", "").replace("year", "").replace("yrs", "").isdigit():
+                            diagnosis = line.title()
+                            break
+
+                # Parse TATSÄCHLICHE Wünsche aus dem Fall
+                wishes = "(keine)"
+                wishes_keywords = ["au", "arbeitsunfähigkeit", "rezept", "beratung", "video", "telemedizin"]
                 found_wishes = []
-                for kw in ["AU", "Rezept", "Beratung", "Krankschreib", "Attest", "Überweisung"]:
-                    if kw.lower() in case_text_lower:
-                        found_wishes.append(kw)
-                wishes = ", ".join(found_wishes[:2]) if found_wishes else ""
+                for keyword in wishes_keywords:
+                    if keyword in case_text_lower:
+                        found_wishes.append(keyword.upper() if keyword != "au" else "AU")
+                if found_wishes:
+                    wishes = ", ".join(found_wishes[:2])  # Max 2 Wünsche
 
-                # Parse Alter — unterstützt "43 J.", "43 Jahre", "43 years", reine Zahl
-                age = ""
-                m_age = _re.search(r'(\d{1,3})\s*(J\.?|Jahre?|years?|yrs?)', case_text, _re.I)
+                # Parse Alter
+                import re
+                age = "(egal)"
+                m_age = re.search(r"(\d{1,3})\s*(jahre|years|yrs|year|yo)", case_text_lower)
                 if m_age:
                     age = m_age.group(1)
-                else:
-                    # Kombinierte Zeile "Männlich, 43 J." im Originaltext suchen
-                    m_combo = _re.search(r'(?:männlich|weiblich|divers|male|female)[,\s]+(\d{1,3})', case_text, _re.I)
-                    if m_combo:
-                        age = m_combo.group(1)
 
-                # Parse Geschlecht — auch kombinierte Zeile "Männlich, 43 J." abdecken
+                # Parse Geschlecht
                 gender = ""
-                m_gender = _re.search(r'(männlich|weiblich|divers|male|female)', case_text, _re.I)
-                if m_gender:
-                    g = m_gender.group(1).lower()
-                    if g in ("male",):
-                        gender = "männlich"
-                    elif g in ("female",):
-                        gender = "weiblich"
-                    else:
-                        gender = g
+                if "männlich" in case_text_lower or "male" in case_text_lower:
+                    gender = "männlich"
+                elif "weiblich" in case_text_lower or "female" in case_text_lower:
+                    gender = "weiblich"
+                elif "divers" in case_text_lower or "diverse" in case_text_lower:
+                    gender = "divers"
+                else:
+                    gender = "(egal)"
 
+                # Bestimme das richtige Datum basierend auf dem Filter
+                from datetime import datetime, timedelta
+                day_window = filters.get("time_filter", {}).get("day_window", "heute")
+                if day_window == "morgen":
+                    # Scanner läuft auf Morgen-Seite → speichere für morgen
+                    target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+                elif day_window == "später":
+                    # Scanner läuft auf Später-Seite → speichere für übermorgen
+                    target_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+                else:
+                    # Scanner läuft auf Heute-Seite → speichere für heute
+                    target_date = datetime.now().strftime("%Y-%m-%d")
+
+                # Speichere mit richtigem Datum
                 add_patient(slot, diagnosis, wishes, gender, age, date=target_date)
                 await log_line(f"[PATIENT] ✅ Patientendaten gespeichert ({target_date}): {slot} | {diagnosis} | {gender} | {age}J")
             except Exception as e:
                 await log_line(f"[PATIENT] ⚠️ Fehler beim Speichern: {e}")
-
-        # Counter erhöhen NACH add_patient, damit GUI-Trigger schon aktuelle JSON sieht
-        patients_accepted += 1
-        await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
-        await log_line(f"[INFO] 📊 Patienten übernommen: {patients_accepted}")
 
         await asyncio.sleep(1)
         return True
@@ -1392,28 +1386,13 @@ async def import_existing_appointments(page, filters) -> int:
                             /^\\d{1,2}:\\d{2}(\\s+Uhr)?$/, /^(video|gkv|pkv|selbstzahler|privat)$/i,
                             /^\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}$/, /^\\d+$$/, /^(Mo|Di|Mi|Do|Fr|Sa|So),/i,
                         ];
-                        // Diagnose-Erfassung: ERSTE valide Zeile nach GKV/VIDEO/Zeit (nicht Geschlecht)
-                        let foundDiagnosis = false;
-                        for (let i = 0; i < lines.length; i++) {
-                            const line = lines[i];
+                        for (const line of lines) {
                             if (skipPatterns.some(p => p.test(line))) continue;
-                            // Kombinierte Gender+Age Zeile: "Männlich, 43 Jahre" → splitten
-                            const genderAgeCombo = line.match(/(männlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
-                            if (genderAgeCombo) {
-                                if (!gender) gender = genderAgeCombo[1].trim();
-                                if (!age) age = genderAgeCombo[2];
-                                continue;
-                            }
-                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line) && !/(\\d{1,3})\\s*(J\\.?|Jahre?)/i.test(line)) { gender = line; continue; }
-                            const ageM = line.match(/(\\d{1,3})\\s*(J(ahre|\\.)?)/i);
-                            if (!age && ageM) { age = ageM[1]; continue; }
-                            if (!age && /^\\d{1,3}$/.test(line.trim())) { age = line.trim(); continue; }
+                            if (!diagnosis && line.length >= 3) { diagnosis = line; continue; }
                             if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
-                            if (!foundDiagnosis && line.length >= 3 && !/(männlich|weiblich|male|female|divers|English|Englisch|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
-                                diagnosis = line;
-                                foundDiagnosis = true;
-                                continue;
-                            }
+                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) { gender = line; continue; }
+                            const ageM = line.match(/^(\\d{1,3})\\s*J(ahre|\\.)?$/i);
+                            if (!age && ageM) age = ageM[1];
                         }
                         cards.push({ time, diagnosis, wishes, gender, age });
                     }
@@ -1622,34 +1601,32 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🗓️ Tag-Filter: {day_name} (Methode: URL tab={tab_num} + Validierung)")
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
-            # ── IMPORT: Bestehende Termine aus "Meine offene Fälle" einlesen ──
-            # ABLAUF: 1) Slots resetten  2) Patientenliste resetten  3) Importieren  4) Slots + Kalender korrekt befüllt
-            # So werden extern terminierte Patienten als belegt markiert und
-            # next_available_slot() vermeidet Doppelbelegungen.
+            # ── IMPORT: Bestehende Termine aus Teleclinic einlesen ──
+            # REIHENFOLGE: 1) Reset Slots  2) Reset Patienten  3) Import
+            # → erst danach sind Slots + GUI-Kalender korrekt befüllt
             target_date = get_target_date_from_filters(filters)
             reset_slots_for_date(target_date)
-            # Patientenliste für heute leeren — ABER importierte Termine behalten
-            # damit GUI sie sofort anzeigen kann, bevor der Re-Import läuft
             try:
                 from scheduled_patients import reset_patients_for_date as _reset_patients
-                _reset_patients(target_date, keep_imported=True)
-                await log_line(f"[IMPORT] 🗑️ Bot-Patienten für {target_date} geleert - importierte Termine behalten...")
+                _reset_patients(target_date)
+                await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert — frischer Import folgt...")
             except Exception as rpe:
                 await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
-            await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt - importiere bestehende Termine...")
+            await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt — importiere bestehende Termine...")
 
             try:
                 imported_count = await import_existing_appointments(page, filters)
                 if imported_count > 0:
                     await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
-                    # Zeige die belegten Slots zur Kontrolle
                     from core_scheduler import load_slots as _load_slots
                     _slots = _load_slots()
                     _today = _slots.get(target_date, [])
                     if _today:
                         await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
+                    # Trigger: GUI-Kalender aktualisieren
+                    await log_line("[PATIENT] GUI-Kalender-Update nach Import")
                 else:
-                    await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden - starte mit leeren Slots.")
+                    await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden — starte mit leeren Slots.")
             except Exception as e:
                 await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
 
@@ -1709,9 +1686,13 @@ async def click_loop(filters):
                 if loop_counter % 5 == 0:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        # Nur Slots resetten — Bot-Patienten in scheduled_patients.json NICHT löschen!
-                        # Sonst verschwinden frisch geklickte Patienten aus der GUI.
+                        # Slots + Patientenliste leeren, dann frisch importieren
                         reset_slots_for_date(_reimport_date)
+                        try:
+                            from scheduled_patients import reset_patients_for_date as _rp
+                            _rp(_reimport_date)
+                        except Exception:
+                            pass
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
@@ -1842,8 +1823,13 @@ async def click_loop(filters):
                             await log_line(f"[DONE] ✅ Fall {idx + 1} erfolgreich übernommen! Slot {matched_slot}")
                             await asyncio.sleep(2)
 
-                    # Prüfe, ob nächste Seite existiert (z.B. durch Pagination-Button)
-                    next_button = await page.query_selector('button[aria-label="Next page"], a[aria-label="Next"]')
+                    # Prüfe, ob nächste Seite existiert — robuster Selektor (DE + EN)
+                    next_button = await page.query_selector(
+                        'button[aria-label="Next page"], a[aria-label="Next"], '
+                        'button[aria-label="Nächste Seite"], a[aria-label="Nächste Seite"], '
+                        'button[aria-label="next"], a[aria-label="next"], '
+                        '[data-testid*="next"], [class*="pagination"] button:last-child'
+                    )
                     if not next_button or page_num >= max_pages:
                         break
 
@@ -1885,12 +1871,12 @@ async def main():
     """Hauptfunktion: lädt Filter und startet den Click-Loop."""
     global patients_accepted
 
-    # Session-Header in Append-Modus schreiben (verhindert WinError 32)
+    # Robuster Start: Kein Löschen der Log-Datei (vermeidet WinError 32 bei Datei-Lock).
+    # Stattdessen schreiben wir einen Session-Header im Append-Modus.
     try:
         with LOG_PATH.open("a", encoding="utf-8") as f:
             f.write("\n" + "=" * 70 + "\n")
-            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🚀 Neue Bot-Session gestartet\n")
-            f.write("=" * 70 + "\n")
+            f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Neue Bot-Session gestartet\n")
     except Exception as e:
         print(f"[WARN] Konnte Session-Header nicht in Log schreiben: {e}")
 
@@ -1899,6 +1885,11 @@ async def main():
         await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
         return
 
+    # RESET: Setze Counter auf 0 beim Bot-Start
+    # WICHTIG: Slots werden NICHT mehr hier gelöscht!
+    # Der Import in click_loop() übernimmt die bestehenden Termine.
+    # reset_slots_for_date() wird erst NACH dem Import in click_loop() aufgerufen,
+    # damit keine extern terminierten Patienten verloren gehen.
     patients_accepted = 0
     target_date = get_target_date(filters)
     await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")
