@@ -15,10 +15,10 @@ Aufruf:
 
 import asyncio
 import re
-import socket
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -137,15 +137,46 @@ PARSE_CARDS_JS = """() => {
 
 
 def is_chrome_debug_running() -> bool:
-    """Prüft ob Chrome im Debug-Modus auf Port 9222 läuft."""
+    """Legacy-Helfer: Debug-Modus wird nicht mehr benötigt."""
+    return False
+
+
+async def _ensure_logged_in(page, log, timeout_seconds: int = 60) -> bool:
+    """Wartet bis eine eingeloggte Teleclinic-Seite erreichbar ist (ohne Debug-Port)."""
+    deadline = asyncio.get_event_loop().time() + max(5, timeout_seconds)
+    target_url = "https://med.teleclinic.com/myappointments?tab=0&page=1"
+
+    # Falls Chrome auf about:blank/neuem Tab steht, direkt Teleclinic öffnen.
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1)
-        result = s.connect_ex(('localhost', 9222))
-        s.close()
-        return result == 0
+        current_url = (page.url or "").lower()
+        if not current_url or current_url in ("about:blank", "chrome://newtab/", "chrome://new-tab-page/"):
+            log("📥 [IMPORT] Öffne Teleclinic-Seite im Chrome-Profil...")
+        await page.goto(target_url, wait_until="domcontentloaded", timeout=30000)
     except Exception:
-        return False
+        pass
+
+    while asyncio.get_event_loop().time() < deadline:
+        current_url = (page.url or "").lower()
+        if "med.teleclinic.com/myappointments" in current_url:
+            return True
+
+        if "med.teleclinic.com" in current_url and "login" not in current_url and "auth" not in current_url:
+            try:
+                await page.goto(target_url, wait_until="domcontentloaded", timeout=30000)
+                await asyncio.sleep(1)
+                if "med.teleclinic.com/myappointments" in (page.url or "").lower():
+                    return True
+            except Exception:
+                pass
+
+        log("📥 [IMPORT] Bitte in Teleclinic einloggen... (warte)")
+        await asyncio.sleep(2)
+        try:
+            await page.goto(target_url, wait_until="domcontentloaded", timeout=30000)
+        except Exception:
+            pass
+
+    return False
 
 
 async def _scan_tab(page, tab_nr: int, tab_name: str, log) -> list:
@@ -220,36 +251,47 @@ async def run_import_once(log_callback=None, timeout_seconds: int = 60) -> dict:
 
     result: dict = {"heute": 0, "morgen": 0, "gesamt": 0, "fehler": None}
 
-    # Warte kurz auf Chrome (max timeout_seconds)
-    log("📥 [IMPORT] Warte auf Chrome-Verbindung...")
-    waited = 0
-    while not is_chrome_debug_running() and waited < timeout_seconds:
-        await asyncio.sleep(2)
-        waited += 2
 
-    if not is_chrome_debug_running():
-        result["fehler"] = "Chrome nicht erreichbar (Port 9222)"
-        log(f"⚠️ [IMPORT] {result['fehler']} — Import übersprungen")
-        return result
+    # Kein Debug-Port mehr: normalen Browser-Start verwenden
+    log("📥 [IMPORT] Starte Import ohne Debug-Modus...")
 
     try:
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
-            try:
-                browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-            except Exception as e:
-                result["fehler"] = f"Chrome-Verbindung fehlgeschlagen: {e}"
-                log(f"⚠️ [IMPORT] {result['fehler']}")
-                return result
+            user_data_dir = str(ROOT / "chrome_profile")
+            context = await p.chromium.launch_persistent_context(
+                user_data_dir=user_data_dir,
+                channel="chrome",
+                headless=False,
+                args=["--disable-blink-features=AutomationControlled"],
+            )
 
-            context = browser.contexts[0] if browser.contexts else await browser.new_context()
             pages = list(context.pages)
             page = next(
                 (pg for pg in pages if "med.teleclinic.com" in (pg.url or "")),
                 pages[0] if pages else await context.new_page()
             )
 
+            logged_in = await _ensure_logged_in(page, log, timeout_seconds=timeout_seconds)
+            if not logged_in:
+                result["fehler"] = "Nicht eingeloggt (myappointments nicht erreicht)"
+                log(f"⚠️ [IMPORT] {result['fehler']} — Import übersprungen")
+                await context.close()
+                return result
+
             log(f"📥 [IMPORT] Verbunden. Aktuelle URL: {page.url}")
+
+            # Alte importierte Platzhalter für heute/morgen vor jedem Frisch-Import löschen,
+            # damit der GUI-Kalender keine veralteten Bestandstermine anzeigt.
+            try:
+                from scheduled_patients import reset_patients_for_date
+                date_heute = datetime.now().strftime("%Y-%m-%d")
+                date_morgen = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+                reset_patients_for_date(date_heute, keep_imported=False)
+                reset_patients_for_date(date_morgen, keep_imported=False)
+                log("📥 [IMPORT] Alte Import-/Kalenderdaten für heute und morgen geleert")
+            except Exception as e:
+                log(f"⚠️ [IMPORT] Konnte alte Kalenderdaten nicht leeren: {e}")
 
             heute_raw = await _scan_tab(page, 0, "Heute", log)
             morgen_raw = await _scan_tab(page, 1, "Morgen", log)
@@ -314,6 +356,8 @@ async def run_import_once(log_callback=None, timeout_seconds: int = 60) -> dict:
             result["heute"] = len(heute)
             result["morgen"] = len(morgen)
             result["gesamt"] = len(alle)
+
+            await context.close()
             return result
 
     except Exception as e:

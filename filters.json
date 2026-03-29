@@ -1,11 +1,11 @@
 {
   "time_filter": {
-    "day_window": "morgen"
+    "day_window": "heute"
   },
   "slot1": {
-    "time_start": "14:30",
-    "time_end": "16:30",
-    "max_patients": 4,
+    "time_start": "21:00",
+    "time_end": "23:00",
+    "max_patients": 20,
     "interval_minutes": 5,
     "diagnosis_include": "Psyche",
     "diagnosis_exclude": "",
