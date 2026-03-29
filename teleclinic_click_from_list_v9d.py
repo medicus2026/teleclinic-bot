@@ -533,12 +533,11 @@ async def check_case_matches_filters(case_element, filters):
 
         # Wenn Include-Filter gesetzt: mindestens einer muss vorkommen (mit Synonym-Match)
         if diag_include:
-            # Für jeden Include-Filter: prüfe alle Synonyme mit Word-Boundary
-            # Verhindert z.B. dass "haut" in "Wurmbefall", "Durchfall" o.ä. fälschlich matcht
+            # Für jeden Include-Filter: prüfe alle Synonyme (einfaches substring-Match wie Backup 2)
             match_found = False
             for diag_term in diag_include:
                 synonyms = normalize_term(diag_term)
-                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
+                if any(syn in case_text_lower for syn in synonyms):
                     match_found = True
                     break
             if not match_found:
@@ -549,7 +548,7 @@ async def check_case_matches_filters(case_element, filters):
         if diag_exclude:
             for diag_term in diag_exclude:
                 synonyms = normalize_term(diag_term)
-                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
+                if any(syn in case_text_lower for syn in synonyms):
                     await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste")
                     return (False, None)
 
@@ -600,7 +599,7 @@ async def check_case_matches_filters(case_element, filters):
             match_found = False
             for lang_term in lang_include:
                 synonyms = normalize_term(lang_term)
-                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
+                if any(syn in case_text_lower for syn in synonyms):
                     match_found = True
                     break
             if not match_found:
@@ -611,7 +610,7 @@ async def check_case_matches_filters(case_element, filters):
         if lang_exclude:
             for lang_term in lang_exclude:
                 synonyms = normalize_term(lang_term)
-                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
+                if any(syn in case_text_lower for syn in synonyms):
                     await log_line(f"[FILTER] ❌ Sprache in Exclude-Liste")
                     return (False, None)
 
