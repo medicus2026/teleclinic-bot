@@ -1,13 +1,13 @@
 {
   "time_filter": {
-    "day_window": "heute"
+    "day_window": "morgen"
   },
   "slot1": {
-    "time_start": "21:00",
-    "time_end": "23:00",
+    "time_start": "08:00",
+    "time_end": "10:00",
     "max_patients": 20,
-    "interval_minutes": 5,
-    "diagnosis_include": "Psyche",
+    "interval_minutes": 4,
+    "diagnosis_include": "Haut",
     "diagnosis_exclude": "",
     "wishes_include": "",
     "wishes_exclude": "",
@@ -34,7 +34,7 @@
     "gender": ""
   },
   "runtime": {
-    "interval_minutes": 5,
+    "interval_minutes": 4,
     "headless": false,
     "slowmo_ms": 0
   },

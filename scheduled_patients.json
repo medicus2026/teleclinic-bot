@@ -2,7 +2,7 @@
   "2026-03-22": {
     "23:00": {
       "diagnosis": "Hautkrankheiten",
-      "wishes": "AU, VIDEO",
+      "wishes": "AU",
       "gender": "männlich",
       "age": "48",
       "timestamp": "2026-03-22T20:55:05.781539"
@@ -10,43 +10,43 @@
   },
   "2026-03-23": {
     "15:30": {
-      "diagnosis": "Weiblich, 20 Jahre, Au, Weitere Informationen In Der Fallansicht",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Weitere Informationen In Der Fallansicht",
+      "wishes": "AU",
       "gender": "weiblich",
       "age": "20",
       "timestamp": "2026-03-23T11:43:06.761155"
     },
     "15:35": {
-      "diagnosis": "Au, Bauchschmerzen",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "AU",
       "gender": "männlich",
       "age": "27",
       "timestamp": "2026-03-23T11:43:12.245297"
     },
     "15:40": {
-      "diagnosis": "Au, Kopfschmerzen",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
       "gender": "weiblich",
       "age": "34",
       "timestamp": "2026-03-23T11:43:20.376333"
     },
     "15:45": {
-      "diagnosis": "Au, Erkältung / Grippe",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
       "gender": "weiblich",
       "age": "52",
       "timestamp": "2026-03-23T11:43:28.404185"
     },
     "15:50": {
-      "diagnosis": "Au, Erkältung / Grippe",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
       "gender": "weiblich",
       "age": "26",
       "timestamp": "2026-03-23T11:43:37.086902"
     },
     "15:55": {
-      "diagnosis": "Au, Halsschmerzen",
-      "wishes": "AU, VIDEO",
+      "diagnosis": "Halsschmerzen",
+      "wishes": "AU",
       "gender": "weiblich",
       "age": "32",
       "timestamp": "2026-03-23T11:43:45.600629"
@@ -65,7 +65,7 @@
   "2026-03-26": {
     "17:30": {
       "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
+      "wishes": "REZEPT",
       "gender": "männlich",
       "age": "22",
       "timestamp": "2026-03-26T17:19:58.633442",
@@ -73,7 +73,7 @@
     },
     "17:35": {
       "diagnosis": "Psychische Leiden",
-      "wishes": "REZEPT, VIDEO",
+      "wishes": "REZEPT",
       "gender": "männlich",
       "age": "30",
       "timestamp": "2026-03-26T17:20:04.296706",
@@ -81,7 +81,7 @@
     },
     "17:40": {
       "diagnosis": "Psychische Leiden",
-      "wishes": "VIDEO",
+      "wishes": "",
       "gender": "männlich",
       "age": "21",
       "timestamp": "2026-03-26T17:20:09.953604",
@@ -89,7 +89,7 @@
     },
     "17:45": {
       "diagnosis": "Psychische Leiden",
-      "wishes": "VIDEO",
+      "wishes": "",
       "gender": "männlich",
       "age": "41",
       "timestamp": "2026-03-26T17:20:15.358959",
@@ -124,8 +124,8 @@
   },
   "2026-03-28": {
     "20:55": {
-      "diagnosis": "Extern terminiert",
-      "wishes": "Hautkrankheiten",
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "",
       "gender": "Weiblich",
       "age": "28",
       "timestamp": "2026-03-28T10:12:14.733571",
@@ -154,6 +154,66 @@
       "age": "",
       "timestamp": "2026-03-28T10:12:14.737852",
       "source": "teleclinic_import"
+    }
+  },
+  "2026-03-29": {
+    "20:00": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "20",
+      "timestamp": "2026-03-29T16:54:14.847878",
+      "source": "teleclinic_import"
+    },
+    "21:00": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "",
+      "gender": "Weiblich",
+      "age": "37",
+      "timestamp": "2026-03-29T16:54:14.849277",
+      "source": "teleclinic_import"
+    },
+    "21:05": {
+      "diagnosis": "Psychische Leiden",
+      "wishes": "VIDEO",
+      "gender": "männlich",
+      "age": "42",
+      "timestamp": "2026-03-29T19:25:07.442772",
+      "source": "bot"
+    }
+  },
+  "2026-03-30": {
+    "09:05": {
+      "diagnosis": "Schilddrüse: Über- / Unterfunktion",
+      "wishes": "",
+      "gender": "Weiblich",
+      "age": "26",
+      "timestamp": "2026-03-29T22:09:37.258930",
+      "source": "teleclinic_import"
+    },
+    "08:00": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, VIDEO",
+      "gender": "männlich",
+      "age": "32",
+      "timestamp": "2026-03-29T22:09:53.987730",
+      "source": "bot"
+    },
+    "09:00": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, REZEPT",
+      "gender": "weiblich",
+      "age": "35",
+      "timestamp": "2026-03-29T22:10:50.456066",
+      "source": "bot"
+    },
+    "09:09": {
+      "diagnosis": "Hautkrankheiten",
+      "wishes": "AU, REZEPT",
+      "gender": "männlich",
+      "age": "25",
+      "timestamp": "2026-03-29T22:11:43.140807",
+      "source": "bot"
     }
   }
 }

@@ -533,11 +533,12 @@ async def check_case_matches_filters(case_element, filters):
 
         # Wenn Include-Filter gesetzt: mindestens einer muss vorkommen (mit Synonym-Match)
         if diag_include:
-            # Für jeden Include-Filter: prüfe alle Synonyme
+            # Für jeden Include-Filter: prüfe alle Synonyme mit Word-Boundary
+            # Verhindert z.B. dass "haut" in "Wurmbefall", "Durchfall" o.ä. fälschlich matcht
             match_found = False
             for diag_term in diag_include:
                 synonyms = normalize_term(diag_term)
-                if any(syn in case_text_lower for syn in synonyms):
+                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
                     match_found = True
                     break
             if not match_found:
@@ -548,7 +549,7 @@ async def check_case_matches_filters(case_element, filters):
         if diag_exclude:
             for diag_term in diag_exclude:
                 synonyms = normalize_term(diag_term)
-                if any(syn in case_text_lower for syn in synonyms):
+                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
                     await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste")
                     return (False, None)
 
@@ -599,7 +600,7 @@ async def check_case_matches_filters(case_element, filters):
             match_found = False
             for lang_term in lang_include:
                 synonyms = normalize_term(lang_term)
-                if any(syn in case_text_lower for syn in synonyms):
+                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
                     match_found = True
                     break
             if not match_found:
@@ -610,7 +611,7 @@ async def check_case_matches_filters(case_element, filters):
         if lang_exclude:
             for lang_term in lang_exclude:
                 synonyms = normalize_term(lang_term)
-                if any(syn in case_text_lower for syn in synonyms):
+                if any(word_boundary_match(case_text_lower, syn) for syn in synonyms):
                     await log_line(f"[FILTER] ❌ Sprache in Exclude-Liste")
                     return (False, None)
 
@@ -924,6 +925,14 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
             await log_line(f"[ERROR] Klick auf 'Übernehmen' fehlgeschlagen: {e}")
             return False
 
+        # ── FIX: Slot sofort als belegt bestätigen (verhindert Doppelbelegung) ──
+        try:
+            from core_scheduler import confirm_slot
+            confirm_slot(slot, date=target_date)
+            await log_line(f"[SCHEDULER] ✅ Slot {slot} als belegt gespeichert.")
+        except Exception as cs_err:
+            await log_line(f"[SCHEDULER] ⚠️ confirm_slot fehlgeschlagen (nicht kritisch): {cs_err}")
+
         # Counter erhöhen
         patients_accepted += 1
         await log_line(f"[OK] Anfrage übernommen – Termin {slot} gesetzt.")
@@ -1233,12 +1242,10 @@ async def import_existing_appointments(page, filters) -> int:
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
             try:
-                await page.wait_for_load_state("networkidle", timeout=10000)
-            except Exception as network_err:
-                await log_line(f"[IMPORT] ⚠️ networkidle-Wait fehlgeschlagen (nächster Versuch): {network_err}")
+                await page.wait_for_load_state("networkidle", timeout=5000)
+            except Exception:
                 pass
-            await asyncio.sleep(2)
-            await page.wait_for_timeout(2000)  # Erhöht von 1500
+            await asyncio.sleep(3)
 
             current_url = page.url or ""
             if "myappointments" not in current_url:
@@ -1250,57 +1257,90 @@ async def import_existing_appointments(page, filters) -> int:
 
             try:
                 cards_raw = await page.evaluate("""() => {
-                    const cards = [];
-                    const cardSelectors = [
-                        '[data-testid*="appointment"]', '[data-testid*="treatment"]',
-                        '[class*="appointment-card"]', '[class*="treatment-card"]',
-                        '[class*="card"]', 'li', 'article'
-                    ];
-                    let cardEls = [];
-                    for (const sel of cardSelectors) {
-                        const els = document.querySelectorAll(sel);
-                        for (const el of els) {
-                            const text = (el.innerText || el.textContent || '').trim();
-                            if (/\\d{1,2}:\\d{2}\\s+Uhr/.test(text) && text.length > 10) {
-                                cardEls.push(el);
-                            }
-                        }
-                        if (cardEls.length > 0) break;
-                    }
-                    const outerEls = cardEls.filter(el =>
-                        !cardEls.some(other => other !== el && other.contains(el))
-                    );
-                    for (const card of outerEls) {
-                        const text = (card.innerText || card.textContent || '').trim();
-                        const timeM = text.match(/(\\d{1,2}):(\\d{2})\\s+Uhr/);
-                        if (!timeM) continue;
-                        const time = timeM[1].padStart(2,'0') + ':' + timeM[2];
-                        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 0);
-                        let diagnosis = '', wishes = '', gender = '', age = '';
-                        const skipPatterns = [
-                            /^\\d{1,2}:\\d{2}(\\s+Uhr)?$/, /^(video|gkv|pkv|selbstzahler|privat)$/i,
-                            /^\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}$/, /^\\d+$$/, /^(Mo|Di|Mi|Do|Fr|Sa|So),/i,
-                        ];
-                        for (const line of lines) {
-                            if (skipPatterns.some(p => p.test(line))) continue;
-                            if (!diagnosis && line.length >= 3) { diagnosis = line; continue; }
-                            if (!wishes && /(AU|Rezept|Beratung|Überweisung|Krankschreibung|Attest)/i.test(line)) { wishes = line; continue; }
-                            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) { gender = line; continue; }
-                            const ageM = line.match(/^(\\d{1,3})\\s*J(ahre|\\.)?$/i);
-                            if (!age && ageM) age = ageM[1];
-                        }
-                        cards.push({ time, diagnosis, wishes, gender, age });
-                    }
-                    if (cards.length === 0) {
-                        const allEls = document.querySelectorAll('h3, h2, [class*="time"], [class*="hour"]');
-                        allEls.forEach(el => {
-                            const text = (el.innerText || el.textContent || '').trim();
-                            const m = text.match(/^(\\d{1,2}):(\\d{2})\\s+Uhr$/);
-                            if (m) cards.push({ time: m[1].padStart(2,'0') + ':' + m[2], diagnosis: '', wishes: '', gender: '', age: '' });
-                        });
-                    }
-                    return cards;
-                }""")
+    const results = [];
+    const timeEls = Array.from(document.querySelectorAll('*')).filter(el => {
+        const t = (el.innerText || '').trim();
+        return /^\\d{1,2}:\\d{2}(\\s*Uhr)?$/.test(t) && el.children.length === 0;
+    });
+    const cards = new Set();
+    for (const tel of timeEls) {
+        let el = tel.parentElement;
+        for (let i = 0; i < 6 && el; i++) {
+            const txt = (el.innerText || '').trim();
+            if (txt.length > 30 && /\\d{1,2}:\\d{2}/.test(txt)) {
+                cards.add(el);
+                break;
+            }
+            el = el.parentElement;
+        }
+    }
+    if (cards.size === 0) {
+        const selectors = [
+            '[data-testid*="appointment"]', '[data-testid*="treatment"]',
+            '[class*="appointment"]', '[class*="treatment"]',
+            '[class*="case"]', '[class*="card"]', 'li', 'article'
+        ];
+        for (const sel of selectors) {
+            for (const el of document.querySelectorAll(sel)) {
+                const text = (el.innerText || '').trim();
+                if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 15)
+                    cards.add(el);
+            }
+            if (cards.size > 0) break;
+        }
+    }
+    const cardArr = Array.from(cards);
+    const outer = cardArr.filter(el =>
+        !cardArr.some(other => other !== el && other.contains(el))
+    );
+    for (const card of outer) {
+        const text = (card.innerText || '').trim();
+        const timeM = text.match(/(\\d{1,2}):(\\d{2})(?:\\s*Uhr)?/);
+        if (!timeM) continue;
+        const time_str = timeM[1].padStart(2,'0') + ':' + timeM[2];
+        const lines = text.split('\\n').map(l => l.trim()).filter(l => l.length > 1);
+        let diagnosis = '', wishes = '', gender = '', age = '';
+        const skip = [
+            /^\\d{1,2}:\\d{2}(\\s*Uhr)?$/,
+            /^(video|gkv|pkv|privat|selbstzahler|termin stornieren|zum fall|mehr infos|direktanfragen)$/i,
+            /^\\d{1,2}\\.\\d{1,2}(\\.\\d{2,4})?$/,
+            /^(morgen|heute|später)/i,
+            /^\\d+\\s*km$/i,
+            /^\\d+\\s*%/i
+        ];
+        let diagFound = false;
+        for (const line of lines) {
+            if (skip.some(p => p.test(line.trim()))) continue;
+            const genderAgeCombo = line.match(/(männlich|weiblich|divers|male|female)[,\\s]+(\\d{1,3})\\s*(J\\.?|Jahre?)?/i);
+            if (genderAgeCombo) {
+                if (!gender) gender = genderAgeCombo[1].trim();
+                if (!age) age = genderAgeCombo[2];
+                continue;
+            }
+            if (!gender && /(männlich|weiblich|divers|male|female)/i.test(line)) {
+                gender = line.trim(); continue;
+            }
+            const m = line.match(/(\\d{1,3})\\s*(J\\.?|Jahre?)/i);
+            if (!age && m) { age = m[1]; continue; }
+            // Wunsch: nur wenn die Zeile AUSSCHLIESSLICH ein Wunsch-Keyword ist (kein Diagnose-Text daneben)
+            if (!wishes && /^(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung)(\\s*[,&+]\\s*(AU|Rezept|Beratung|Krankschreib|Attest|Überweisung))*$/i.test(line.trim())) {
+                wishes = line.trim(); continue;
+            }
+            // Zeilen wie "AU, Kopfschmerzen" → Wunsch=AU, Diagnose=Kopfschmerzen
+            const auMix = line.match(/^(AU|Rezept|Attest|Krankschreib)[,\\s]+(.+)$/i);
+            if (auMix && !diagFound) {
+                if (!wishes) wishes = auMix[1].trim();
+                diagnosis = auMix[2].trim(); diagFound = true; continue;
+            }
+            if (!diagFound && line.length >= 3 &&
+                !/(männlich|weiblich|male|female|divers|Jahre|\\d+\\s*J\\.?)/i.test(line)) {
+                diagnosis = line.trim(); diagFound = true; continue;
+            }
+        }
+        results.push({ time: time_str, diagnosis, wishes, gender, age });
+    }
+    return results;
+}""")
             except Exception as eval_err:
                 await log_line(f"[IMPORT] ⚠️ DOM-Auswertung fehlgeschlagen: {eval_err}")
                 cards_raw = []
@@ -1520,40 +1560,33 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🗓️ Tag-Filter: {day_name} (Methode: URL tab={tab_num} + Validierung)")
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
-            # ── IMPORT: Bestehende Termine prüfen / einlesen ──
-            # Wenn import_appointments_helper beim GUI-Start bereits importiert hat,
-            # sind die Slots schon belegt → kein Reset/Re-Import nötig.
-            # Nur wenn Slots leer sind: selbst importieren.
+            # ── IMPORT: Bestehende Termine IMMER frisch aus Teleclinic laden ──
+            # Wichtig: Immer resetten + neu importieren, damit keine veralteten
+            # Slots aus dem letzten Lauf den Scheduler blockieren.
             target_date = get_target_date_from_filters(filters)
-            existing_slots = load_slots().get(target_date, [])
+            await log_line(f"[IMPORT] 🔄 Starte frischen Import für {target_date}...")
 
-            if existing_slots:
-                await log_line(f"[IMPORT] ✅ Bestandstermine bereits geladen ({len(existing_slots)} Slots): {', '.join(sorted(existing_slots))}")
+            reset_slots_for_date(target_date)
+            try:
+                from scheduled_patients import reset_patients_for_date as _reset_patients
+                _reset_patients(target_date, keep_imported=False)
+            except Exception as rpe:
+                await log_line(f"[IMPORT] ⚠️ Reset fehlgeschlagen (nicht kritisch): {rpe}")
+
+            try:
+                imported_count = await import_existing_appointments(page, filters)
+                if imported_count > 0:
+                    await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
+                    from core_scheduler import load_slots as _load_slots
+                    _slots = _load_slots()
+                    _today = _slots.get(target_date, [])
+                    if _today:
+                        await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
+                else:
+                    await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden — starte mit leeren Slots.")
                 await log_line("[PATIENT] GUI-Kalender-Update nach Import")
-            else:
-                await log_line(f"[IMPORT] 🔄 Keine vorgeladenen Slots — starte eigenen Import...")
-                reset_slots_for_date(target_date)
-                try:
-                    from scheduled_patients import reset_patients_for_date as _reset_patients
-                    _reset_patients(target_date)
-                    await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert — frischer Import folgt...")
-                except Exception as rpe:
-                    await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
-
-                try:
-                    imported_count = await import_existing_appointments(page, filters)
-                    if imported_count > 0:
-                        await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
-                        from core_scheduler import load_slots as _load_slots
-                        _slots = _load_slots()
-                        _today = _slots.get(target_date, [])
-                        if _today:
-                            await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
-                        await log_line("[PATIENT] GUI-Kalender-Update nach Import")
-                    else:
-                        await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden — starte mit leeren Slots.")
-                except Exception as e:
-                    await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
+            except Exception as e:
+                await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
 
             # Wenn nicht auf der richtigen Seite ODER falscher Tab, navigiere dorthin
             # Nach Import von myappointments muss immer navigiert werden
@@ -1604,30 +1637,21 @@ async def click_loop(filters):
                 day_window = filters.get("time_filter", {}).get("day_window", "heute")
                 tab_num = get_tab_number(day_window)
 
-                # 📋 RE-IMPORT: Alle 5 Loops erneut terminierte Patienten importieren
-                # um Doppelbelegungen zu verhindern (falls Termine manuell gesetzt wurden)
-                # Nicht bei JEDEM Loop, um die Scan-Geschwindigkeit nicht zu beeinträchtigen
+                # 📋 RE-IMPORT: Alle 5 Loops Slots neu einlesen
+                # Nur scheduled_slots.json resetten + neu befüllen
+                # scheduled_patients.json NICHT anfassen — verhindert kurzes Verschwinden im GUI
                 loop_counter += 1
                 if loop_counter % 5 == 0:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        # Nur Slots resetten — frisch geklickte Patienten NICHT löschen!
                         reset_slots_for_date(_reimport_date)
-                        try:
-                            from scheduled_patients import reset_patients_for_date as _rp
-                            _rp(_reimport_date, keep_imported=True)
-                        except Exception:
-                            pass
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
-                            await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
-                        # Immer GUI aktualisieren — auch wenn keine Bestandstermine gefunden wurden
+                            await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Slots aktualisiert (Re-Import #{loop_counter})")
                         await log_line("[PATIENT] GUI-Kalender-Update nach Import")
-                        # WICHTIG: Nach Import immer zurück zur Requests-Seite navigieren
                         await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                     except Exception as reimport_err:
                         await log_line(f"[IMPORT-LOOP] ⚠️ Re-Import fehlgeschlagen: {reimport_err}")
-                        # Trotz Fehler zur Requests-Seite navigieren
                         try:
                             await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                         except Exception:
@@ -1740,6 +1764,46 @@ async def click_loop(filters):
                             await log_line(f"[SKIP] Fall {idx + 1} hat keinen erkennbaren 'Übernehmen'-Button (auch nicht im Parent)")
                             continue
 
+                        # ── FIX: Karte und Button direkt vor Klick frisch aus DOM holen ──
+                        # Zwischen Filter-Prüfung und Klick kann React die Seite neu gerendert haben
+                        # → altes Element-Handle ist dann "not attached to the DOM".
+                        # Lösung: Karte per Index nochmal frisch abfragen.
+                        try:
+                            fresh_cards = await page.query_selector_all("[data-testid='link-treatment-view']")
+                            if idx < len(fresh_cards):
+                                fresh_card = fresh_cards[idx]
+                                # Button im frischen Element suchen
+                                fresh_btn = None
+                                fresh_containers = [fresh_card]
+                                try:
+                                    fp = await fresh_card.evaluate_handle('el => el.parentElement')
+                                    fresh_containers.append(fp)
+                                    fg = await fp.evaluate_handle('el => el.parentElement')
+                                    fresh_containers.append(fg)
+                                except Exception:
+                                    pass
+                                for scope in fresh_containers:
+                                    c = await scope.query_selector("button[data-cy='submit']")
+                                    if c:
+                                        fresh_btn = c
+                                        break
+                                    c = await scope.query_selector("button:has-text('Übernehmen')")
+                                    if c:
+                                        fresh_btn = c
+                                        break
+                                if fresh_btn:
+                                    btn = fresh_btn
+                                    card = fresh_card
+                                    await log_line(f"[INFO] Karte {idx + 1} frisch aus DOM geholt.")
+                                else:
+                                    await log_line(f"[SKIP] Karte {idx + 1}: kein Button im frischen DOM — übersprungen.")
+                                    continue
+                            else:
+                                await log_line(f"[SKIP] Karte {idx + 1} nicht mehr im DOM (Seite hat sich verändert) — übersprungen.")
+                                continue
+                        except Exception as refresh_err:
+                            await log_line(f"[WARN] DOM-Refresh fehlgeschlagen, nutze gecachtes Handle: {refresh_err}")
+
                         # Falls Filter übereinstimmen, versuche zu übernehmen (mit berechneter Zeit)
                         ok = await handle_case(page, btn, matched_filters, overlap_time, case_element=card)
                         if ok:
@@ -1750,14 +1814,9 @@ async def click_loop(filters):
                             await log_line(f"[DONE] ✅ Fall {idx + 1} erfolgreich übernommen! Slot {matched_slot}")
                             await asyncio.sleep(2)
 
-                    # Prüfe, ob nächste Seite existiert — robuster Selektor (DE + EN)
-                    next_button = await page.query_selector(
-                        'button[aria-label="Next page"], a[aria-label="Next"], '
-                        'button[aria-label="Nächste Seite"], a[aria-label="Nächste Seite"], '
-                        'button[aria-label="next"], a[aria-label="next"], '
-                        '[data-testid*="next"], [class*="pagination"] button:last-child'
-                    )
-                    if not next_button or page_num >= max_pages:
+                    # Weiter zur nächsten Seite — per URL (zuverlässiger als Button-Suche).
+                    # Wenn die aktuelle Seite 0 Anfragen hatte, gibt es keine weiteren Seiten.
+                    if len(cards) == 0 or page_num >= max_pages:
                         break
 
                 # Prüfe nach jedem kompletten Scan, ob alle Slots voll
@@ -1812,11 +1871,8 @@ async def main():
         await log_line("[FATAL] Filterdaten nicht verfügbar – Programmende.")
         return
 
-    # RESET: Setze Counter auf 0 beim Bot-Start
-    # WICHTIG: Slots werden NICHT mehr hier gelöscht!
-    # Der Import in click_loop() übernimmt die bestehenden Termine.
-    # reset_slots_for_date() wird erst NACH dem Import in click_loop() aufgerufen,
-    # damit keine extern terminierten Patienten verloren gehen.
+    # RESET: Nur Zähler auf 0 — Slots und Patienten werden in click_loop()
+    # nach Chrome-Start frisch aus Teleclinic importiert.
     patients_accepted = 0
     target_date = get_target_date(filters)
     await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")

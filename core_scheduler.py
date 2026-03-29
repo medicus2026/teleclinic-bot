@@ -155,27 +155,42 @@ def next_available_slot(filters: dict, date: str | None = None, min_start_time: 
 
         print(f"[SCHEDULER] Durchsuche {slot_name}: {minutes_to_hhmm(actual_start)} - {minutes_to_hhmm(end)}, Intervall: {interval} Min.")
 
+        # Belegte Slots als Minuten-Set für schnellen Abstandscheck
+        occupied_minutes = sorted(
+            hhmm_to_minutes(s) for s in today_slots if hhmm_to_minutes(s) is not None
+        )
+
         if direction == "backward":
             current = end - interval
             while current >= actual_start:
                 t = minutes_to_hhmm(current)
-                if t not in today_slots:
-                    # NUR FINDEN, NICHT SPEICHERN! confirm_slot() macht das später.
+                # Nur freigeben wenn Mindestabstand 'interval' zu ALLEN belegten Slots
+                too_close = any(abs(current - occ) < interval for occ in occupied_minutes)
+                if not too_close:
                     print(f"[SCHEDULER] 🔍 Slot {t} gefunden (rückwärts in {slot_name}). Noch nicht bestätigt.")
                     return t
                 current -= interval
         else:
-            # FORWARD: Beginne am Start und gehe vorwärts (9:00, 9:10, 9:20...)
+            # FORWARD: Beginne am Start und gehe vorwärts.
+            # Ein Kandidat ist gültig, wenn er zu JEDEM belegten Slot (egal ob auf Raster
+            # oder extern) mindestens 'interval' Minuten Abstand hat.
             current = actual_start
             while current < end:
                 t = minutes_to_hhmm(current)
-                if t not in today_slots:
-                    # NUR FINDEN, NICHT SPEICHERN! confirm_slot() macht das später.
+                # Finde alle blockierenden Slots (Abstand < interval)
+                blocking = [occ for occ in occupied_minutes if abs(current - occ) < interval]
+                if not blocking:
                     print(f"[SCHEDULER] 🔍 Slot {t} gefunden (vorwärts in {slot_name}). Noch nicht bestätigt.")
                     return t
                 else:
-                    pass  # Slot bereits belegt, prüfe nächsten
-                current += interval
+                    # Springe hinter den am weitesten rechts liegenden Blocker + interval
+                    next_candidate = max(blocking) + interval
+                    if next_candidate <= current:
+                        next_candidate = current + interval
+                    print(f"[SCHEDULER] ↻ Slot {t} zu nah an "
+                          f"{[minutes_to_hhmm(b) for b in blocking]}, "
+                          f"springe zu {minutes_to_hhmm(next_candidate)}")
+                    current = next_candidate
 
     print("[WARN] Keine freien Slots mehr verfügbar in allen Zeitfenstern.")
     return None

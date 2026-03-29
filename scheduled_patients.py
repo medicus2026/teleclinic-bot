@@ -61,6 +61,7 @@ def add_patient(time: str, diagnosis: str, wishes: str, gender: str, age: int | 
     else:
         existing = patients[date][time]
         if existing.get("source") == "teleclinic_import":
+            # Externer Platzhalter → mit echten Bot-Daten überschreiben
             patients[date][time] = {
                 "diagnosis": diagnosis,
                 "wishes": wishes,
@@ -71,8 +72,15 @@ def add_patient(time: str, diagnosis: str, wishes: str, gender: str, age: int | 
             }
             save_patients(patients)
             print(f"[PATIENT] ✅ Import-Platzhalter {time} mit echten Patientendaten ersetzt")
+        elif existing.get("source") == "bot":
+            # ── SCHUTZ gegen stilles Überschreiben ──────────────────────────
+            # Dieser Fall sollte dank confirm_slot() nicht mehr auftreten.
+            # Falls doch: Warnung ausgeben, aber NICHT überschreiben — Slot bleibt korrekt belegt.
+            print(f"[PATIENT] ❌ KOLLISION: Zeit {time} ist bereits durch Bot belegt! "
+                  f"(vorhandene Diagnose: {existing.get('diagnosis','?')}). "
+                  f"Neuer Eintrag ({diagnosis}) wurde NICHT gespeichert — confirm_slot() prüfen!")
         else:
-            print(f"[PATIENT] ⚠️ Zeit {time} bereits belegt")
+            print(f"[PATIENT] ⚠️ Zeit {time} bereits belegt (Quelle: {existing.get('source','?')})")
 
 
 def add_imported_appointment(time: str, date: str | None = None,
