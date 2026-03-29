@@ -659,117 +659,11 @@ async def check_case_matches_filters(case_element, filters):
 
 def start_chrome_debug_mode():
     """
-    Startet Google Chrome im Debug-Modus auf Port 9222.
-    Sucht automatisch nach der Chrome-Installation.
-    WICHTIG: Erzwingt deutsche Locale (de-DE) für 24h-Zeit-Format!
-
-    Returns:
-        subprocess.Popen: Chrome-Prozess (oder None bei vorhandenem Chrome)
+    Kompatibilitäts-Stub — wird nicht mehr benötigt.
+    Chrome wird jetzt direkt von Playwright über launch_persistent_context gestartet.
+    Kein Debug-Port, kein subprocess.
     """
-    import socket
-
-    # Prüfe ob Chrome bereits läuft (Port 9222 erreichbar)
-    def is_chrome_running():
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            result = sock.connect_ex(('localhost', 9222))
-            sock.close()
-            return result == 0
-        except Exception:
-            return False
-
-    if is_chrome_running():
-        print("[INFO] Chrome läuft bereits im Debug-Modus (Port 9222)")
-        print("[INFO] Überspringe Chrome-Start und Login-Wartezeit...")
-        return None  # Signalisiert: Chrome läuft schon
-
-    chrome_paths = [
-        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-        Path.home() / "AppData" / "Local" / "Google" / "Chrome" / "Application" / "chrome.exe"
-    ]
-
-    chrome_exe = None
-    for path in chrome_paths:
-        if Path(path).exists():
-            chrome_exe = str(path)
-            break
-
-    if not chrome_exe:
-        print("[ERROR] Google Chrome nicht gefunden. Bitte manuell installieren.")
-        return None
-
-    # Chrome im Debug-Modus starten mit DEUTSCHER LOCALE
-    # Das erzwingt 24h-Zeit-Format auf der ganzen Seite!
-    cmd = [
-        chrome_exe,
-        "--remote-debugging-port=9222",
-        "--user-data-dir=" + str(ROOT / "chrome_profile"),
-        "--lang=de",  # 🔧 DEUTSCH - erzwingt 24h-Format!
-        "https://med.teleclinic.com/"
-    ]
-
-    try:
-        process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"[OK] Google Chrome gestartet im Debug-Modus (PID: {process.pid})")
-        print("[INFO] Chrome wird geladen mit deutscher Locale (24h-Format)...")
-        time.sleep(3)
-        print("")
-        print("=" * 80)
-        print("  🔐 BITTE JETZT EINLOGGEN!")
-        print("=" * 80)
-        print("  1. Loggen Sie sich bei med.teleclinic.com ein")
-        print("  2. Geben Sie den SMS-Sicherheitscode ein")
-        print("  3. Warten Sie, bis Sie auf der Startseite 'Behandlungsanfragen' sind")
-        print("")
-        print("  ⏱️  Das Programm wartet automatisch 90 Sekunden.")
-        print("  ⚡ Oder drücken Sie ENTER, sobald Sie eingeloggt sind (schnellerer Start)")
-        print("=" * 80)
-        print("")
-
-        # Starte Thread für ENTER-Erkennung
-        # NUR wenn echtes Terminal vorhanden (nicht als GUI-Subprocess)
-        # Robustere Erkennung: isatty() + stdin.closed prüfen
-        has_real_terminal = False
-        try:
-            has_real_terminal = (
-                hasattr(sys.stdin, 'isatty') and
-                sys.stdin.isatty() and
-                not getattr(sys.stdin, 'closed', True)
-            )
-        except Exception:
-            has_real_terminal = False
-
-        if has_real_terminal:
-            enter_thread = threading.Thread(target=wait_for_enter, daemon=True)
-            enter_thread.start()
-        else:
-            # Kein Terminal (GUI-Subprocess) → sofort starten ohne Wartezeit
-            print("[INFO] Kein Terminal (GUI-Modus) – überspringe Login-Wartezeit, starte sofort.")
-            time.sleep(2)
-            return process
-
-        # Countdown mit Abbruch bei ENTER
-        for i in range(90, 0, -5):
-            if manual_start:
-                print("")
-                print("[OK] Manueller Start erkannt!")
-                break
-            print(f"  ⏳ Automatischer Start in {i} Sekunden... (oder ENTER drücken)", end="\r")
-            time.sleep(5)
-
-        if not manual_start:
-            print("")
-            print("[OK] Login-Zeit abgelaufen. Starte automatisches Scannen...")
-        else:
-            print("[OK] Starte automatisches Scannen...")
-
-        time.sleep(2)
-        return process
-    except Exception as e:
-        print(f"[ERROR] Konnte Chrome nicht starten: {e}")
-        return None
+    return None
 
 
 def bring_chrome_to_foreground():
@@ -1550,15 +1444,39 @@ async def click_loop(filters):
 
     async with async_playwright() as p:
         try:
-            # Verbinde mit dem bereits laufenden Chrome im Debug-Modus
-            browser = await p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-            await log_line("[START] Verbunden mit Google Chrome Debug-Session.")
+            # Starte Chrome direkt über Playwright — kein Debug-Port nötig.
+            # launch_persistent_context nutzt das vorhandene Chrome-Profil (inkl. Login-Session).
+            user_data_dir = str(ROOT / "chrome_profile")
+            context = await p.chromium.launch_persistent_context(
+                user_data_dir,
+                channel="chrome",
+                headless=False,
+                args=[
+                    "--lang=de",                                   # 24h-Format erzwingen
+                    "--disable-blink-features=AutomationControlled",
+                ],
+                locale="de-DE",
+            )
+            await log_line("[START] Chrome gestartet (Profil: chrome_profile).")
 
-            context = browser.contexts[0] if browser.contexts else await browser.new_context()
-            page = await get_preferred_teleclinic_page(context)
+            pages = list(context.pages)
+            page = next(
+                (pg for pg in pages if "med.teleclinic.com" in (pg.url or "")),
+                pages[0] if pages else await context.new_page()
+            )
+            await page.bring_to_front()
 
-            # Prüfe aktuelle URL
-            current_url = page.url
+            # Navigiere zu Teleclinic falls nicht schon dort
+            current_url = page.url or ""
+            if "med.teleclinic.com" not in current_url:
+                await log_line("[INFO] Öffne Teleclinic-Startseite...")
+                try:
+                    await page.goto("https://med.teleclinic.com/", wait_until="domcontentloaded", timeout=30000)
+                    await asyncio.sleep(2)
+                    current_url = page.url or ""
+                except Exception:
+                    pass
+
             await log_line(f"[INFO] Aktuelle URL: {current_url}")
 
             # ── LOGIN-VERIFIZIERUNG ──────────────────────────────────────────
@@ -1664,8 +1582,8 @@ async def click_loop(filters):
             await log_line("=" * 70)
 
         except Exception as e:
-            await log_line(f"[ERROR] Konnte nicht mit Chrome verbinden: {e}")
-            await log_line("[INFO] Stelle sicher, dass Chrome im Debug-Modus läuft.")
+            await log_line(f"[ERROR] Konnte Chrome nicht starten oder verbinden: {e}")
+            await log_line("[INFO] Bitte prüfen: Ist Google Chrome installiert? Ist das Profil 'chrome_profile' vorhanden?")
             return
 
         loop_counter = 0  # Zähler für Re-Import-Intervall
@@ -1903,18 +1821,6 @@ async def main():
     target_date = get_target_date(filters)
     await log_line(f"[RESET] Patient-Counter auf 0 zurückgesetzt für {target_date}")
 
-
-    # Starte Chrome im Debug-Modus (falls noch nicht gestartet)
-    await log_line("[INFO] Prüfe Chrome Debug-Modus...")
-    chrome_process = start_chrome_debug_mode()
-
-    # chrome_process = None bedeutet: Chrome läuft bereits (OK!)
-    # Nur wenn start_chrome_debug_mode() FEHLGESCHLAGEN ist, würde es eine Exception werfen
-
-    if chrome_process:
-        await log_line(f"[INFO] Chrome gestartet mit PID {chrome_process.pid}")
-    else:
-        await log_line("[INFO] Chrome läuft bereits - überspringe Login-Wartezeit")
 
     try:
         await click_loop(filters)

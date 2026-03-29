@@ -658,9 +658,7 @@ class TeleClinicBotGUI:
         """
         Liest Bestandstermine aus scheduled_patients.json (lokale JSON) und zeigt
         sie im GUI-Kalender an.
-        KEIN automatischer Chrome-Start hier — das würde den Clicker blockieren,
-        der Chrome später mit Debug-Port (9222) braucht.
-        Der vollständige Import aus Teleclinic passiert beim Drücken von START.
+        Chrome wird erst beim Drücken von START durch Playwright gestartet.
         """
         try:
             self._update_calendar_from_json()
@@ -729,8 +727,8 @@ class TeleClinicBotGUI:
     def _run_import_then_bot(self):
         """
         Stabiler Ein-Pfad-Start:
-        Kein separater Import vorab (würde Chrome ohne Debug-Port öffnen und den Clicker blockieren).
-        Der Clicker übernimmt Reset + Import + Scan intern über denselben Chrome-Debug-Port (9222).
+        Playwright startet Chrome direkt über launch_persistent_context (kein Debug-Port).
+        Der Clicker übernimmt Reset + Import + Scan intern.
         """
         self.log("=" * 60)
         self.log("🚀 Starte Scanner & Clicker...")
