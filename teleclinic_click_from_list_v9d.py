@@ -1601,34 +1601,40 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🗓️ Tag-Filter: {day_name} (Methode: URL tab={tab_num} + Validierung)")
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
-            # ── IMPORT: Bestehende Termine aus Teleclinic einlesen ──
-            # REIHENFOLGE: 1) Reset Slots  2) Reset Patienten  3) Import
-            # → erst danach sind Slots + GUI-Kalender korrekt befüllt
+            # ── IMPORT: Bestehende Termine prüfen / einlesen ──
+            # Wenn import_appointments_helper beim GUI-Start bereits importiert hat,
+            # sind die Slots schon belegt → kein Reset/Re-Import nötig.
+            # Nur wenn Slots leer sind: selbst importieren.
             target_date = get_target_date_from_filters(filters)
-            reset_slots_for_date(target_date)
-            try:
-                from scheduled_patients import reset_patients_for_date as _reset_patients
-                _reset_patients(target_date)
-                await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert — frischer Import folgt...")
-            except Exception as rpe:
-                await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
-            await log_line(f"[SCHEDULER] 🔄 Slots für {target_date} zurückgesetzt — importiere bestehende Termine...")
+            existing_slots = load_slots().get(target_date, [])
 
-            try:
-                imported_count = await import_existing_appointments(page, filters)
-                if imported_count > 0:
-                    await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
-                    from core_scheduler import load_slots as _load_slots
-                    _slots = _load_slots()
-                    _today = _slots.get(target_date, [])
-                    if _today:
-                        await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
-                    # Trigger: GUI-Kalender aktualisieren
-                    await log_line("[PATIENT] GUI-Kalender-Update nach Import")
-                else:
-                    await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden — starte mit leeren Slots.")
-            except Exception as e:
-                await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
+            if existing_slots:
+                await log_line(f"[IMPORT] ✅ Bestandstermine bereits geladen ({len(existing_slots)} Slots): {', '.join(sorted(existing_slots))}")
+                await log_line("[PATIENT] GUI-Kalender-Update nach Import")
+            else:
+                await log_line(f"[IMPORT] 🔄 Keine vorgeladenen Slots — starte eigenen Import...")
+                reset_slots_for_date(target_date)
+                try:
+                    from scheduled_patients import reset_patients_for_date as _reset_patients
+                    _reset_patients(target_date)
+                    await log_line(f"[IMPORT] 🗑️ Patientenliste für {target_date} geleert — frischer Import folgt...")
+                except Exception as rpe:
+                    await log_line(f"[IMPORT] ⚠️ Patientenliste-Reset fehlgeschlagen (nicht kritisch): {rpe}")
+
+                try:
+                    imported_count = await import_existing_appointments(page, filters)
+                    if imported_count > 0:
+                        await log_line(f"[IMPORT] 📋 {imported_count} bestehende Termine als belegt markiert.")
+                        from core_scheduler import load_slots as _load_slots
+                        _slots = _load_slots()
+                        _today = _slots.get(target_date, [])
+                        if _today:
+                            await log_line(f"[IMPORT] 📋 Belegte Slots: {', '.join(sorted(_today))}")
+                        await log_line("[PATIENT] GUI-Kalender-Update nach Import")
+                    else:
+                        await log_line(f"[IMPORT] ℹ️ Keine bestehenden Termine gefunden — starte mit leeren Slots.")
+                except Exception as e:
+                    await log_line(f"[IMPORT] ⚠️ Import fehlgeschlagen (Scan läuft trotzdem): {e}")
 
             # Wenn nicht auf der richtigen Seite ODER falscher Tab, navigiere dorthin
             # Nach Import von myappointments muss immer navigiert werden
@@ -1686,16 +1692,17 @@ async def click_loop(filters):
                 if loop_counter % 5 == 0:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        # Slots + Patientenliste leeren, dann frisch importieren
+                        # Nur Slots resetten — frisch geklickte Patienten NICHT löschen!
                         reset_slots_for_date(_reimport_date)
                         try:
                             from scheduled_patients import reset_patients_for_date as _rp
-                            _rp(_reimport_date)
+                            _rp(_reimport_date, keep_imported=True)
                         except Exception:
                             pass
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Termine aktualisiert (Re-Import #{loop_counter})")
+                            await log_line("[PATIENT] GUI-Kalender-Update nach Import")
                         # WICHTIG: Nach Import immer zurück zur Requests-Seite navigieren
                         await ensure_teleclinic_requests_page(page, tab_num, page_num=1)
                     except Exception as reimport_err:
