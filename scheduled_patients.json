@@ -183,36 +183,548 @@
     }
   },
   "2026-03-30": {
-    "09:05": {
-      "diagnosis": "Schilddrüse: Über- / Unterfunktion",
-      "wishes": "",
-      "gender": "Weiblich",
-      "age": "26",
-      "timestamp": "2026-03-29T22:09:37.258930",
+    "08:30": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:58:30.458481",
       "source": "teleclinic_import"
     },
-    "08:00": {
-      "diagnosis": "Hautkrankheiten",
-      "wishes": "AU, VIDEO",
-      "gender": "männlich",
-      "age": "32",
-      "timestamp": "2026-03-29T22:09:53.987730",
-      "source": "bot"
+    "08:35": {
+      "diagnosis": "Regelschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "18",
+      "timestamp": "2026-03-30T07:58:30.461510",
+      "source": "teleclinic_import"
+    },
+    "08:40": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "31",
+      "timestamp": "2026-03-30T07:58:30.464169",
+      "source": "teleclinic_import"
+    },
+    "08:45": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "25",
+      "timestamp": "2026-03-30T07:58:30.466695",
+      "source": "teleclinic_import"
+    },
+    "08:50": {
+      "diagnosis": "Halsschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:58:30.469788",
+      "source": "teleclinic_import"
+    },
+    "08:55": {
+      "diagnosis": "Durchfall",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "28",
+      "timestamp": "2026-03-30T07:58:30.473149",
+      "source": "teleclinic_import"
     },
     "09:00": {
-      "diagnosis": "Hautkrankheiten",
-      "wishes": "AU, REZEPT",
-      "gender": "weiblich",
-      "age": "35",
-      "timestamp": "2026-03-29T22:10:50.456066",
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "18",
+      "timestamp": "2026-03-30T07:58:30.476132",
+      "source": "teleclinic_import"
+    },
+    "09:05": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "40",
+      "timestamp": "2026-03-30T07:58:30.478297",
+      "source": "teleclinic_import"
+    },
+    "09:10": {
+      "diagnosis": "Gelenkschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-30T07:58:30.480272",
+      "source": "teleclinic_import"
+    },
+    "09:15": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "29",
+      "timestamp": "2026-03-30T07:58:30.482217",
+      "source": "teleclinic_import"
+    },
+    "09:20": {
+      "diagnosis": "Schlafstörungen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "29",
+      "timestamp": "2026-03-30T07:58:30.484267",
+      "source": "teleclinic_import"
+    },
+    "09:25": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:58:30.486200",
+      "source": "teleclinic_import"
+    },
+    "09:30": {
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "18",
+      "timestamp": "2026-03-30T07:58:30.488216",
+      "source": "teleclinic_import"
+    },
+    "09:35": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "34",
+      "timestamp": "2026-03-30T07:58:30.490179",
+      "source": "teleclinic_import"
+    },
+    "09:40": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "37",
+      "timestamp": "2026-03-30T07:58:30.492300",
+      "source": "teleclinic_import"
+    },
+    "09:45": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:58:30.495341",
+      "source": "teleclinic_import"
+    },
+    "09:50": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "19",
+      "timestamp": "2026-03-30T07:58:30.497616",
+      "source": "teleclinic_import"
+    },
+    "09:55": {
+      "diagnosis": "Halsschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:58:30.500605",
+      "source": "teleclinic_import"
+    },
+    "10:00": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "48",
+      "timestamp": "2026-03-30T07:58:30.503538",
+      "source": "teleclinic_import"
+    },
+    "10:05": {
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "27",
+      "timestamp": "2026-03-30T07:58:30.506506",
+      "source": "teleclinic_import"
+    },
+    "10:15": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "29",
+      "timestamp": "2026-03-30T07:58:30.509446",
+      "source": "teleclinic_import"
+    },
+    "10:20": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "21",
+      "timestamp": "2026-03-30T07:58:30.512319",
+      "source": "teleclinic_import"
+    },
+    "10:25": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:58:30.514282",
+      "source": "teleclinic_import"
+    },
+    "10:30": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:58:30.516320",
+      "source": "teleclinic_import"
+    },
+    "10:35": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:58:30.518338",
+      "source": "teleclinic_import"
+    },
+    "10:45": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "",
+      "gender": "Weiblich",
+      "age": "44",
+      "timestamp": "2026-03-30T07:58:30.520295",
+      "source": "teleclinic_import"
+    },
+    "10:50": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "24",
+      "timestamp": "2026-03-30T07:58:30.522576",
+      "source": "teleclinic_import"
+    },
+    "11:00": {
+      "diagnosis": "Rücken- / Nackenschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "37",
+      "timestamp": "2026-03-30T07:58:30.524697",
+      "source": "teleclinic_import"
+    },
+    "11:05": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "22",
+      "timestamp": "2026-03-30T07:07:46.770646",
+      "source": "teleclinic_import"
+    },
+    "11:10": {
+      "diagnosis": "Halsschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "21",
+      "timestamp": "2026-03-30T07:58:30.527672",
+      "source": "teleclinic_import"
+    },
+    "11:15": {
+      "diagnosis": "Rücken- / Nackenschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "32",
+      "timestamp": "2026-03-30T07:58:30.530607",
+      "source": "teleclinic_import"
+    },
+    "11:20": {
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:58:30.533540",
+      "source": "teleclinic_import"
+    },
+    "11:25": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "24",
+      "timestamp": "2026-03-30T07:58:30.536445",
+      "source": "teleclinic_import"
+    },
+    "11:30": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "30",
+      "timestamp": "2026-03-30T07:58:30.539159",
+      "source": "teleclinic_import"
+    },
+    "11:35": {
+      "diagnosis": "Erkältung",
+      "wishes": "",
+      "gender": "Männlich",
+      "age": "25",
+      "timestamp": "2026-03-30T07:58:30.541266",
+      "source": "teleclinic_import"
+    },
+    "11:40": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "29",
+      "timestamp": "2026-03-30T07:58:30.543199",
+      "source": "teleclinic_import"
+    },
+    "11:45": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "28",
+      "timestamp": "2026-03-30T07:58:30.545146",
+      "source": "teleclinic_import"
+    },
+    "11:50": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "29",
+      "timestamp": "2026-03-30T07:58:30.548272",
+      "source": "teleclinic_import"
+    },
+    "12:00": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "27",
+      "timestamp": "2026-03-30T07:58:30.551394",
+      "source": "teleclinic_import"
+    },
+    "12:05": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-30T07:58:30.554676",
+      "source": "teleclinic_import"
+    },
+    "13:30": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "30",
+      "timestamp": "2026-03-30T07:58:30.556601",
+      "source": "teleclinic_import"
+    },
+    "13:35": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "21",
+      "timestamp": "2026-03-30T07:58:30.558737",
+      "source": "teleclinic_import"
+    },
+    "13:40": {
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "25",
+      "timestamp": "2026-03-30T07:58:30.560944",
+      "source": "teleclinic_import"
+    },
+    "13:45": {
+      "diagnosis": "Schlafstörungen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "34",
+      "timestamp": "2026-03-30T07:58:30.562796",
+      "source": "teleclinic_import"
+    },
+    "13:50": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "27",
+      "timestamp": "2026-03-30T07:58:30.564579",
+      "source": "teleclinic_import"
+    },
+    "13:55": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "33",
+      "timestamp": "2026-03-30T07:58:30.566392",
+      "source": "teleclinic_import"
+    },
+    "14:00": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "23",
+      "timestamp": "2026-03-30T07:58:30.568355",
+      "source": "teleclinic_import"
+    },
+    "14:05": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "23",
+      "timestamp": "2026-03-30T07:58:30.570689",
+      "source": "teleclinic_import"
+    },
+    "14:15": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-30T07:58:30.572667",
+      "source": "teleclinic_import"
+    },
+    "14:20": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "33",
+      "timestamp": "2026-03-30T07:58:30.574636",
+      "source": "teleclinic_import"
+    },
+    "14:25": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "27",
+      "timestamp": "2026-03-30T07:58:30.576670",
+      "source": "teleclinic_import"
+    },
+    "14:30": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-30T07:58:30.578675",
+      "source": "teleclinic_import"
+    },
+    "14:35": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:58:30.580912",
+      "source": "teleclinic_import"
+    },
+    "14:40": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "",
+      "gender": "Männlich",
+      "age": "18",
+      "timestamp": "2026-03-30T07:58:30.582895",
+      "source": "teleclinic_import"
+    },
+    "14:45": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-30T07:58:30.585739",
+      "source": "teleclinic_import"
+    },
+    "14:50": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "21",
+      "timestamp": "2026-03-30T07:58:30.588951",
+      "source": "teleclinic_import"
+    },
+    "15:00": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "21",
+      "timestamp": "2026-03-30T07:58:30.591001",
+      "source": "teleclinic_import"
+    },
+    "15:05": {
+      "diagnosis": "Halsschmerzen",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "19",
+      "timestamp": "2026-03-30T07:58:30.592935",
+      "source": "teleclinic_import"
+    },
+    "15:10": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "33",
+      "timestamp": "2026-03-30T07:58:30.594830",
+      "source": "teleclinic_import"
+    },
+    "15:15": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "24",
+      "timestamp": "2026-03-30T07:58:30.596752",
+      "source": "teleclinic_import"
+    },
+    "15:20": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "24",
+      "timestamp": "2026-03-30T07:58:30.598987",
+      "source": "teleclinic_import"
+    },
+    "15:25": {
+      "diagnosis": "Übelkeit",
+      "wishes": "",
+      "gender": "Männlich",
+      "age": "19",
+      "timestamp": "2026-03-30T07:58:30.601896",
+      "source": "teleclinic_import"
+    },
+    "15:30": {
+      "diagnosis": "Au, Erkältung / Grippe",
+      "wishes": "AU, VIDEO",
+      "gender": "männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T06:45:20.305248",
       "source": "bot"
     },
-    "09:09": {
-      "diagnosis": "Hautkrankheiten",
-      "wishes": "AU, REZEPT",
+    "15:35": {
+      "diagnosis": "Au, Kopfschmerzen",
+      "wishes": "AU, VIDEO",
       "gender": "männlich",
-      "age": "25",
-      "timestamp": "2026-03-29T22:11:43.140807",
+      "age": "34",
+      "timestamp": "2026-03-30T06:59:36.618133",
+      "source": "bot"
+    },
+    "15:40": {
+      "diagnosis": "Weiblich, 23 Jahre, Au, Weitere Informationen In Der Fallansicht",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "23",
+      "timestamp": "2026-03-30T06:59:55.005041",
+      "source": "bot"
+    },
+    "15:45": {
+      "diagnosis": "Au, Erkältung / Grippe",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "33",
+      "timestamp": "2026-03-30T07:10:26.974750",
+      "source": "bot"
+    },
+    "15:50": {
+      "diagnosis": "Au, Kopfschmerzen",
+      "wishes": "AU, VIDEO",
+      "gender": "männlich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:19:46.374025",
+      "source": "bot"
+    },
+    "15:55": {
+      "diagnosis": "Au, Erkältung / Grippe",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "20",
+      "timestamp": "2026-03-30T07:21:33.856564",
       "source": "bot"
     }
   }

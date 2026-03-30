@@ -1,40 +1,40 @@
 {
   "time_filter": {
-    "day_window": "morgen"
+    "day_window": "heute"
   },
   "slot1": {
-    "time_start": "08:00",
-    "time_end": "10:00",
-    "max_patients": 20,
-    "interval_minutes": 4,
-    "diagnosis_include": "Haut",
-    "diagnosis_exclude": "",
-    "wishes_include": "",
-    "wishes_exclude": "",
+    "time_start": "15:30",
+    "time_end": "16:00",
+    "max_patients": 100,
+    "interval_minutes": 5,
+    "diagnosis_include": "",
+    "diagnosis_exclude": "Haut, Psyche, Schlaf",
+    "wishes_include": "AU",
+    "wishes_exclude": "Rezept",
     "language_include": "",
-    "language_exclude": "",
+    "language_exclude": "englisch",
     "age_min": "18",
     "age_max": "",
     "gender": ""
   },
   "slot2_enabled": false,
   "slot2": {
-    "time_start": "17:30",
-    "time_end": "19:30",
-    "max_patients": 1,
+    "time_start": "13:30",
+    "time_end": "16:00",
+    "max_patients": 100,
     "interval_minutes": 5,
-    "diagnosis_include": "Muskelschmerzen",
-    "diagnosis_exclude": "",
-    "wishes_include": "",
-    "wishes_exclude": "",
+    "diagnosis_include": "",
+    "diagnosis_exclude": "Psyche, Haut, Schlaf",
+    "wishes_include": "AU",
+    "wishes_exclude": "Rezept",
     "language_include": "",
-    "language_exclude": "",
-    "age_min": "",
+    "language_exclude": "englisch",
+    "age_min": "18",
     "age_max": "",
     "gender": ""
   },
   "runtime": {
-    "interval_minutes": 4,
+    "interval_minutes": 5,
     "headless": false,
     "slowmo_ms": 0
   },
@@ -55,6 +55,6 @@
   },
   "loop": {
     "scan_interval_sec": 5,
-    "max_pages": 3
+    "max_pages": 5
   }
 }
