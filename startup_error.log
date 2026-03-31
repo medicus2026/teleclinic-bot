@@ -1,1 +1,29 @@
-DRY RUN: ok 
+Starte TeleClinic Bot...
+APP_DIR=C:\teleclinic-bot\
+PYTHON_CMD=C:\teleclinic-bot\.venv\Scripts\python.exe
+Traceback (most recent call last):
+  File "C:\teleclinic-bot\teleclinic_click_from_list_v9d.py", line 15, in <module>
+    from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+ModuleNotFoundError: No module named 'playwright'
+Prüfe Lizenz...
+Lizenz gueltig
+[INFO] Lizenz OK - Starte GUI
+[23:31:02] ℹ️ Noch keine Bestandstermine vorhanden — werden beim START automatisch aus Teleclinic geladen.
+[23:31:09] ✅ Filter gespeichert (Slot 1 + Slot 2)!
+[23:31:12] ================================================================================
+[23:31:12] 🚀 STARTE BOT - SCANNER & CLICKER
+[23:31:12] ================================================================================
+[23:31:12] 📅 TAG: morgen
+[23:31:12] 🕐 ZEIT: 08:30 - 12:00
+[23:31:12] 🕑 ZEIT 2: 13:30 - 16:00
+[23:31:12] 📋 DIAGNOSE: (egal)
+[23:31:12] 💊 WÜNSCHE: AU
+[23:31:12] 👤 GESCHLECHT:  | ALTER: 18
+[23:31:12] 👥 MAX PATIENTEN: 100
+[23:31:12] 🔁 INTERVALL: 5 Min | ⏱️ SCAN: 5 s | 📄 Seiten: 3
+[23:31:12] ================================================================================
+[23:31:12] 
+[23:31:12] ============================================================
+[23:31:12] 🚀 Starte Scanner & Clicker...
+[23:31:12] ============================================================
+[23:31:12] ✅ Bot beendet (Exit-Code: 1)

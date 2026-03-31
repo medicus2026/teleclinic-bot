@@ -3,8 +3,8 @@
     "day_window": "heute"
   },
   "slot1": {
-    "time_start": "15:30",
-    "time_end": "16:00",
+    "time_start": "08:30",
+    "time_end": "12:00",
     "max_patients": 100,
     "interval_minutes": 5,
     "diagnosis_include": "",
@@ -17,7 +17,7 @@
     "age_max": "",
     "gender": ""
   },
-  "slot2_enabled": false,
+  "slot2_enabled": true,
   "slot2": {
     "time_start": "13:30",
     "time_end": "16:00",
@@ -55,6 +55,6 @@
   },
   "loop": {
     "scan_interval_sec": 5,
-    "max_pages": 5
+    "max_pages": 3
   }
 }
