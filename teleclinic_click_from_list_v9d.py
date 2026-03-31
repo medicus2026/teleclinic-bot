@@ -395,7 +395,7 @@ def normalize_term(term: str) -> list:
 
 
         # Geschlechtskrankheiten / ED
-        "geschlecht": SEXUAL_GESUNDHEIT,
+        # HINWEIS: "geschlecht" absichtlich NICHT als Key, da sonst "Geschlechtsdysphorie" falsch matched!
         "geschlechtskrankheit": SEXUAL_GESUNDHEIT,
         "geschlechtskrankheiten": SEXUAL_GESUNDHEIT,
         "sti": SEXUAL_GESUNDHEIT,
@@ -553,24 +553,39 @@ async def check_case_matches_filters(case_element, filters):
 
         # Wenn Include-Filter gesetzt: mindestens einer muss vorkommen (mit Synonym-Match)
         if diag_include:
-            # Für jeden Include-Filter: prüfe alle Synonyme (einfaches substring-Match wie Backup 2)
+            # Für jeden Include-Filter: prüfe alle Synonyme
             match_found = False
             for diag_term in diag_include:
                 synonyms = normalize_term(diag_term)
-                if any(syn in case_text_lower for syn in synonyms):
-                    match_found = True
+                for syn in synonyms:
+                    if len(syn) <= 4:
+                        if word_boundary_match(case_text_lower, syn):
+                            match_found = True
+                            break
+                    else:
+                        if syn in case_text_lower:
+                            match_found = True
+                            break
+                if match_found:
                     break
             if not match_found:
                 await log_line(f"[FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)")
                 return (False, None)
 
-        # Wenn Exclude-Filter gesetzt: keiner darf vorkommen (mit Synonym-Match)
+        # Wenn Exclude-Filter gesetzt: keiner darf vorkommen (mit Synonym-Match + Word Boundary)
         if diag_exclude:
             for diag_term in diag_exclude:
                 synonyms = normalize_term(diag_term)
-                if any(syn in case_text_lower for syn in synonyms):
-                    await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste")
-                    return (False, None)
+                for syn in synonyms:
+                    # Kurze Synonyme (≤4 Zeichen): Word Boundary, lange: Substring reicht
+                    if len(syn) <= 4:
+                        if word_boundary_match(case_text_lower, syn):
+                            await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste ({diag_term}→{syn})")
+                            return (False, None)
+                    else:
+                        if syn in case_text_lower:
+                            await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste ({diag_term}→{syn})")
+                            return (False, None)
 
         # Wunsch-Filter prüfen (AU, Rezept, Beratung)
         wish_include = filters.get("wishes", {}).get("include", "")
@@ -626,13 +641,26 @@ async def check_case_matches_filters(case_element, filters):
                 await log_line(f"[FILTER] ❌ Sprache nicht in Include-Liste (auch Synonyme geprüft)")
                 return (False, None)
 
-        # Exclude prüfen mit normalize_term
+        # Exclude prüfen mit normalize_term + word_boundary_match
         if lang_exclude:
             for lang_term in lang_exclude:
                 synonyms = normalize_term(lang_term)
-                if any(syn in case_text_lower for syn in synonyms):
-                    await log_line(f"[FILTER] ❌ Sprache in Exclude-Liste")
-                    return (False, None)
+                # Falls normalize_term keinen Treffer liefert (unbekannte Sprache),
+                # füge den Term selbst und englische/deutsche Variante hinzu
+                if synonyms == [normalize_text(lang_term)]:
+                    base = normalize_text(lang_term)
+                    # Häufige Paare manuell ergänzen
+                    extra_pairs = {
+                        "english": "englisch", "englisch": "english",
+                        "german": "deutsch", "deutsch": "german",
+                        "french": "französisch", "französisch": "french",
+                        "spanish": "spanisch", "spanisch": "spanish",
+                    }
+                    synonyms = list({base, extra_pairs.get(base, base)})
+                for syn in synonyms:
+                    if word_boundary_match(case_text_lower, syn):
+                        await log_line(f"[FILTER] ❌ Sprache in Exclude-Liste ({lang_term}→{syn})")
+                        return (False, None)
 
         # Alters-Filter
         age_min_raw = filters.get("patients", {}).get("age_min", "")
