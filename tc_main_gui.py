@@ -394,6 +394,10 @@ class TeleClinicBotGUI:
         ttk.Button(button_frame, text="💾 Filter speichern",
                   command=self.save_filters).pack(side="left", padx=5)
 
+        self.reimport_btn = ttk.Button(button_frame, text="🔄 Termine neu laden",
+                  command=self.manual_reimport)
+        self.reimport_btn.pack(side="left", padx=5)
+
         ttk.Button(button_frame, text="❌ Programm beenden",
                   command=self.exit_app).pack(side="right", padx=5)
 
@@ -670,6 +674,22 @@ class TeleClinicBotGUI:
         except Exception as e:
             self.log(f"⚠️ Bestandstermine konnten nicht geladen werden: {e}")
 
+    def manual_reimport(self):
+        """
+        Manueller Re-Import: Schreibt eine Signal-Datei, die der laufende Scanner
+        beim nächsten Loop aufgreift und einen sofortigen Re-Import auslöst.
+        Funktioniert auch wenn der Bot gerade nicht läuft (zeigt dann Hinweis).
+        """
+        try:
+            signal_path = ROOT_PATH / "reimport_signal.txt"
+            signal_path.write_text("reimport", encoding="utf-8")
+            self.log("🔄 Manueller Re-Import angefordert — wird beim nächsten Scan-Loop ausgeführt.")
+            if not self.is_running:
+                self.log("ℹ️ Bot läuft gerade nicht — Kalender wird aus lokaler JSON aktualisiert.")
+                self._update_calendar_from_json()
+        except Exception as e:
+            self.log(f"⚠️ Re-Import-Signal konnte nicht gesetzt werden: {e}")
+
 
     def start_bot(self):
         """Starte Scanner & Clicker"""
@@ -746,14 +766,24 @@ class TeleClinicBotGUI:
             else:
                 # Starte Bot als Subprocess.
                 # stdin=DEVNULL verhindert blockierende Terminal-Eingaben;
-                # der Scanner läuft jetzt ohne Debug-Chrome-Modus.
+                # stdout/stderr werden in die Log-Datei geleitet, damit Fehler sichtbar sind.
                 self.bot_process = subprocess.Popen(
-                    [sys.executable, str(ROOT_PATH / "teleclinic_click_from_list_v9d.py")],
+                    [sys.executable, "-u", str(ROOT_PATH / "teleclinic_click_from_list_v9d.py")],
                     cwd=str(ROOT_PATH),
-                    stdin=subprocess.DEVNULL
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
 
-                # Warte auf Prozess-Ende
+                # Ausgabe des Subprozesses live in GUI-Log streamen
+                for line in self.bot_process.stdout:
+                    line = line.rstrip()
+                    if line:
+                        self.log(line)
+
                 return_code = self.bot_process.wait()
             self.log(f"✅ Bot beendet (Exit-Code: {return_code})")
         except Exception as e:

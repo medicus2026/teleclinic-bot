@@ -2,10 +2,22 @@
 # Vollständige, überarbeitete Version mit Scheduler-Integration
 # Asynchrone Version (Playwright async_api)
 
+import sys
+# UTF-8 für stdout/stderr erzwingen (wichtig für Emojis in Windows-Konsole)
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import asyncio
 import json
 import subprocess
-import sys
 import time
 import threading
 import re
@@ -57,7 +69,15 @@ async def log_line(text: str):
         print(line)
     except UnicodeEncodeError:
         print(line.encode("ascii", errors="replace").decode("ascii"))
-    LOG_PATH.write_text(LOG_PATH.read_text(encoding="utf-8") + "\n" + line if LOG_PATH.exists() else line, encoding="utf-8")
+    try:
+        with LOG_PATH.open("a", encoding="utf-8") as _lf:
+            _lf.write(line + "\n")
+    except Exception:
+        try:
+            with LOG_PATH.open("a", encoding="utf-8", errors="replace") as _lf:
+                _lf.write(line + "\n")
+        except Exception:
+            pass
 
 
 async def load_filters() -> dict:
@@ -1486,6 +1506,21 @@ async def click_loop(filters):
             # Starte Chrome direkt über Playwright — kein Debug-Port nötig.
             # launch_persistent_context nutzt das vorhandene Chrome-Profil (inkl. Login-Session).
             user_data_dir = str(ROOT / "chrome_profile")
+
+            # Wenn Chrome bereits läuft, zuerst beenden, damit das Profil nicht gesperrt ist
+            import subprocess as _sp
+            import time as _time
+            try:
+                result = _sp.run(["tasklist", "/FI", "IMAGENAME eq chrome.exe", "/NH"],
+                                 capture_output=True, text=True)
+                if "chrome.exe" in result.stdout:
+                    await log_line("[START] Laufendes Chrome gefunden – beende es für sauberen Start...")
+                    _sp.run(["taskkill", "/F", "/IM", "chrome.exe", "/T"],
+                            capture_output=True)
+                    _time.sleep(2)
+            except Exception as _e:
+                await log_line(f"[WARN] Chrome-Beenden fehlgeschlagen (ignoriert): {_e}")
+
             context = await p.chromium.launch_persistent_context(
                 user_data_dir,
                 channel="chrome",
@@ -1636,11 +1671,17 @@ async def click_loop(filters):
                 day_window = filters.get("time_filter", {}).get("day_window", "heute")
                 tab_num = get_tab_number(day_window)
 
-                # 📋 RE-IMPORT: Alle 5 Loops Slots neu einlesen
+                # 📋 RE-IMPORT: Alle 20 Loops ODER bei manuellem Signal aus GUI
                 # Nur scheduled_slots.json resetten + neu befüllen
                 # scheduled_patients.json NICHT anfassen — verhindert kurzes Verschwinden im GUI
                 loop_counter += 1
-                if loop_counter % 5 == 0:
+                signal_path = ROOT / "reimport_signal.txt"
+                manual_reimport_requested = signal_path.exists()
+                if manual_reimport_requested:
+                    signal_path.unlink(missing_ok=True)  # Signal sofort löschen
+                    await log_line("[IMPORT-LOOP] 🔄 Manueller Re-Import angefordert (Button in GUI)...")
+
+                if loop_counter % 20 == 0 or manual_reimport_requested:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
                         reset_slots_for_date(_reimport_date)
@@ -1839,6 +1880,16 @@ async def click_loop(filters):
                 await log_line("[WARN] Timeout beim Laden der Seite – Neustartversuch.")
                 await asyncio.sleep(5)
             except Exception as e:
+                err_str = str(e)
+                # Wenn Chrome/Context geschlossen wurde → sauber abbrechen
+                if any(kw in err_str for kw in [
+                    "Target page, context or browser has been closed",
+                    "BrowserContext.new_page",
+                    "Browser has been closed",
+                    "Target closed",
+                ]):
+                    await log_line(f"[STOP] Chrome wurde geschlossen – Bot beendet sich sauber.")
+                    return
                 await log_line(f"[ERROR] Unerwarteter Fehler im Loop: {e}")
                 await asyncio.sleep(5)
 
