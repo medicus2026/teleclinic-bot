@@ -734,7 +734,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "52",
-      "timestamp": "2026-03-31T06:12:56.018965",
+      "timestamp": "2026-03-31T08:23:10.028591",
       "source": "teleclinic_import"
     },
     "08:35": {
@@ -742,7 +742,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "22",
-      "timestamp": "2026-03-31T06:12:56.022888",
+      "timestamp": "2026-03-31T08:23:10.033302",
       "source": "teleclinic_import"
     },
     "08:40": {
@@ -750,7 +750,15 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "23",
-      "timestamp": "2026-03-31T06:12:56.026899",
+      "timestamp": "2026-03-31T08:50:17.088880",
+      "source": "teleclinic_import"
+    },
+    "08:42": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "22",
+      "timestamp": "2026-03-31T08:50:17.092747",
       "source": "teleclinic_import"
     },
     "08:45": {
@@ -758,7 +766,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "26",
-      "timestamp": "2026-03-31T06:12:56.030504",
+      "timestamp": "2026-03-31T08:50:17.097930",
       "source": "teleclinic_import"
     },
     "08:50": {
@@ -766,7 +774,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "23",
-      "timestamp": "2026-03-31T06:12:56.033777",
+      "timestamp": "2026-03-31T08:50:17.102681",
       "source": "teleclinic_import"
     },
     "08:55": {
@@ -774,7 +782,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.036920",
+      "timestamp": "2026-03-31T08:50:17.107154",
       "source": "teleclinic_import"
     },
     "09:00": {
@@ -782,7 +790,15 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "25",
-      "timestamp": "2026-03-31T06:12:56.039848",
+      "timestamp": "2026-03-31T08:50:17.112332",
+      "source": "teleclinic_import"
+    },
+    "09:03": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "31",
+      "timestamp": "2026-03-31T08:50:17.118265",
       "source": "teleclinic_import"
     },
     "09:05": {
@@ -790,7 +806,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "34",
-      "timestamp": "2026-03-31T06:12:56.042649",
+      "timestamp": "2026-03-31T08:50:17.123493",
       "source": "teleclinic_import"
     },
     "09:10": {
@@ -798,7 +814,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "31",
-      "timestamp": "2026-03-31T06:12:56.045472",
+      "timestamp": "2026-03-31T09:10:12.948877",
       "source": "teleclinic_import"
     },
     "09:15": {
@@ -806,7 +822,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "29",
-      "timestamp": "2026-03-31T06:12:56.048849",
+      "timestamp": "2026-03-31T09:10:12.952922",
       "source": "teleclinic_import"
     },
     "09:20": {
@@ -814,7 +830,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "25",
-      "timestamp": "2026-03-31T06:12:56.051525",
+      "timestamp": "2026-03-31T09:10:12.957087",
       "source": "teleclinic_import"
     },
     "09:25": {
@@ -822,7 +838,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "33",
-      "timestamp": "2026-03-31T06:12:56.054378",
+      "timestamp": "2026-03-31T09:10:12.962359",
       "source": "teleclinic_import"
     },
     "09:30": {
@@ -830,7 +846,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "19",
-      "timestamp": "2026-03-31T06:12:56.056795",
+      "timestamp": "2026-03-31T09:10:12.966589",
       "source": "teleclinic_import"
     },
     "09:35": {
@@ -838,7 +854,7 @@
       "wishes": "",
       "gender": "Weiblich",
       "age": "24",
-      "timestamp": "2026-03-31T06:12:56.059100",
+      "timestamp": "2026-03-31T09:10:12.970338",
       "source": "teleclinic_import"
     },
     "09:40": {
@@ -846,7 +862,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "18",
-      "timestamp": "2026-03-31T06:12:56.061433",
+      "timestamp": "2026-03-31T09:10:12.974618",
       "source": "teleclinic_import"
     },
     "09:45": {
@@ -854,7 +870,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.064910",
+      "timestamp": "2026-03-31T08:01:53.519321",
       "source": "teleclinic_import"
     },
     "09:50": {
@@ -862,7 +878,15 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.067612",
+      "timestamp": "2026-03-31T09:10:12.980013",
+      "source": "teleclinic_import"
+    },
+    "09:53": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Weiblich",
+      "age": "27",
+      "timestamp": "2026-03-31T09:10:12.984727",
       "source": "teleclinic_import"
     },
     "09:55": {
@@ -870,7 +894,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "28",
-      "timestamp": "2026-03-31T06:12:56.070153",
+      "timestamp": "2026-03-31T09:10:12.990167",
       "source": "teleclinic_import"
     },
     "10:00": {
@@ -878,7 +902,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.072759",
+      "timestamp": "2026-03-31T09:10:12.994272",
       "source": "teleclinic_import"
     },
     "10:05": {
@@ -886,7 +910,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "22",
-      "timestamp": "2026-03-31T06:12:56.075553",
+      "timestamp": "2026-03-31T09:10:12.998984",
       "source": "teleclinic_import"
     },
     "10:10": {
@@ -894,7 +918,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "38",
-      "timestamp": "2026-03-31T06:12:56.078499",
+      "timestamp": "2026-03-31T08:01:53.564421",
       "source": "teleclinic_import"
     },
     "10:15": {
@@ -902,7 +926,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "19",
-      "timestamp": "2026-03-31T06:12:56.081907",
+      "timestamp": "2026-03-31T09:10:13.004648",
       "source": "teleclinic_import"
     },
     "10:20": {
@@ -910,7 +934,23 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "22",
-      "timestamp": "2026-03-31T06:12:56.084712",
+      "timestamp": "2026-03-31T09:10:13.009075",
+      "source": "teleclinic_import"
+    },
+    "10:24": {
+      "diagnosis": "Erkältung / Grippe",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "24",
+      "timestamp": "2026-03-31T09:10:13.013904",
+      "source": "teleclinic_import"
+    },
+    "10:32": {
+      "diagnosis": "Bauchschmerzen",
+      "wishes": "",
+      "gender": "Männlich",
+      "age": "34",
+      "timestamp": "2026-03-31T09:10:13.019744",
       "source": "teleclinic_import"
     },
     "10:45": {
@@ -918,7 +958,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.087328",
+      "timestamp": "2026-03-31T09:10:13.024348",
       "source": "teleclinic_import"
     },
     "10:50": {
@@ -926,7 +966,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "35",
-      "timestamp": "2026-03-31T06:12:56.089979",
+      "timestamp": "2026-03-31T09:10:13.028460",
       "source": "teleclinic_import"
     },
     "10:55": {
@@ -934,7 +974,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "43",
-      "timestamp": "2026-03-31T06:12:56.092618",
+      "timestamp": "2026-03-31T09:10:13.033778",
       "source": "teleclinic_import"
     },
     "11:00": {
@@ -942,7 +982,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "24",
-      "timestamp": "2026-03-31T06:12:56.095860",
+      "timestamp": "2026-03-31T09:10:13.039478",
       "source": "teleclinic_import"
     },
     "11:05": {
@@ -950,7 +990,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.099059",
+      "timestamp": "2026-03-31T08:23:10.175745",
       "source": "teleclinic_import"
     },
     "11:10": {
@@ -958,7 +998,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "36",
-      "timestamp": "2026-03-31T06:12:56.101738",
+      "timestamp": "2026-03-31T09:10:13.044455",
       "source": "teleclinic_import"
     },
     "11:15": {
@@ -966,7 +1006,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "24",
-      "timestamp": "2026-03-31T06:12:56.104488",
+      "timestamp": "2026-03-31T09:10:13.048253",
       "source": "teleclinic_import"
     },
     "11:20": {
@@ -974,7 +1014,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "26",
-      "timestamp": "2026-03-31T06:12:56.107240",
+      "timestamp": "2026-03-31T09:10:13.053355",
       "source": "teleclinic_import"
     },
     "11:25": {
@@ -982,7 +1022,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "22",
-      "timestamp": "2026-03-31T06:12:56.110096",
+      "timestamp": "2026-03-31T09:10:13.058089",
       "source": "teleclinic_import"
     },
     "11:30": {
@@ -990,7 +1030,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "33",
-      "timestamp": "2026-03-31T06:12:56.113485",
+      "timestamp": "2026-03-31T09:10:13.063016",
       "source": "teleclinic_import"
     },
     "11:35": {
@@ -998,7 +1038,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.116402",
+      "timestamp": "2026-03-31T09:10:13.067353",
       "source": "teleclinic_import"
     },
     "11:40": {
@@ -1006,7 +1046,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "21",
-      "timestamp": "2026-03-31T06:12:56.119070",
+      "timestamp": "2026-03-31T09:10:13.072893",
       "source": "teleclinic_import"
     },
     "11:45": {
@@ -1014,7 +1054,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "29",
-      "timestamp": "2026-03-31T06:12:56.121696",
+      "timestamp": "2026-03-31T09:10:13.076482",
       "source": "teleclinic_import"
     },
     "11:50": {
@@ -1022,7 +1062,7 @@
       "wishes": "",
       "gender": "Männlich",
       "age": "23",
-      "timestamp": "2026-03-31T06:12:56.124423",
+      "timestamp": "2026-03-31T09:10:13.081586",
       "source": "teleclinic_import"
     },
     "11:55": {
@@ -1030,7 +1070,15 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "24",
-      "timestamp": "2026-03-31T06:12:56.127535",
+      "timestamp": "2026-03-31T09:10:13.086114",
+      "source": "teleclinic_import"
+    },
+    "11:59": {
+      "diagnosis": "Übelkeit",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "30",
+      "timestamp": "2026-03-31T09:10:13.092006",
       "source": "teleclinic_import"
     },
     "13:30": {
@@ -1038,7 +1086,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "28",
-      "timestamp": "2026-03-31T06:12:56.130740",
+      "timestamp": "2026-03-31T09:10:13.096809",
       "source": "teleclinic_import"
     },
     "13:35": {
@@ -1046,7 +1094,7 @@
       "wishes": "",
       "gender": "Weiblich",
       "age": "26",
-      "timestamp": "2026-03-31T06:12:56.133526",
+      "timestamp": "2026-03-31T09:10:13.105623",
       "source": "teleclinic_import"
     },
     "13:40": {
@@ -1054,7 +1102,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "30",
-      "timestamp": "2026-03-31T06:12:56.136291",
+      "timestamp": "2026-03-31T09:10:13.110638",
       "source": "teleclinic_import"
     },
     "13:45": {
@@ -1062,7 +1110,7 @@
       "wishes": "",
       "gender": "Männlich",
       "age": "24",
-      "timestamp": "2026-03-31T06:12:56.138985",
+      "timestamp": "2026-03-31T09:10:13.116547",
       "source": "teleclinic_import"
     },
     "13:50": {
@@ -1070,7 +1118,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "25",
-      "timestamp": "2026-03-31T06:12:56.142018",
+      "timestamp": "2026-03-31T09:10:13.122094",
       "source": "teleclinic_import"
     },
     "13:55": {
@@ -1078,7 +1126,7 @@
       "wishes": "",
       "gender": "Männlich",
       "age": "25",
-      "timestamp": "2026-03-31T06:12:56.145009",
+      "timestamp": "2026-03-31T09:10:13.126442",
       "source": "teleclinic_import"
     },
     "14:00": {
@@ -1086,7 +1134,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "26",
-      "timestamp": "2026-03-31T06:12:56.148406",
+      "timestamp": "2026-03-31T09:10:13.130355",
       "source": "teleclinic_import"
     },
     "14:05": {
@@ -1094,7 +1142,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "34",
-      "timestamp": "2026-03-31T06:12:56.151230",
+      "timestamp": "2026-03-31T09:10:13.134795",
       "source": "teleclinic_import"
     },
     "14:10": {
@@ -1102,7 +1150,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "22",
-      "timestamp": "2026-03-31T06:12:56.154039",
+      "timestamp": "2026-03-31T09:10:13.140256",
       "source": "teleclinic_import"
     },
     "14:15": {
@@ -1110,7 +1158,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.157435",
+      "timestamp": "2026-03-31T09:10:13.144960",
       "source": "teleclinic_import"
     },
     "14:20": {
@@ -1118,7 +1166,7 @@
       "wishes": "AU",
       "gender": "Weiblich",
       "age": "38",
-      "timestamp": "2026-03-31T06:12:56.160789",
+      "timestamp": "2026-03-31T09:10:13.150226",
       "source": "teleclinic_import"
     },
     "14:25": {
@@ -1126,7 +1174,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "20",
-      "timestamp": "2026-03-31T06:12:56.164983",
+      "timestamp": "2026-03-31T09:10:13.155309",
       "source": "teleclinic_import"
     },
     "14:30": {
@@ -1134,7 +1182,23 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "32",
-      "timestamp": "2026-03-31T06:12:56.167967",
+      "timestamp": "2026-03-31T09:10:13.160257",
+      "source": "teleclinic_import"
+    },
+    "14:35": {
+      "diagnosis": "Regelschmerzen",
+      "wishes": "AU",
+      "gender": "Divers",
+      "age": "25",
+      "timestamp": "2026-03-31T09:10:13.165051",
+      "source": "teleclinic_import"
+    },
+    "14:40": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "26",
+      "timestamp": "2026-03-31T09:10:13.169612",
       "source": "teleclinic_import"
     },
     "15:00": {
@@ -1142,7 +1206,7 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "19",
-      "timestamp": "2026-03-31T06:12:56.170943",
+      "timestamp": "2026-03-31T09:10:13.177054",
       "source": "teleclinic_import"
     },
     "15:05": {
@@ -1150,7 +1214,7 @@
       "wishes": "",
       "gender": "Weiblich",
       "age": "40",
-      "timestamp": "2026-03-31T06:12:56.174168",
+      "timestamp": "2026-03-31T09:10:13.182368",
       "source": "teleclinic_import"
     },
     "15:10": {
@@ -1158,7 +1222,47 @@
       "wishes": "AU",
       "gender": "Männlich",
       "age": "26",
-      "timestamp": "2026-03-31T06:12:56.177312",
+      "timestamp": "2026-03-31T09:10:13.187302",
+      "source": "teleclinic_import"
+    },
+    "15:15": {
+      "diagnosis": "Kopfschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "21",
+      "timestamp": "2026-03-31T09:10:13.192446",
+      "source": "teleclinic_import"
+    },
+    "15:20": {
+      "diagnosis": "Rücken- / Nackenschmerzen",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "19",
+      "timestamp": "2026-03-31T09:10:13.197718",
+      "source": "teleclinic_import"
+    },
+    "14:45": {
+      "diagnosis": "Au, Übelkeit",
+      "wishes": "AU, VIDEO",
+      "gender": "männlich",
+      "age": "19",
+      "timestamp": "2026-03-31T07:26:02.195961",
+      "source": "bot"
+    },
+    "14:50": {
+      "diagnosis": "Au, Bauchschmerzen",
+      "wishes": "AU, VIDEO",
+      "gender": "weiblich",
+      "age": "21",
+      "timestamp": "2026-03-31T07:28:25.953905",
+      "source": "bot"
+    },
+    "13:32": {
+      "diagnosis": "Durchfall",
+      "wishes": "AU",
+      "gender": "Männlich",
+      "age": "33",
+      "timestamp": "2026-03-31T09:10:13.101204",
       "source": "teleclinic_import"
     }
   }
