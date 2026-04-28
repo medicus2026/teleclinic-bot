@@ -781,12 +781,20 @@ async def handle_case(page, case_button, filters, overlap_time=None, case_elemen
         except Exception:
             pass
 
+        # SCHNELL-CHECK: Wenn Button deaktiviert (von anderem Arzt übernommen) → sofort überspringen
         try:
-            await case_button.click(timeout=5000)
+            if not await case_button.is_enabled():
+                await log_line(f"[SKIP] Button deaktiviert (Fall bereits von jemand anderem übernommen) — übersprungen.")
+                return False
+        except Exception:
+            pass
+
+        try:
+            await case_button.click(timeout=2000)
         except Exception as e1:
             await log_line(f"[WARN] Normaler Klick fehlgeschlagen, versuche force=True: {e1}")
             try:
-                await case_button.click(timeout=5000, force=True)
+                await case_button.click(timeout=2000, force=True)
             except Exception as e2:
                 await log_line(f"[WARN] Force-Klick fehlgeschlagen, versuche JS-Fallback: {e2}")
                 try:
