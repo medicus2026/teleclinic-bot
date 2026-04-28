@@ -481,12 +481,27 @@ async def check_case_matches_filters(case_element, filters):
     Returns: (bool, overlap_start_time) - (Passt zu Filtern?, Berechnete Startzeit oder None)
     """
     try:
-        # KORREKTUR: Parent-Element enthält die Diagnose-Überschrift!
-        parent = await case_element.evaluate_handle('el => el.parentElement')
-        case_text = await parent.evaluate('el => el.innerText')
+        # FIX: Gehe im DOM so weit hoch, bis der vollständige Kartentext gefunden wird.
+        # [data-testid='link-treatment-view'] ist nur der "Zum Fall"-Button — sein directes
+        # parentElement enthält oft nur die Buttons-Zeile, NICHT Diagnose/Sprache/Alter!
+        # → Traverse bis zu einem Node der "Uhr" enthält (= vollständige Karte) und > 80 Zeichen lang ist.
+        case_text = await case_element.evaluate('''el => {
+            let node = el;
+            for (let i = 0; i < 8; i++) {
+                if (!node.parentElement) break;
+                node = node.parentElement;
+                const text = (node.innerText || '').trim();
+                // Vollständige Karte enthält Uhrzeit ("Uhr") und hat genug Inhalt
+                if (text.includes('Uhr') && text.length > 80) {
+                    return text;
+                }
+            }
+            // Fallback: bester bisheriger Text
+            return (node.innerText || el.parentElement.innerText || '').trim();
+        }''')
         case_text_lower = normalize_text(case_text)
 
-        await log_line(f"[FILTER] Prüfe Fall: {case_text[:100]}...")
+        await log_line(f"[FILTER] Prüfe Fall: {case_text[:120]}...")
 
         # ZEIT-FILTER: Prüfe Überschneidung mit einem oder zwei Sprechstunden-Zeitfenstern
         overlap_start_time = None
