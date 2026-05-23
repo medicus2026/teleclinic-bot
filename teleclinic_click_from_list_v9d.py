@@ -1568,21 +1568,55 @@ async def click_loop(filters):
                     await log_line("[START] Laufendes Chrome gefunden – beende es für sauberen Start...")
                     _sp.run(["taskkill", "/F", "/IM", "chrome.exe", "/T"],
                             capture_output=True)
-                    _time.sleep(2)
+                    # Längere Wartezeit damit Chrome komplett beendet ist (vorher 2s → 5s)
+                    _time.sleep(5)
             except Exception as _e:
                 await log_line(f"[WARN] Chrome-Beenden fehlgeschlagen (ignoriert): {_e}")
 
-            context = await p.chromium.launch_persistent_context(
-                user_data_dir,
-                channel="chrome",
-                headless=False,
-                args=[
-                    "--lang=de",                                   # 24h-Format erzwingen
-                    "--disable-blink-features=AutomationControlled",
-                ],
-                locale="de-DE",
-            )
-            await log_line("[START] Chrome gestartet (Profil: chrome_profile).")
+            # Singleton-Lock-Dateien entfernen, die Chrome manchmal hinterlässt
+            import os as _os
+            for _lock_name in ["SingletonLock", "SingletonSocket", "SingletonCookie"]:
+                _lock_path = _os.path.join(user_data_dir, _lock_name)
+                try:
+                    if _os.path.exists(_lock_path):
+                        _os.remove(_lock_path)
+                        await log_line(f"[START] Lock-Datei entfernt: {_lock_name}")
+                except Exception as _le:
+                    await log_line(f"[WARN] Lock-Datei konnte nicht entfernt werden: {_lock_name} ({_le})")
+
+            # Playwright-Start mit Retry (bis zu 2 Versuche)
+            context = None
+            for _launch_attempt in range(2):
+                try:
+                    context = await p.chromium.launch_persistent_context(
+                        user_data_dir,
+                        channel="chrome",
+                        headless=False,
+                        args=[
+                            "--lang=de",                                   # 24h-Format erzwingen
+                            "--disable-blink-features=AutomationControlled",
+                        ],
+                        locale="de-DE",
+                    )
+                    await log_line("[START] Chrome gestartet (Profil: chrome_profile).")
+                    break
+                except Exception as _launch_err:
+                    if _launch_attempt == 0:
+                        await log_line(f"[WARN] Chrome-Start Versuch 1 fehlgeschlagen: {_launch_err}")
+                        await log_line("[START] Warte 5 Sekunden und versuche erneut...")
+                        # Nochmal alle Lock-Dateien bereinigen
+                        for _lock_name in ["SingletonLock", "SingletonSocket", "SingletonCookie"]:
+                            _lock_path = _os.path.join(user_data_dir, _lock_name)
+                            try:
+                                if _os.path.exists(_lock_path):
+                                    _os.remove(_lock_path)
+                            except Exception:
+                                pass
+                        _time.sleep(5)
+                    else:
+                        raise
+            if context is None:
+                raise RuntimeError("Chrome konnte nach 2 Versuchen nicht gestartet werden.")
 
             pages = list(context.pages)
             page = next(
