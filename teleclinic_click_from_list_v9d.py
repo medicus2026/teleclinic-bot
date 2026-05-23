@@ -487,17 +487,21 @@ async def check_case_matches_filters(case_element, filters):
         # → Traverse bis zu einem Node der "Uhr" enthält (= vollständige Karte) und > 80 Zeichen lang ist.
         case_text = await case_element.evaluate('''el => {
             let node = el;
-            for (let i = 0; i < 8; i++) {
+            let bestText = '';
+            for (let i = 0; i < 6; i++) {
                 if (!node.parentElement) break;
                 node = node.parentElement;
                 const text = (node.innerText || '').trim();
-                // Vollständige Karte enthält Uhrzeit ("Uhr") und hat genug Inhalt
-                if (text.includes('Uhr') && text.length > 80) {
-                    return text;
+                // Zu lang = mehrere Karten wurden erfasst -> stop
+                if (text.length > 700) break;
+                // Vollständige Karte: enthält Zeitformat HH:MM und hat genug Inhalt
+                if (/\\d{1,2}:\\d{2}/.test(text) && text.length > 50) {
+                    bestText = text;
                 }
             }
-            // Fallback: bester bisheriger Text
-            return (node.innerText || el.parentElement.innerText || '').trim();
+            if (bestText) return bestText;
+            // Fallback: direkt eine Ebene hoch (wie Backup-Version)
+            return (el.parentElement ? el.parentElement.innerText : el.innerText || '').trim();
         }''')
         case_text_lower = normalize_text(case_text)
 
@@ -587,17 +591,19 @@ async def check_case_matches_filters(case_element, filters):
                 await log_line(f"[FILTER] ❌ Diagnose nicht in Include-Liste (auch Synonyme geprüft)")
                 return (False, None)
 
-        # Wenn Exclude-Filter gesetzt: keiner darf vorkommen (mit Synonym-Match + Word Boundary)
+        # Wenn Exclude-Filter gesetzt: keiner darf vorkommen (mit Synonym-Match)
         if diag_exclude:
             for diag_term in diag_exclude:
                 synonyms = normalize_term(diag_term)
                 for syn in synonyms:
-                    # Kurze Synonyme (≤4 Zeichen): Word Boundary, lange: Substring reicht
                     if len(syn) <= 4:
-                        if word_boundary_match(case_text_lower, syn):
+                        # Kurze Synonyme (z.B. "haut"): Word Boundary UND Substring prüfen.
+                        # Word Boundary allein reicht nicht für Komposita wie "Hautkrankheiten".
+                        if word_boundary_match(case_text_lower, syn) or syn in case_text_lower:
                             await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste ({diag_term}→{syn})")
                             return (False, None)
                     else:
+                        # Lange Synonyme: Substring-Match genügt
                         if syn in case_text_lower:
                             await log_line(f"[FILTER] ❌ Diagnose in Exclude-Liste ({diag_term}→{syn})")
                             return (False, None)
@@ -1787,8 +1793,22 @@ async def click_loop(filters):
                 for page_num in range(1, max_pages + 1):
                     navigation_ok = await ensure_teleclinic_requests_page(page, tab_num, page_num=page_num)
                     if not navigation_ok:
-                        await log_line("[WARN] Seite konnte in diesem Durchlauf nicht geladen werden - neuer Versuch im nächsten Loop")
-                        break
+                        # FIX: Wenn Navigation zu requests fehlschlägt (z.B. nach Import-Redirect auf myappointments),
+                        # neue Seite öffnen und nochmal versuchen statt den ganzen Loop zu überspringen
+                        await log_line("[WARN] Navigation fehlgeschlagen – öffne neue Seite und versuche erneut...")
+                        try:
+                            new_page = await context.new_page()
+                            await asyncio.sleep(1)
+                            nav2 = await ensure_teleclinic_requests_page(new_page, tab_num, page_num=page_num)
+                            if nav2:
+                                page = new_page
+                                await log_line("[INFO] ✅ Neue Seite erfolgreich geöffnet – fahre fort.")
+                            else:
+                                await log_line("[WARN] Auch neue Seite fehlgeschlagen – warte auf nächsten Loop.")
+                                break
+                        except Exception as new_page_err:
+                            await log_line(f"[WARN] Neue Seite konnte nicht geöffnet werden: {new_page_err} – neuer Versuch im nächsten Loop")
+                            break
 
                     # NUR bei erster Seite: Validierung durchführen
                     if page_num == 1:
