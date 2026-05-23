@@ -1958,6 +1958,11 @@ async def click_loop(filters):
                                 slot2_accepted += 1
                             await log_line(f"[DONE] ✅ Fall {idx + 1} erfolgreich übernommen! Slot {matched_slot}")
                             await asyncio.sleep(2)
+                            # WICHTIG: Nach dem Klick rendert Teleclinic die Seite neu →
+                            # alle Karten-Indizes verschieben sich!
+                            # Deshalb sofort Seite neu scannen (break → page_num-Loop wiederholt).
+                            await log_line(f"[INFO] Seite wird nach Klick neu gescannt (Index-Reset).")
+                            break  # Verlasse for-Loop → Seite wird oben neu geladen
 
                     # Weiter zur nächsten Seite — per URL (zuverlässiger als Button-Suche).
                     # Wenn die aktuelle Seite 0 Anfragen hatte, gibt es keine weiteren Seiten.
