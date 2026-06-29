@@ -121,6 +121,8 @@ class TeleClinicBotGUI:
         self.load_filters()
         # Beim Start sofort vorhandene Bestandstermine im Kalender anzeigen
         self.root.after(500, self._load_existing_from_teleclinic)
+        # Periodischer Kalender-Refresh alle 5 Sekunden (auch wenn Bot nicht läuft)
+        self.root.after(5000, self._periodic_calendar_refresh)
 
     def setup_ui(self):
         """Erstelle die GUI"""
@@ -397,6 +399,13 @@ class TeleClinicBotGUI:
         self.reimport_btn = ttk.Button(button_frame, text="🔄 Termine neu laden",
                   command=self.manual_reimport)
         self.reimport_btn.pack(side="left", padx=5)
+
+        self.reset_slots_btn = ttk.Button(
+            button_frame,
+            text="🧹 Slots zurücksetzen",
+            command=self.manual_reset_target_day_slots
+        )
+        self.reset_slots_btn.pack(side="left", padx=5)
 
         ttk.Button(button_frame, text="❌ Programm beenden",
                   command=self.exit_app).pack(side="right", padx=5)
@@ -690,14 +699,41 @@ class TeleClinicBotGUI:
         except Exception as e:
             self.log(f"⚠️ Re-Import-Signal konnte nicht gesetzt werden: {e}")
 
+    def manual_reset_target_day_slots(self):
+        """Setzt den Slotspeicher nur für den aktuell gewählten Zieltag zurück."""
+        try:
+            from datetime import datetime, timedelta
+            from core_scheduler import reset_slots_for_date
+
+            day_window = self.day_window.get() if hasattr(self, 'day_window') else "heute"
+            if day_window == "morgen":
+                target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+            elif day_window == "später":
+                target_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+            else:
+                target_date = datetime.now().strftime("%Y-%m-%d")
+
+            confirmed = messagebox.askyesno(
+                "Slots zurücksetzen",
+                f"Sollen die belegten Slots für '{day_window}' ({target_date}) wirklich zurückgesetzt werden?"
+            )
+            if not confirmed:
+                self.log("ℹ️ Reset abgebrochen.")
+                return
+
+            reset_slots_for_date(target_date)
+            self.log(f"🧹 Slots für {day_window} ({target_date}) wurden zurückgesetzt.")
+            if not self.is_running:
+                self._update_calendar_from_json()
+        except Exception as e:
+            self.log(f"⚠️ Slots konnten nicht zurückgesetzt werden: {e}")
+
 
     def start_bot(self):
         """Starte Scanner & Clicker"""
         self.save_filters()
-        # KEIN Reset hier — der Clicker macht Reset + Import intern in der richtigen Reihenfolge:
-        # 1) Reset  2) Import aus Teleclinic  3) Scan/Klick
-        # Würden wir hier löschen, wären die bereits angezeigten Bestandstermine weg
-        # bevor der Clicker sie neu laden kann.
+        # KEIN automatischer Reset hier.
+        # Ein Reset erfolgt nur manuell über den Button "🧹 Slots zurücksetzen".
 
         # Zeige Filter-Übersicht
         self.log("=" * 80)
@@ -777,14 +813,19 @@ class TeleClinicBotGUI:
                     encoding="utf-8",
                     errors="replace",
                 )
+                proc = self.bot_process
 
                 # Ausgabe des Subprozesses live in GUI-Log streamen
-                for line in self.bot_process.stdout:
-                    line = line.rstrip()
-                    if line:
-                        self.log(line)
+                if proc.stdout is not None:
+                    for line in proc.stdout:
+                        line = line.rstrip()
+                        if line:
+                            self.log(line)
 
-                return_code = self.bot_process.wait()
+                if proc.poll() is None:
+                    return_code = proc.wait()
+                else:
+                    return_code = proc.returncode
             self.log(f"✅ Bot beendet (Exit-Code: {return_code})")
         except Exception as e:
             self.log(f"❌ Fehler beim Starten des Bots: {e}")
@@ -837,15 +878,15 @@ class TeleClinicBotGUI:
                                 show_line = True
                                 formatted_line = f"[{terminated_count}] ✅ {line}"
 
-                                # Sofortige Terminkalender-Aktualisierung
-                                self._update_calendar_from_json()
+                                # Sofortige Terminkalender-Aktualisierung (thread-safe)
+                                self.root.after(0, self._update_calendar_from_json)
                                 last_calendar_update = time.time()
 
                             # 2b. Import oder neuer Patient → Kalender aktualisieren
                             elif ("[PATIENT] GUI-Kalender-Update nach Import" in line or
                                   "[IMPORT] 📋" in line or
                                   "[PATIENT] ✅" in line):
-                                self._update_calendar_from_json()
+                                self.root.after(0, self._update_calendar_from_json)
                                 last_calendar_update = time.time()
 
                             # 3. Wichtige Fehler
@@ -864,10 +905,10 @@ class TeleClinicBotGUI:
                                 self.log_text.see("end")
                                 self.log_text.config(state="disabled")
 
-                # Regelmäßige Terminkalender-Aktualisierung
+                # Regelmäßige Terminkalender-Aktualisierung (thread-safe via root.after)
                 current_time = time.time()
                 if current_time - last_calendar_update >= 2.0:
-                    self._update_calendar_from_json()
+                    self.root.after(0, self._update_calendar_from_json)
                     last_calendar_update = current_time
 
                 time.sleep(0.5)
@@ -958,6 +999,17 @@ class TeleClinicBotGUI:
             print(f"[ERROR] Fehler beim Aktualisieren des Kalenders: {e}")
             import traceback
             traceback.print_exc()
+
+    def _periodic_calendar_refresh(self):
+        """
+        Wird alle 5 Sekunden vom Tkinter-Hauptthread aufgerufen.
+        Aktualisiert den Terminkalender auch wenn der Bot-Thread nicht läuft.
+        """
+        try:
+            self._update_calendar_from_json()
+        except Exception:
+            pass
+        self.root.after(5000, self._periodic_calendar_refresh)
 
     def update_calendar_from_json(self):
         """

@@ -292,8 +292,10 @@ async def run_import_once(log_callback=None, timeout_seconds: int = 60) -> dict:
                 date_heute = datetime.now().strftime("%Y-%m-%d")
                 date_morgen = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
                 reset_patients_for_date(date_heute, keep_imported=False)
-                reset_patients_for_date(date_morgen, keep_imported=False)
-                log("📥 [IMPORT] Alte Import-/Kalenderdaten für heute und morgen geleert")
+                # Morgen-Einträge nur sanft zurücksetzen: bot-bestätigte Termine bleiben erhalten,
+                # damit ein laufender Bot keine bereits gebuchten Morgen-Slots verliert.
+                reset_patients_for_date(date_morgen, keep_imported=True)
+                log("📥 [IMPORT] Alte Import-/Kalenderdaten für heute geleert, Morgen-Bot-Termine behalten")
             except Exception as e:
                 log(f"⚠️ [IMPORT] Konnte alte Kalenderdaten nicht leeren: {e}")
 

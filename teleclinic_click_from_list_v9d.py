@@ -27,7 +27,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
 # Scheduler-Modul
-from core_scheduler import next_available_slot, confirm_slot, validate_max_patients, reset_slots_for_date, load_slots, save_slots
+from core_scheduler import next_available_slot, confirm_slot, validate_max_patients, load_slots, save_slots
 
 ROOT = Path(__file__).resolve().parent
 FILTER_PATH = ROOT / "filters.json"
@@ -1259,26 +1259,59 @@ def build_slot_filters(slot_data: dict, day_window: str, slot_num: int) -> dict:
 async def check_and_update_day_window(filters, last_midnight_check=None):
     """
     Prüft ob Mitternacht überschritten wurde und aktualisiert day_window Filter.
+
+    Logik:
+    - Beim allerersten Aufruf wird NUR der Zeitstempel gemerkt (kein Wechsel).
+    - Danach wird bei jedem Aufruf das KALENDERDATUM mit dem zuletzt gespeicherten
+      Datum verglichen. Sobald das Datum gewechselt hat (= Mitternacht wurde
+      überschritten), wird der day_window-Filter automatisch verschoben:
+          morgen  → heute
+          später  → morgen
+          heute   → bleibt heute (kein Wechsel)
+    - Throttle (30 s) verhindert unnötige Aufrufe in jeder Scan-Schleife.
+
     Returns: (updated_filters, last_midnight_check_time)
     """
     now = datetime.now()
 
-    if last_midnight_check:
-        time_since_check = (now - last_midnight_check).total_seconds()
-        if time_since_check < 30:
-            return (filters, last_midnight_check)
+    # 1. Erster Aufruf nach Start: nur Referenz-Zeitstempel setzen, KEIN Wechsel.
+    if last_midnight_check is None:
+        return (filters, now)
 
-    current_time = now.time()
-    if current_time.hour < 4 and last_midnight_check is None:
+    # 2. Throttle: maximal alle 30 Sekunden tatsächlich prüfen
+    time_since_check = (now - last_midnight_check).total_seconds()
+    if time_since_check < 30:
+        return (filters, last_midnight_check)
+
+    # 3. Kalender-Datum vergleichen → Mitternacht überschritten?
+    if now.date() != last_midnight_check.date():
         old_day_window = filters.get("time_filter", {}).get("day_window", "heute")
+        new_day_window = old_day_window
         if old_day_window == "morgen":
             new_day_window = "heute"
-            await log_line(f"[MIDNIGHT] 🌙 Mitternacht überschritten! Wechsle Filter: {old_day_window} → {new_day_window}")
-            filters["time_filter"]["day_window"] = new_day_window
         elif old_day_window == "später":
             new_day_window = "morgen"
-            await log_line(f"[MIDNIGHT] 🌙 Mitternacht überschritten! Wechsle Filter: {old_day_window} → {new_day_window}")
-            filters["time_filter"]["day_window"] = new_day_window
+
+        if new_day_window != old_day_window:
+            await log_line(
+                f"[MIDNIGHT] 🌙 Mitternacht überschritten "
+                f"({last_midnight_check.strftime('%Y-%m-%d %H:%M:%S')} → "
+                f"{now.strftime('%Y-%m-%d %H:%M:%S')}) – "
+                f"Wechsle Filter: {old_day_window} → {new_day_window}"
+            )
+            filters.setdefault("time_filter", {})["day_window"] = new_day_window
+
+            # Falls in slot1 / slot2 zusätzlich ein eigenes day_window hinterlegt
+            # sein sollte (zukünftige Erweiterung), dieses sicherheitshalber mitziehen.
+            for slot_key in ("slot1", "slot2"):
+                slot = filters.get(slot_key)
+                if isinstance(slot, dict) and slot.get("day_window") == old_day_window:
+                    slot["day_window"] = new_day_window
+        else:
+            await log_line(
+                f"[MIDNIGHT] 🌙 Mitternacht überschritten – Filter '{old_day_window}' "
+                f"bleibt unverändert."
+            )
 
     return (filters, now)
 
@@ -1686,12 +1719,9 @@ async def click_loop(filters):
             await log_line(f"[INFO] 🌙 Overnight-Scanning aktiviert: Bei Mitternacht wird Filter automatisch aktualisiert")
 
             # ── IMPORT: Bestehende Termine IMMER frisch aus Teleclinic laden ──
-            # Wichtig: Immer resetten + neu importieren, damit keine veralteten
-            # Slots aus dem letzten Lauf den Scheduler blockieren.
+            # Wichtig: Neu importieren, ohne bereits bestätigte Slots zu löschen.
             target_date = get_target_date_from_filters(filters)
             await log_line(f"[IMPORT] 🔄 Starte frischen Import für {target_date}...")
-
-            reset_slots_for_date(target_date)
             try:
                 from scheduled_patients import reset_patients_for_date as _reset_patients
                 _reset_patients(target_date, keep_imported=False)
@@ -1762,6 +1792,13 @@ async def click_loop(filters):
                 day_window = filters.get("time_filter", {}).get("day_window", "heute")
                 tab_num = get_tab_number(day_window)
 
+                # Wichtig für Overnight-Scanning:
+                # Nach Mitternacht kann day_window automatisch wechseln (morgen -> heute).
+                # Slot-Filter müssen daher pro Loop mit dem aktuellen day_window neu gebaut werden,
+                # sonst würden Termin-Speicherung/Scheduler auf das falsche Datum laufen.
+                slot1_filters = build_slot_filters(slot1_data, day_window, 1)
+                slot2_filters = build_slot_filters(slot2_data, day_window, 2) if slot2_data else None
+
                 # 📋 RE-IMPORT: Alle 20 Loops ODER bei manuellem Signal aus GUI
                 # Nur scheduled_slots.json resetten + neu befüllen
                 # scheduled_patients.json NICHT anfassen — verhindert kurzes Verschwinden im GUI
@@ -1775,7 +1812,6 @@ async def click_loop(filters):
                 if loop_counter % 20 == 0 or manual_reimport_requested:
                     try:
                         _reimport_date = get_target_date_from_filters(filters)
-                        reset_slots_for_date(_reimport_date)
                         reimport_count = await import_existing_appointments(page, filters)
                         if reimport_count > 0:
                             await log_line(f"[IMPORT-LOOP] 📋 {reimport_count} Slots aktualisiert (Re-Import #{loop_counter})")
